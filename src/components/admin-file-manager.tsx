@@ -105,7 +105,7 @@ export default function AdminFileManager({id,status,session,onStatusChanged,mode
    finally{setBusy(false);}
  }
  const hasStudentFile=files.some(f=>f.role==='student'&&f.upload_status==='verified');
- const canPublish=!!config?.storageConfigured&&!!config?.publicationConfigured&&hasStudentFile&&status==='draft'&&reviewConfirmed;
+ const canPublish=!!config?.storageConfigured&&!!config?.publicationConfigured&&hasStudentFile&&['draft','review'].includes(status)&&reviewConfirmed;
  return <div className="worksheet-editor-panel admin-file-manager">
   <h2><UploadCloud size={22}/> {mode==='upload'?'Upload files':'Review attached files'}</h2>
   <p className="admin-files-note">Upload or review PDF, DOCX, PPTX, PNG, JPG and WebP files. No PDF is required. All files remain private until published.</p>
@@ -144,10 +144,10 @@ export default function AdminFileManager({id,status,session,onStatusChanged,mode
   {mode==='review'&&<div className="publication-box">
    <strong>Ready to publish?</strong>
    <p>Publishing requires one verified student file, a completed title and short description, private storage access, and your approval.</p>
-   {status==='draft'&&<label className="check-field"><input type="checkbox" checked={reviewConfirmed} onChange={e=>setReviewConfirmed(e.target.checked)}/> I checked the metadata and opened or downloaded the files for review.</label>}
+   {['draft','review'].includes(status)&&<label className="check-field"><input type="checkbox" checked={reviewConfirmed} onChange={e=>setReviewConfirmed(e.target.checked)}/> I checked the metadata and opened or downloaded the files for review.</label>}
    {status==='published'?<button type="button" className="button button-outline" disabled={busy} onClick={()=>changePublication('unpublish')}><Archive size={16}/> Unpublish</button>:
     <button type="button" className="button button-dark" disabled={!canPublish||busy} onClick={()=>changePublication('publish')}><ExternalLink size={16}/> Publish worksheet</button>}
-   {!hasStudentFile&&status==='draft'&&<small>Upload any supported student file (PDF not required), then return to review.</small>}
+   {!hasStudentFile&&['draft','review'].includes(status)&&<small>Upload any supported student file (PDF not required), then return to review.</small>}
   </div>}
   <button type="button" className="private-refresh" disabled={busy} onClick={()=>refresh().catch(e=>setError(String(e)))}><RefreshCw size={15}/> Refresh file list</button>
  </div>;
