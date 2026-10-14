@@ -27,10 +27,8 @@ function pdfLesson(item:Lesson):Buffer{
   pdf.line(110,y+2,185,y+2);
   y+=13;
  });
- pdf.addPage();
- pdf.setFont('helvetica','bold');pdf.setFontSize(19);pdf.text('Teacher answer key',18,28);
- pdf.setFont('helvetica','normal');pdf.setFontSize(12);
- item.answers.forEach((answer,index)=>pdf.text((index+1)+'.  '+answer,20,45+index*14));
+ // The student PDF must never contain the answers.
+ // Teacher keys are stored separately under the admin-only 'answer' role.
  return Buffer.from(pdf.output('arraybuffer'));
 }
 async function docxLesson(item:Lesson):Promise<Buffer>{
@@ -130,6 +128,30 @@ export async function runOriginalAgent(day:string){
       uploaded_by:owner.user_id
     });
     if(regError)throw new Error('Database file registration failed');
+   }
+   const {data:answerExists}=await db.from('worksheet_files').select('id')
+      .eq('worksheet_id',id).eq('role','answer').eq('variant','pdf').eq('upload_status','verified').limit(1);
+   if(!answerExists?.length){
+     const teacher=new jsPDF({unit:'mm',format:'a4'});
+     teacher.setFont('helvetica','bold');teacher.setFontSize(18);
+     teacher.text('Teacher answer key: '+worksheet.title,17,24,{maxWidth:180});
+     teacher.setFont('helvetica','normal');teacher.setFontSize(12);
+     worksheet.answers.forEach((answer,index)=>teacher.text((index+1)+'. '+answer,19,52+index*14));
+     const keyBytes=Buffer.from(teacher.output('arraybuffer'));
+     const keySha=createHash('sha256').update(keyBytes).digest('hex');
+     const answerKey='original-agent/'+day+'/'+id+'/'+randomUUID()+'-teacher.pdf';
+     await client.send(new PutObjectCommand({Bucket:bucket,Key:answerKey,Body:keyBytes,ContentType:'application/pdf',Metadata:{sha256:keySha}}));
+     const confirm=await client.send(new GetObjectCommand({Bucket:bucket,Key:answerKey}));
+     const received=confirm.Body?Buffer.from(await confirm.Body.transformToByteArray()):Buffer.alloc(0);
+     if(createHash('sha256').update(received).digest('hex')!==keySha)throw new Error('Teacher key SHA-256 verification failed');
+     const {error:keyError}=await db.from('worksheet_files').insert({
+       worksheet_id:id,role:'answer',variant:'pdf',original_name:worksheet.slug+'-teacher.pdf',
+       mime_type:'application/pdf',size_bytes:keyBytes.length,sha256:keySha,
+       r2_bucket:bucket,object_key:answerKey,is_primary:false,upload_status:'verified',
+       checksum_verified_at:new Date().toISOString(),license_basis:'original',
+       license_note:'Original answer key generated from validated template',uploaded_by:owner.user_id
+     });
+     if(keyError)throw new Error('Teacher answer key registration failed');
    }
    const {data:files}=await db.from('worksheet_files').select('variant')
      .eq('worksheet_id',id).eq('role','student').eq('upload_status','verified');
