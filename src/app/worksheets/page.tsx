@@ -1,13 +1,17 @@
 import type {Metadata} from 'next';
 import Link from 'next/link';
 import WorksheetCard from '@/components/worksheet-card';
+import PublishedWorksheetCard from '@/components/published-worksheet-card';
+import {publishedWorksheets} from '@/lib/public-catalog';
 import {samples,subjects,grades,formats} from '@/lib/catalog';
 import {ArrowRight,FileText} from 'lucide-react';
 
+export const dynamic='force-dynamic';
 export const metadata:Metadata={title:'Worksheet Library',description:'Browse worksheet topics by subject, school grade and document format.'};
 type Filters={subject?:string;grade?:string;format?:string};
 export default async function Worksheets({searchParams}:{searchParams:Promise<Filters>}){
  const filters=await searchParams;
+ const live=await publishedWorksheets();
  const subject=subjects.find(s=>s.slug===filters.subject)?.slug||'';
  const grade=grades.find(g=>g.slug===filters.grade)?.slug||'';
  const format=formats.find(f=>f.slug===filters.format)?.slug||'';
@@ -25,6 +29,10 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
   (!grade||item.grade==='Grade '+grade.split('-')[1]) &&
   !format
  );
+ const matchingLive=live.filter(item=>
+  (!subject||item.categorySlug===subject) &&
+  (!grade||item.gradeSlug===grade) &&
+  (!format||item.availableFormats.includes(format as 'pdf'|'docx'|'pptx')));
  const chosenFormat=formats.find(f=>f.slug===format);
  return <div className="container inner-page">
   <div className="section-kicker">THE WORKSHEET LIBRARY</div><h1>Find a little <em>inspiration.</em></h1>
@@ -43,9 +51,10 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
       {formats.map(f=><Link href={href({format:f.slug})} key={f.slug} className={'filter-pill '+(format===f.slug?'active':'')}>{f.title}</Link>)}
     </div></div>
   </div>
-  {chosenFormat?<div className="category-pending"><FileText size={36}/><h3>{chosenFormat.title} worksheets are coming soon</h3><p>There are no verified, published {chosenFormat.extension.toUpperCase()} files available yet. The {chosenFormat.title} filter will display them when our secure publishing workflow is ready.</p><Link href="/create">Create a printable PDF now <ArrowRight size={16}/></Link></div>:
-  visibleSamples.length?<div className="worksheet-grid">{visibleSamples.map(w=><WorksheetCard item={w} key={w.slug}/>)}</div>:
-  <div className="category-pending"><h3>No sample worksheets for these filters</h3><p>We're preparing original and licensed worksheets for all eight subjects and Grades 1–6.</p><Link href="/create">Make your own printable <ArrowRight size={16}/></Link></div>}
+  {matchingLive.length>0?<div className="worksheet-grid">{matchingLive.map(item=><PublishedWorksheetCard item={item} key={item.id}/>)}</div>:
+ chosenFormat?<div className="category-pending"><FileText size={36}/><h3>No published {chosenFormat.title} worksheets yet</h3><p>There are no verified {chosenFormat.extension.toUpperCase()} files for these filters. They appear automatically after uploading and publishing.</p><Link href="/create">Create a printable PDF now <ArrowRight size={16}/></Link></div>:
+ visibleSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div><div className="worksheet-grid">{visibleSamples.map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></>:
+ <div className="category-pending"><h3>No worksheets for these filters yet</h3><p>We're preparing original and licensed worksheets for all eight subjects and Grades 1–6.</p><Link href="/create">Make your own printable <ArrowRight size={16}/></Link></div>}
   <p className="sample-disclaimer">Catalog previews are examples only. They do not represent uploaded or publicly downloadable files.</p>
   <div className="bottom-prompt">Need a custom activity? <Link href="/create">Open the free worksheet maker <ArrowRight size={17}/></Link></div>
  </div>;
