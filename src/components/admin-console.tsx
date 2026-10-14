@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import {
   BookOpen, LayoutDashboard, LogOut, LockKeyhole, ShieldCheck, FileText,
-  Plus, Clock3, AlertCircle, CheckCircle2, ArrowRight, RefreshCcw
+  Plus, Clock3, AlertCircle, CheckCircle2, ArrowRight, RefreshCcw, Pencil, Search
 } from 'lucide-react';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 
@@ -36,6 +36,8 @@ export default function AdminConsole() {
   const [notice, setNotice] = useState<Alert>({});
   const [authBusy, setAuthBusy] = useState(false);
   const [rows, setRows] = useState<WorksheetRow[]>([]);
+  const [rowQuery, setRowQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [categories, setCategories] = useState<Option[]>([]);
   const [grades, setGrades] = useState<Option[]>([]);
   const [loadingRows, setLoadingRows] = useState(false);
@@ -161,6 +163,8 @@ export default function AdminConsole() {
     <button className="button button-outline" onClick={()=>supabaseBrowser.auth.signOut()}>Sign out</button>
   </div>;
 
+  const visibleRows = rows.filter(row => (statusFilter === 'all' || row.status === statusFilter) &&
+    (row.title + ' ' + row.slug).toLowerCase().includes(rowQuery.toLowerCase()));
   const published = rows.filter(row=>row.status==='published').length;
   const drafts = rows.filter(row=>row.status==='draft').length;
   return <div className="admin-area"><div className="container">
@@ -177,11 +181,12 @@ export default function AdminConsole() {
     {notice.info&&<p role="status" className="admin-alert good"><CheckCircle2 size={17}/>{notice.info}</p>}
     <div className="admin-content">
       <section className="admin-list">
-        <div className="admin-panel-heading"><div><h2>Worksheet drafts</h2><p>Real records from your Supabase project</p></div><button type="button" className="admin-icon-button" onClick={()=>loadRows(session)} disabled={loadingRows} aria-label="Refresh worksheets"><RefreshCcw size={18}/></button></div>
+        <div className="admin-panel-heading"><div><h2>Worksheet manager</h2><p>Edit, duplicate and archive worksheet records</p></div><button type="button" className="admin-icon-button" onClick={()=>loadRows(session)} disabled={loadingRows} aria-label="Refresh worksheets"><RefreshCcw size={18}/></button></div>
+        <div className="admin-filters"><label className="admin-search"><Search size={16}/><input type="search" aria-label="Search worksheet records" value={rowQuery} onChange={e=>setRowQuery(e.target.value)} placeholder="Search by title…"/></label><select aria-label="Filter worksheet status" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="draft">Draft</option><option value="archived">Archived</option><option value="published">Published</option></select></div>
         {loadingRows?<p className="admin-empty">Loading worksheet records…</p>:rows.length===0?<div className="admin-empty"><FileText size={34}/><strong>No worksheets yet</strong><p>Create your first draft using the form on the right.</p></div>:
-          <div className="admin-rows">{rows.map(row=><div key={row.id} className="admin-row">
+          <div className="admin-rows">{visibleRows.length === 0 ? <p className="admin-empty">No worksheets match your filters.</p> : visibleRows.map(row=><div key={row.id} className="admin-row">
             <div><strong>{row.title}</strong><small>{row.slug} · {new Date(row.created_at).toLocaleDateString()}</small></div>
-            <span className={'admin-status '+row.status}>{row.status}</span>
+            <div className="admin-row-actions"><span className={'admin-status '+row.status}>{row.status}</span><a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Edit</a></div>
           </div>)}</div>}
       </section>
       <section className="admin-new-draft"><div className="admin-panel-heading"><div><h2><Plus size={19}/> Create worksheet draft</h2><p>Add private metadata before uploading files later</p></div></div>
