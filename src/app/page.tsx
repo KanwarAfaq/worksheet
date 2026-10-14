@@ -2,8 +2,10 @@
 import Link from 'next/link';
 import {ArrowRight,ArrowUpRight,BookOpen,Calculator,Palette,Search,Shuffle,SpellCheck,FileText,Star,Check} from 'lucide-react';
 import WorksheetCard from '@/components/worksheet-card';
-import {samples} from '@/lib/catalog';
+import FormatHero from '@/components/format-hero';
+import {samples,subjects} from '@/lib/catalog';
 export default function Home(){return <>
+<FormatHero/>
 <section className="hero"><div className="container hero-grid">
   <div className="hero-copy"><div className="eyebrow"><span className="sparkle">✳</span> PRINTABLE LEARNING, MADE SIMPLE</div>
     <h1>Big ideas start with <em>little worksheets.</em></h1>
@@ -19,11 +21,14 @@ export default function Home(){return <>
   </div>
 </div></section>
 <section className="category-section section"><div className="container">
-  <div className="section-heading"><div><div className="section-kicker">BROWSE BY SUBJECT</div><h2>Something fun for <em>every learner.</em></h2></div><p>From first letters to big number adventures, find just-right activities for every little milestone.</p></div>
-  <div className="category-grid">
-    <Link href="/english" className="category-card category-peach"><span className="category-icon"><BookOpen size={30}/></span><span className="category-number">01 / 03</span><h3>English</h3><p>Letters, spelling, reading & words</p><span className="category-link">Explore English <ArrowUpRight size={17}/></span></Link>
-    <Link href="/math" className="category-card category-blue"><span className="category-icon"><Calculator size={30}/></span><span className="category-number">02 / 03</span><h3>Mathematics</h3><p>Counting, addition, patterns & more</p><span className="category-link">Explore Math <ArrowUpRight size={17}/></span></Link>
-    <Link href="/coloring" className="category-card category-mint"><span className="category-icon"><Palette size={30}/></span><span className="category-number">03 / 03</span><h3>Coloring</h3><p>Creative pages for little artists</p><span className="category-link">Explore Coloring <ArrowUpRight size={17}/></span></Link>
+  <div className="section-heading"><div><div className="section-kicker">BROWSE BY SUBJECT</div><h2>Something fun for <em>every learner.</em></h2></div><p>Eight subjects, with clear Grade 1–6 paths to help you discover just-right practice.</p></div>
+  <div className="category-grid subjects-eight-grid">
+    {subjects.map((sub,i)=><Link href={'/'+sub.slug} key={sub.slug} className={'category-card category-'+sub.tint}>
+      <span className="category-icon"><BookOpen size={29}/></span>
+      <span className="category-number">{String(i+1).padStart(2,'0')} / 08</span>
+      <h3>{sub.title}</h3><p>{sub.description}</p>
+      <span className="category-link">Explore {sub.title}<ArrowUpRight size={17}/></span>
+    </Link>)}
   </div>
 </div></section>
 <section className="section maker-section"><div className="container maker-grid"><div className="maker-intro"><div className="section-kicker">YOUR IDEAS, YOUR WORKSHEETS</div><h2>Let's make some <em>learning magic.</em></h2><p>Choose an activity, add your own words and turn them into printable practice in seconds. No account, no fuss.</p><Link href="/create" className="button button-dark">Try worksheet maker <ArrowRight size={17}/></Link></div>
