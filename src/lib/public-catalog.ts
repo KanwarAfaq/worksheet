@@ -5,7 +5,7 @@ import {SUPABASE_PUBLISHABLE_KEY,SUPABASE_URL} from '@/lib/supabase-public';
 export type PublicWorksheet={
  id:string;slug:string;title:string;summary:string|null;description:string|null;
  categorySlug:string;categoryName:string;gradeSlug:string|null;gradeName:string|null;
- availableFormats:Array<'pdf'|'docx'|'pptx'>;
+ availableFormats:Array<'pdf'|'docx'|'pptx'|'png'|'jpg'|'webp'>;
 };
 type Cat={slug:string;name:string};
 type Grade={slug:string;display_name:string};
@@ -27,7 +27,7 @@ export async function publishedWorksheets():Promise<PublicWorksheet[]> {
     return{id:row.id,slug:row.slug,title:row.title,summary:row.summary,description:row.description,
       categorySlug:c?.slug||'other',categoryName:c?.name||'Worksheet',
       gradeSlug:g?.slug||null,gradeName:g?.display_name||null,
-      availableFormats:(row.available_formats||[]).filter(x=>['pdf','docx','pptx'].includes(x)) as Array<'pdf'|'docx'|'pptx'>};
+      availableFormats:(row.available_formats||[]).filter(x=>['pdf','docx','pptx','png','jpg','webp'].includes(x)) as Array<'pdf'|'docx'|'pptx'|'png'|'jpg'|'webp'>};
   });
  }catch{return [];}
 }

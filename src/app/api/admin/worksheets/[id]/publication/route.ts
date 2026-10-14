@@ -14,8 +14,8 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
     return NextResponse.json({error:'Invalid publication action.'},{status:400});
   if(action==='publish'&&(!r2Configured()||!process.env.SUPABASE_SERVICE_ROLE_KEY))
     return NextResponse.json({error:'Set private R2 credentials and SUPABASE_SERVICE_ROLE_KEY in Vercel before publishing.'},{status:503});
-  // Definer RPC double-checks the owner, protected draft state, and verified licensed student PDF.
+  // Definer RPC double-checks ownership, completed metadata, draft state and any verified student file.
   const {error}=await a.db.rpc(action==='publish'?'publish_verified_worksheet':'unpublish_worksheet',{p_worksheet_id:id});
-  if(error)return NextResponse.json({error:'Action refused. Verify owner role, worksheet status and student PDF.'},{status:409});
+  if(error)return NextResponse.json({error:'Action refused. Verify your metadata (title and summary), one student file, owner role and worksheet status.'},{status:409});
   return NextResponse.json({status:action==='publish'?'published':'draft'},{headers:{'Cache-Control':'private, no-store'}});
 }

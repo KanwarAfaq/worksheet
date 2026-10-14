@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {ArrowUpRight,BookOpen,Download} from 'lucide-react';
 import type {PublicWorksheet} from '@/lib/public-catalog';
-const labels:Record<string,string>={pdf:'PDF',docx:'Word',pptx:'PPT'};
+const labels:Record<string,string>={pdf:'PDF',docx:'Word',pptx:'PPT',png:'PNG',jpg:'JPG',webp:'WebP'};
 export default function PublishedWorksheetCard({item}:{item:PublicWorksheet}){
  return <article className="published-worksheet-card">
   <Link className="published-worksheet-art" href={'/worksheets/'+item.slug} aria-label={'View '+item.title}>

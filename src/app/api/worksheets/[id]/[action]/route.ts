@@ -4,14 +4,19 @@ import {deliverPrivateFile} from '@/lib/file-response';
 import {r2Configured} from '@/lib/r2-server';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const allowed=['pdf','docx','pptx'];
+const allowed=['pdf','docx','pptx','png','jpg','webp'];
 export async function GET(request:Request,{params}:{params:Promise<{id:string;action:string}>}){
  const {id,action}=await params;
  if(!uuid.test(id)||!['download','preview','print','answer-key'].includes(action))
    return new Response('Not found',{status:404});
  if(!process.env.SUPABASE_SERVICE_ROLE_KEY||!r2Configured())
    return new Response('Private file delivery is being configured',{status:503});
- const requestedFormat=action==='download'?new URL(request.url).searchParams.get('format')||'pdf':'pdf';
+ const url=new URL(request.url);
+ const requestedFormat=action==='download'
+   ? url.searchParams.get('format')||'pdf'
+   : action==='preview'||action==='print'
+   ? url.searchParams.get('format')||'pdf'
+   : url.searchParams.get('format')||'pdf';
  if(!allowed.includes(requestedFormat))return new Response('Not found',{status:404});
  const db=createClient(SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{
    auth:{persistSession:false,autoRefreshToken:false}

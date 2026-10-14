@@ -50,14 +50,13 @@ export async function POST(request:Request,{params}:Context){
     || form.get('rights_confirmed')!=='yes'||note.length>600)
     return reply({error:'Choose a student/answer file and confirm original authorship or license.'},400);
   if(file.size>MAX_UPLOAD_BYTES || file.size<64)
-    return reply({error:'Choose a PDF, DOCX or PPTX smaller than 3 MB.'},413);
+    return reply({error:'Choose a PDF, Word, PowerPoint or image file smaller than 3 MB.'},413);
 
   const input=Buffer.from(await file.arrayBuffer());
   let verified:ReturnType<typeof checkWorksheetFile>;
   try{verified=checkWorksheetFile(file.name,input);}
   catch(e){return reply({error:e instanceof Error?e.message:'Invalid file type.'},400);}
-  if(role==='answer'&&verified.type!=='pdf')
-    return reply({error:'Teacher answer key uploads must be PDF.'},400);
+  
   const {data:duplicate,error:dupError}=await a.db.from('worksheet_files')
     .select('id,worksheet_id').eq('sha256',verified.sha256)
     .eq('size_bytes',input.length).eq('upload_status','verified').limit(1);
