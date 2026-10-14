@@ -95,7 +95,7 @@ const [worksheetTitle,setWorksheetTitle]=useState(typeNames[type]);
 const [instructions,setInstructions]=useState(type==='word-search'?'Find and circle the hidden words.':type==='word-scramble'?'Unscramble each word.':'Complete each word by filling in the missing letters.');
 const [difficulty,setDifficulty]=useState<Difficulty>('easy');
 const [gridSize,setGridSize]=useState(0);
-const [missingPercent,setMissingPercent]=useState(40);
+const [missingPercent,setMissingPercent]=useState(25);
 const [preserveFirst,setPreserveFirst]=useState(true);
 const [showHints,setShowHints]=useState(false);
 const [size,setSize]=useState<'a4'|'letter'>('a4');const [orientation,setOrientation]=useState<'portrait'|'landscape'>('portrait');
@@ -120,7 +120,7 @@ return <div className="container workspace"><Link className="back-link" href="/c
 <div className="editor-divider"/><div className="editor-panel-heading"><span className="step-label">02</span><div><h2>Make it yours</h2><p>Choose how your worksheet looks.</p></div></div>
 <label className="field-label" htmlFor="worksheet-title">Worksheet title</label><input id="worksheet-title" className="field-select" maxLength={85} value={worksheetTitle} onChange={e=>setWorksheetTitle(e.target.value)}/>
 <label className="field-label" htmlFor="worksheet-instructions">Student instructions</label><textarea id="worksheet-instructions" className="word-input" rows={3} maxLength={220} value={instructions} onChange={e=>setInstructions(e.target.value)}/>
-<label className="field-label" htmlFor="difficulty">Difficulty</label><select id="difficulty" className="field-select" value={difficulty} onChange={e=>setDifficulty(e.target.value as Difficulty)}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
+{type!=='word-scramble'&&<><label className="field-label" htmlFor="difficulty">Difficulty</label><select id="difficulty" className="field-select" value={difficulty} onChange={e=>{const next=e.target.value as Difficulty;setDifficulty(next);if(type==='missing-letters')setMissingPercent(next==='easy'?25:next==='medium'?40:55);}}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></>}
 <div className="split-fields"><div><label className="field-label" htmlFor="paper-size">Paper size</label><select id="paper-size" className="field-select" value={size} onChange={e=>setSize(e.target.value as 'a4'|'letter')}><option value="a4">A4</option><option value="letter">US Letter</option></select></div><div><label className="field-label" htmlFor="orientation">Orientation</label><select id="orientation" className="field-select" value={orientation} onChange={e=>setOrientation(e.target.value as 'portrait'|'landscape')}><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div></div>
 {type==='word-search'&&<><label className="field-label" htmlFor="word-grid-size">Grid size</label>
 <select id="word-grid-size" className="field-select" value={gridSize} onChange={e=>setGridSize(Number(e.target.value))}>
@@ -140,6 +140,6 @@ return <div className="container workspace"><Link className="back-link" href="/c
 <div className="preview-bottom"><div><FileText size={18}/><span>A4 / Letter ready · Live printable preview</span></div><div className="export-buttons"><button type="button" className="button button-outline" disabled={!result.puzzle} onClick={()=>window.print()}><Printer size={17}/> Print</button><button type="button" disabled={!result.puzzle||busy} className="button button-dark" onClick={exportPdf}><Download size={17}/>{busy?'Preparing…':'Download PDF'}</button></div></div>
 <p className="preview-helper"><RotateCcw size={14}/> Custom word lists stay in your browser. Use print settings to select paper size and orientation for direct printing.</p>
 </section></div>
-{result.puzzle&&<><style media="print">{`@page { size: ${size==='a4'?'A4':'letter'} ${orientation}; margin: 0; }`}</style><div className="print-only" aria-hidden="true"><StudentSheet puzzle={result.puzzle} title={worksheetTitle.trim()||typeNames[type]} instructions={instructions} showHints={showHints}/>{includeKey&&<div className="print-key"><SolutionSheet puzzle={result.puzzle}/></div>}</div></>}
+{result.puzzle&&<><style media="print">{`@page { size: ${size==='a4'?'A4':'letter'} ${orientation}; margin: 0; }`}</style><div className={'print-only print-paper-'+size+' print-'+orientation} aria-hidden="true"><StudentSheet puzzle={result.puzzle} title={worksheetTitle.trim()||typeNames[type]} instructions={instructions} showHints={showHints}/>{includeKey&&<div className="print-key"><SolutionSheet puzzle={result.puzzle}/></div>}</div></>}
 </div>;
 }

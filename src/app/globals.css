@@ -101,3 +101,12 @@
 .generator-range{width:100%;accent-color:#3c7752;cursor:pointer}
 .scramble-hint{display:inline-block;font-size:9px;font-weight:500;letter-spacing:0;color:#526c58;margin-left:11px}
 @media print{.scramble-hint{font-size:8pt}}
+
+/* Print sheets exactly to selected paper and orientation. */
+@media print{
+ .print-only.print-paper-letter .print-sheet{width:216mm;height:279mm}
+ .print-only.print-landscape .print-sheet{width:297mm;height:210mm}
+ .print-only.print-landscape.print-paper-letter .print-sheet{width:279mm;height:216mm}
+ .print-only.print-landscape .print-sheet{padding:11mm 18mm}
+ .print-only.print-landscape .letter-grid{width:100mm}
+}
