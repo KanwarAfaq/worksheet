@@ -27,3 +27,14 @@ test('missing letters have correct answers',()=>{
  assert.equal(puzzle.items.length,3);
  puzzle.items.forEach(x=>{assert.ok(x.question.includes('_'));assert.ok(words.includes(x.answer));});
 });
+
+test('solution colors give each answer its own shade', async ()=>{
+ const { solutionHue, solutionCellRgb, answerCellIndices }=await import('../src/lib/solution-colors.ts');
+ const colors=Array.from({length:25},(_,i)=>solutionHue(i).toFixed(2));
+ assert.equal(new Set(colors).size,25);
+ assert.notDeepEqual(solutionCellRgb(0),solutionCellRgb(1));
+ const puzzle=generate('word-search',['cat','dog','lion'],42);
+ const assigned=answerCellIndices(puzzle);
+ assert.ok(assigned.size>0);
+ assert.ok([...assigned.values()].every(i=>i>=0 && i<3));
+});
