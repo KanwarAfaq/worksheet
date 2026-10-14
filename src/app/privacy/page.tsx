@@ -1,0 +1,4 @@
+
+import type {Metadata} from 'next';
+export const metadata:Metadata={title:'Privacy'};
+export default function Privacy(){return <section className="container inner-page prose-page"><div className="section-kicker">YOUR PRIVACY</div><h1>Privacy <em>matters.</em></h1><p>This development-preview site does not require visitor accounts. Custom word inputs are processed in your browser and are not saved to our database by the worksheet maker.</p><p>Hosting providers may process essential request data such as IP addresses as part of normal operation. Before production launch, this page will be expanded to identify hosting, analytics, contact details, retention and legal rights applicable to the live service.</p><p>Never enter students' names or other sensitive information in worksheet prompts.</p></section>}
