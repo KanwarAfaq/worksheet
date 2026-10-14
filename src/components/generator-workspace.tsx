@@ -3,17 +3,17 @@
 import {useMemo,useState} from 'react';
 import Link from 'next/link';
 import {ArrowLeft,Download,Printer,RefreshCw,AlertCircle,CheckCircle2,FileText,RotateCcw} from 'lucide-react';
-import {generate,normalizeWords,curated,type Difficulty,type GeneratorType,type Puzzle} from '@/lib/generators';
+import {generate,normalizeWords,curated,type Difficulty,type GeneratorType,type Puzzle, type GeneratorOptions} from '@/lib/generators';
 import {typeNames,typeDescriptions} from '@/lib/catalog';
 import { answerCellIndices, solutionCssColor, solutionCellRgb } from '@/lib/solution-colors';
-function StudentSheet({puzzle,title,instructions}:{puzzle:Puzzle;title:string;instructions?:string}){
+function StudentSheet({puzzle,title,instructions,showHints=false}:{puzzle:Puzzle;title:string;instructions?:string;showHints?:boolean}){
 return <div className="print-sheet">
   <div className="print-head"><strong>worksheet<span>studio.</span></strong><span>NAME: __________________ &nbsp; DATE: ___________</span></div>
   <div className="print-title">{title}</div>
   <p className="print-instruction">{instructions || (puzzle.type==='word-search'?'Find and circle each hidden word in the grid.':puzzle.type==='word-scramble'?'Unscramble each word and write your answer on the line.':'Write the missing letters to complete each word.')}</p>
   {puzzle.grid&&<div className="letter-grid" style={{gridTemplateColumns:'repeat('+puzzle.grid.length+',minmax(0,1fr))'}}>{puzzle.grid.flatMap((row,i)=>row.map((letter,j)=><span key={i+'-'+j}>{letter}</span>))}</div>}
   {puzzle.grid&&<div className="word-bank">{puzzle.words.map(w=><span key={w}>{w.toUpperCase()}</span>)}</div>}
-  {puzzle.items&&<ol className="activity-list">{puzzle.items.map((entry,i)=><li key={i}><span className="activity-question">{entry.question}</span><span className="answer-line"/></li>)}</ol>}
+  {puzzle.items&&<ol className="activity-list">{puzzle.items.map((entry,i)=><li key={i}><span className="activity-question">{entry.question}</span>{puzzle.type==='word-scramble'&&showHints&&<span className="scramble-hint">Hint: {entry.answer.charAt(0).toUpperCase()} · {entry.answer.length} letters</span>}<span className="answer-line"/></li>)}</ol>}
   <div className="print-footer"><span>Keep learning, keep growing! ✳</span><span>worksheetstudio</span></div>
 </div>;
 }
@@ -28,7 +28,7 @@ return <div className="print-sheet teacher-sheet">
   <div className="print-footer"><span>Teacher answer key</span><span>worksheetstudio</span></div>
 </div>;
 }
-async function downloadPdf(puzzle:Puzzle,title:string,instructions:string,withAnswers:boolean,paper:'a4'|'letter',orientation:'portrait'|'landscape'){
+async function downloadPdf(puzzle:Puzzle,title:string,instructions:string,withAnswers:boolean,paper:'a4'|'letter',orientation:'portrait'|'landscape',showHints:boolean){
 const {jsPDF}=await import('jspdf');
 const pdf=new jsPDF({orientation,unit:'mm',format:paper});
 const size=pdf.internal.pageSize;const width=size.getWidth(),height=size.getHeight();
@@ -73,6 +73,11 @@ function items(solution:boolean){
    }
    pdf.setFontSize(12);
    pdf.text((i+1)+'.  '+(solution?item.answer:item.question),left,y);
+   if(!solution && showHints && puzzle.type==='word-scramble'){
+     pdf.setFontSize(9);pdf.setTextColor(105);
+     pdf.text('Hint: '+item.answer.charAt(0).toUpperCase()+' / '+item.answer.length+' letters',left+55,y);
+     pdf.setTextColor(35);
+   }
    if(!solution){pdf.setDrawColor(130);pdf.line(width-75,y+1,width-left,y+1);}
    y+=10;
  });
@@ -89,13 +94,19 @@ const [words,setWords]=useState(curated.Animals.join('\n'));
 const [worksheetTitle,setWorksheetTitle]=useState(typeNames[type]);
 const [instructions,setInstructions]=useState(type==='word-search'?'Find and circle the hidden words.':type==='word-scramble'?'Unscramble each word.':'Complete each word by filling in the missing letters.');
 const [difficulty,setDifficulty]=useState<Difficulty>('easy');
+const [gridSize,setGridSize]=useState(0);
+const [missingPercent,setMissingPercent]=useState(40);
+const [preserveFirst,setPreserveFirst]=useState(true);
+const [showHints,setShowHints]=useState(false);
 const [size,setSize]=useState<'a4'|'letter'>('a4');const [orientation,setOrientation]=useState<'portrait'|'landscape'>('portrait');
 const [seed,setSeed]=useState(1234567);const [includeKey,setIncludeKey]=useState(true);const [view,setView]=useState<'student'|'answer'>('student');
 const [busy,setBusy]=useState(false);const [exportError,setExportError]=useState('');
-const result=useMemo(()=>{try{return{puzzle:generate(type,normalizeWords(words),seed,difficulty),error:''};}catch(e){return{puzzle:null,error:e instanceof Error?e.message:'Could not generate this worksheet.'};}},[words,difficulty,seed,type]);
+const result=useMemo(()=>{try{
+ const options:GeneratorOptions=type==='word-search' ? (gridSize?{gridSize}:{}) : type==='missing-letters' ? {missingPercent,preserveFirst} : {};
+ return{puzzle:generate(type,normalizeWords(words),seed,difficulty,options),error:''};}catch(e){return{puzzle:null,error:e instanceof Error?e.message:'Could not generate this worksheet.'};}},[words,difficulty,seed,type,gridSize,missingPercent,preserveFirst]);
 async function exportPdf(){
  if(!result.puzzle)return;setBusy(true);setExportError('');
- try{await downloadPdf(result.puzzle,worksheetTitle.trim()||typeNames[type],instructions,includeKey,size,orientation);}
+ try{await downloadPdf(result.puzzle,worksheetTitle.trim()||typeNames[type],instructions,includeKey,size,orientation,showHints);}
  catch(e){setExportError(e instanceof Error?e.message:'PDF export failed. Try printing to PDF instead.');}
  finally{setBusy(false);}
 }
@@ -111,15 +122,24 @@ return <div className="container workspace"><Link className="back-link" href="/c
 <label className="field-label" htmlFor="worksheet-instructions">Student instructions</label><textarea id="worksheet-instructions" className="word-input" rows={3} maxLength={220} value={instructions} onChange={e=>setInstructions(e.target.value)}/>
 <label className="field-label" htmlFor="difficulty">Difficulty</label><select id="difficulty" className="field-select" value={difficulty} onChange={e=>setDifficulty(e.target.value as Difficulty)}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
 <div className="split-fields"><div><label className="field-label" htmlFor="paper-size">Paper size</label><select id="paper-size" className="field-select" value={size} onChange={e=>setSize(e.target.value as 'a4'|'letter')}><option value="a4">A4</option><option value="letter">US Letter</option></select></div><div><label className="field-label" htmlFor="orientation">Orientation</label><select id="orientation" className="field-select" value={orientation} onChange={e=>setOrientation(e.target.value as 'portrait'|'landscape')}><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div></div>
+{type==='word-search'&&<><label className="field-label" htmlFor="word-grid-size">Grid size</label>
+<select id="word-grid-size" className="field-select" value={gridSize} onChange={e=>setGridSize(Number(e.target.value))}>
+<option value={0}>Auto-fit words</option>{[10,12,14,16,18,20,24].map(n=><option key={n} value={n}>{n} × {n}</option>)}
+</select><p className="generator-setting-help">Difficulty controls horizontal, vertical, diagonal and reverse directions.</p></>}
+{type==='word-scramble'&&<label className="check-field"><input type="checkbox" checked={showHints} onChange={e=>setShowHints(e.target.checked)}/> Show first-letter and word-length hints</label>}
+{type==='missing-letters'&&<>
+<label className="field-label" htmlFor="missing-percent">Letters removed: {missingPercent}%</label>
+<input className="generator-range" id="missing-percent" type="range" min={20} max={70} step={5} value={missingPercent} onChange={e=>setMissingPercent(Number(e.target.value))}/>
+<label className="check-field"><input type="checkbox" checked={preserveFirst} onChange={e=>setPreserveFirst(e.target.checked)}/> Always keep the first letter visible</label></>}
 <label className="check-field"><input type="checkbox" checked={includeKey} onChange={e=>setIncludeKey(e.target.checked)}/> Include separate teacher answer key in PDF</label>
 <button className="regenerate" type="button" onClick={()=>setSeed(v=>v+817)}><RefreshCw size={17}/> Shuffle / regenerate</button>
 </aside>
 <section className="preview-panel"><div className="preview-panel-top"><div><span className="step-label">03</span><h2>Live preview</h2></div><div className="preview-actions"><button type="button" className={view==='student'?'selected':''} onClick={()=>setView('student')}>Student</button><button type="button" className={view==='answer'?'selected':''} onClick={()=>setView('answer')}>Answer key</button></div></div>
-<div className="preview-canvas">{result.puzzle?(<div className={'preview-paper '+(size==='letter'?'paper-letter':'')+(orientation==='landscape'?' paper-landscape':'')}>{view==='student'?<StudentSheet title={worksheetTitle.trim()||typeNames[type]} instructions={instructions} puzzle={result.puzzle}/>:<SolutionSheet puzzle={result.puzzle}/>}</div>):<div className="error-state"><AlertCircle size={24}/><strong>Let's fix your word list</strong><p>{result.error}</p></div>}</div>
+<div className="preview-canvas">{result.puzzle?(<div className={'preview-paper '+(size==='letter'?'paper-letter':'')+(orientation==='landscape'?' paper-landscape':'')}>{view==='student'?<StudentSheet title={worksheetTitle.trim()||typeNames[type]} instructions={instructions} showHints={showHints} puzzle={result.puzzle}/>:<SolutionSheet puzzle={result.puzzle}/>}</div>):<div className="error-state"><AlertCircle size={24}/><strong>Let's fix your word list</strong><p>{result.error}</p></div>}</div>
 {exportError&&<p role="alert" className="error-message">{exportError}</p>}
 <div className="preview-bottom"><div><FileText size={18}/><span>A4 / Letter ready · Live printable preview</span></div><div className="export-buttons"><button type="button" className="button button-outline" disabled={!result.puzzle} onClick={()=>window.print()}><Printer size={17}/> Print</button><button type="button" disabled={!result.puzzle||busy} className="button button-dark" onClick={exportPdf}><Download size={17}/>{busy?'Preparing…':'Download PDF'}</button></div></div>
 <p className="preview-helper"><RotateCcw size={14}/> Custom word lists stay in your browser. Use print settings to select paper size and orientation for direct printing.</p>
 </section></div>
-{result.puzzle&&<div className="print-only" aria-hidden="true"><StudentSheet puzzle={result.puzzle} title={worksheetTitle.trim()||typeNames[type]} instructions={instructions}/>{includeKey&&<div className="print-key"><SolutionSheet puzzle={result.puzzle}/></div>}</div>}
+{result.puzzle&&<><style media="print">{`@page { size: ${size==='a4'?'A4':'letter'} ${orientation}; margin: 0; }`}</style><div className="print-only" aria-hidden="true"><StudentSheet puzzle={result.puzzle} title={worksheetTitle.trim()||typeNames[type]} instructions={instructions} showHints={showHints}/>{includeKey&&<div className="print-key"><SolutionSheet puzzle={result.puzzle}/></div>}</div></>}
 </div>;
 }

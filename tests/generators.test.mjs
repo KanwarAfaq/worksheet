@@ -38,3 +38,15 @@ test('solution colors give each answer its own shade', async ()=>{
  assert.ok(assigned.size>0);
  assert.ok([...assigned.values()].every(i=>i>=0 && i<3));
 });
+
+test('custom word-search dimensions are fixed or rejected',()=>{
+ const words=['apple','banana','orange'];
+ const puzzle=generate('word-search',words,42,'easy',{gridSize:14});
+ assert.equal(puzzle.grid.length,14);
+ assert.throws(()=>generate('word-search',['elephant','hippopotamus','cat'],42,'easy',{gridSize:10}),/too long/);
+});
+test('missing-letter controls preserve first letter when requested',()=>{
+ const words=['lemon','apple','mango'];
+ const puzzle=generate('missing-letters',words,22,'hard',{missingPercent:65,preserveFirst:true});
+ puzzle.items.forEach((item,i)=>assert.equal(item.question.slice(0,1).toLowerCase(),words[i][0]));
+});

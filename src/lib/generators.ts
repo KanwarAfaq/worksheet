@@ -1,6 +1,7 @@
 
 export type GeneratorType='word-search'|'word-scramble'|'missing-letters';
 export type Difficulty='easy'|'medium'|'hard';
+export type GeneratorOptions={gridSize?:number;missingPercent?:number;preserveFirst?:boolean};
 export type Entry={original:string;question:string;answer:string;missing?:number[]};
 export type Puzzle={type:GeneratorType;seed:number;words:string[];grid?:string[][];placements?:{word:string;cells:[number,number][]}[];items?:Entry[]};
 export const curated:Record<string,string[]> = {
@@ -20,7 +21,7 @@ export function normalizeWords(input:string):string[]{
 }
 function rng(seed:number){let value=seed>>>0;return()=>{value=(value*1664525+1013904223)>>>0;return value/4294967296;};}
 function shuffle<T>(arr:T[],next:()=>number):T[]{const out=[...arr];for(let i=out.length-1;i>0;i--){const j=Math.floor(next()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;}
-export function generate(type:GeneratorType,words:string[],seed:number,difficulty:Difficulty='easy'):Puzzle{
+export function generate(type:GeneratorType,words:string[],seed:number,difficulty:Difficulty='easy',options:GeneratorOptions={}):Puzzle{
   const next=rng(seed);
   if(type==='word-scramble')return{type,words,seed,items:words.map(w=>{
     const chars=Array.from(w);let shuffled=[...chars];
@@ -28,16 +29,19 @@ export function generate(type:GeneratorType,words:string[],seed:number,difficult
     return{original:w,question:shuffled.join(''),answer:w};
   })};
   if(type==='missing-letters')return{type,words,seed,items:words.map(w=>{
-    const chars=Array.from(w);const eligible=chars.map((c,i)=>i).filter(i=>/\p{L}/u.test(chars[i])&&(difficulty==='easy'?i!==0:true));
-    const howMany=Math.max(1,Math.min(eligible.length,Math.round(chars.length*(difficulty==='easy'?.25:difficulty==='medium'?.4:.55))));
+    const chars=Array.from(w);const keepFirst=options.preserveFirst ?? difficulty==='easy';
+    const eligible=chars.map((c,i)=>i).filter(i=>/\p{L}/u.test(chars[i])&&(!keepFirst||i!==0));
+    const howMany=Math.max(1,Math.min(eligible.length,Math.round(chars.length*((options.missingPercent ?? (difficulty==='easy'?25:difficulty==='medium'?40:55))/100))));
     const hidden=shuffle(eligible,next).slice(0,howMany);
     return{original:w,answer:w,question:chars.map((c,i)=>hidden.includes(i)?'_':c).join(' '),missing:hidden};
   })};
   const clean=words.map(w=>w.replace(/[^\p{L}]/gu,'').toUpperCase());
-  let side=Math.max(difficulty==='easy'?10:12, ...clean.map(w=>w.length+2));
-  side=Math.min(24,side);
+  const requestedSize=options.gridSize;
+  if(requestedSize!==undefined && (requestedSize<10||requestedSize>24||!Number.isInteger(requestedSize)))throw new Error('Choose a grid size between 10 and 24.');
+  let side=requestedSize ?? Math.max(difficulty==='easy'?10:12, ...clean.map(w=>w.length+2));
+  if(side>24||clean.some(w=>w.length>side))throw new Error('A word is too long for this grid. Choose a larger size or shorter words.');
   const dirs:[number,number][]=difficulty==='easy'?[[0,1],[1,0]]:difficulty==='medium'?[[0,1],[1,0],[1,1],[-1,1]]:[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
-  const maxSide=24;
+  const maxSide=requestedSize ?? 24;
   for(;side<=maxSide;side++){
     const grid:(string|null)[][]=Array.from({length:side},()=>Array(side).fill(null));
     const placements:{word:string;cells:[number,number][]}[]=[];
@@ -58,5 +62,5 @@ export function generate(type:GeneratorType,words:string[],seed:number,difficult
     }
     if(!failed){const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ';return{type,words,seed,grid:grid.map(row=>row.map(c=>c??letters[Math.floor(next()*letters.length)])),placements};}
   }
-  throw new Error('These words could not fit. Try fewer or shorter words.');
+  throw new Error('These words could not fit. Try fewer words or a larger grid.');
 }
