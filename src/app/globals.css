@@ -216,3 +216,35 @@
  .library-filter-group>span{display:block;margin-bottom:9px}
  .grade-browser{padding:14px}
 }
+
+/* Private file upload, inspection and publication */
+.admin-file-manager{overflow:hidden}
+.admin-file-manager h2{font-size:18px}
+.admin-file-manager .admin-files-note{margin:0}
+.r2-indicator{display:flex;align-items:center;gap:9px;padding:12px 14px;border:1px solid #d6e5d8;border-radius:10px;background:#edf7ec;font-size:12px;font-weight:800;line-height:1.5}
+.r2-warning{border-left:3px solid #e4a454;background:#fff8ea;padding:11px 13px;font-size:11px;color:#805730}
+.private-file-list{border-top:1px solid #e5ece4;padding-top:16px}
+.private-file-list>strong{font-size:13px}
+.private-file-row{display:flex;gap:8px;align-items:center;padding:12px 0;border-bottom:1px solid #edf0eb}
+.private-file-row>svg{flex-shrink:0;color:#548269}
+.private-file-summary{flex:1;min-width:0;overflow-wrap:anywhere}
+.private-file-summary strong,.private-file-summary small{display:block}
+.private-file-summary strong{font-size:12px}
+.private-file-summary small{font-size:10px;line-height:1.4;color:#748578;margin-top:5px}
+.private-file-buttons{display:flex;gap:3px}
+.private-file-buttons>button{background:#f4f7f2;border:1px solid #e0e8df;color:#315843;display:grid;place-items:center;border-radius:8px;width:30px;height:30px}
+.private-upload-form{border-top:1px solid #e5ece4;margin-top:6px;padding-top:15px;display:flex;flex-direction:column;gap:8px}
+.private-upload-form h3{font-size:15px;margin:0 0 4px}
+.private-upload-form label{margin-top:7px}
+.private-upload-form .button{margin-top:10px}
+.private-upload-form input[type="file"]{font-size:11px}
+.private-upload-form .check-field{margin:13px 0}
+.publication-box{background:#f7f9f4;border:1px solid #e4ede4;padding:17px;border-radius:12px;display:flex;flex-direction:column;gap:8px}
+.publication-box strong{font-size:13px}
+.publication-box p{margin:0;font-size:11px}
+.publication-box .button{width:100%;padding:11px 14px}
+.publication-box small{color:#9a7153;font-size:10px;line-height:1.6}
+.admin-pdf-preview>div{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:11px}
+.admin-pdf-preview button{border:0;background:#f0f5ec;border-radius:6px;padding:7px;color:#245c41}
+.admin-pdf-preview iframe{width:100%;height:480px;border:1px solid #e2e8e2;margin-top:9px}
+.private-refresh{align-self:flex-start;border:0;background:transparent;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#367049;padding:7px 0}

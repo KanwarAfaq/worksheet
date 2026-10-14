@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, BookOpen, CopyPlus, Archive, ArchiveRestore, Save, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
 import type { Session } from '@supabase/supabase-js';
 import { supabaseBrowser } from '@/lib/supabase-browser';
+import AdminFileManager from '@/components/admin-file-manager';
 
 type Row = { id:string; title:string; summary:string|null; description:string|null; category_id:string;
   grade_id:string|null; difficulty:string|null; language:string;tags:string[];seo_title:string|null;
@@ -108,7 +109,8 @@ export default function WorksheetEditor({id}:{id:string}) {
           {row.status==='draft'&&<button className="button button-outline admin-submit" type="button" disabled={saving} onClick={()=>save(undefined,'archived')}><Archive size={17}/> Archive draft</button>}
           {row.status==='archived'&&<button className="button button-outline admin-submit" type="button" disabled={saving} onClick={()=>save(undefined,'draft')}><ArchiveRestore size={17}/> Restore draft</button>}
         </div>
-        <div className="worksheet-editor-panel"><h2>Files & printing</h2><p>PDF, DOCX, PPTX upload, previews and public downloads will be enabled when the private R2 gateway and checksum validation are ready.</p><div className="notice-box"><Lock size={18}/> File publishing is disabled for safety.</div></div>
+        <AdminFileManager id={id} status={row.status} session={session}
+ onStatusChanged={status=>setRow(current=>current?{...current,status}:current)}/>
       </aside>
     </form>
   </div></section>;
