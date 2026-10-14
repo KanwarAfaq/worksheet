@@ -392,3 +392,52 @@ html[data-theme='dark'] .admin-row,html[data-theme='dark'] .admin-safety{backgro
 @media(max-width:1050px){.main-subject-nav{display:none}.single-nav-actions{margin-left:auto}}
 @media(max-width:780px){.search-mega-form{flex-wrap:wrap;gap:9px}.search-file-picker{width:100%;justify-content:center}.search-file-picker button{flex:1}.search-input-wrap{min-height:50px;flex-basis:100%}.mega-search-button{flex:1;min-height:51px}.mega-filter-button{min-height:51px}.worksheet-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:530px){.single-header .nav-inner{height:67px}.single-nav .brand{font-size:17px}.single-nav-actions .single-nav-link{display:none}.single-nav-upload{font-size:11px;padding:9px}.new-search-hero{padding:32px 0}.search-heading p{font-size:13px}.worksheet-grid{grid-template-columns:1fr}.search-file-picker button{min-width:0}.resource-preview{height:310px}}
+
+/* Contributor workspace, capped at five stored worksheets */
+.community-page{min-height:75vh;background:#f9fbf7;padding:58px 0 90px}
+.community-login-grid{display:grid;grid-template-columns:1fr minmax(330px,430px);gap:70px;align-items:center;min-height:62vh}
+.community-benefits h1{font-size:clamp(38px,4.3vw,58px);line-height:1.1;margin:16px 0}.community-benefits h1 em{color:#cb935e}
+.community-benefits>p{line-height:1.8;color:#6b7d72;max-width:580px}
+.community-benefit{display:flex;align-items:center;gap:12px;margin:18px 0;color:#275b3e;font-weight:850;font-size:14px}
+.community-benefit svg{color:#328452}
+.community-future{margin-top:24px!important;font-size:12px!important}
+.community-auth-box,.community-list,.community-start,.community-form-panel{background:#fff;border:1px solid #e0eade;box-shadow:0 8px 30px #133b2710;border-radius:18px;padding:29px}
+.community-auth-box h2{font-size:27px;margin:20px 0}
+.community-auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:#edf3eb;border-radius:9px;padding:4px}
+.community-auth-tabs button{border:0;padding:11px;background:transparent;border-radius:7px;font-weight:850;font-size:12px}
+.community-auth-tabs button.active{background:#fff;color:#205b3a;box-shadow:0 1px 4px #0002}
+.community-auth-box form,.community-start,.community-form-panel,.community-form-panel form{display:flex;flex-direction:column;gap:13px}
+.community-auth-box label,.community-start label,.community-form-panel label{font-weight:800;font-size:12px}
+.community-auth-box input,.community-start select,.community-form-panel input:not([type='checkbox']),.community-form-panel textarea,.community-form-panel select{width:100%;border:1px solid #d7e4d9;border-radius:9px;padding:12px;background:#fff;color:#173b2d}
+.community-auth-box p{font-size:12px;line-height:1.7;color:#7b8c7d;margin:17px 0 0}
+.community-auth-box form button{margin-top:10px}
+.community-top{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.community-top h1{font-size:47px;margin:10px 0}.community-top h1 em{color:#cc955e}.community-top p{color:#839184}
+.community-quota{display:flex;align-items:center;justify-content:space-between;gap:20px;border-radius:12px;padding:19px 24px;margin:28px 0;background:#eaf3e8}
+.community-quota strong,.community-quota small{display:block}.community-quota strong{font-size:14px}.community-quota small{font-size:11px;color:#67836f;margin-top:6px}
+.quota-tracks{display:flex;gap:8px}.quota-tracks span{height:13px;width:28px;border-radius:6px;background:#cad8cd}.quota-tracks span.used{background:#398b5b}
+.community-main{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:start}
+.community-main h2{font-size:22px;margin:0 0 16px}.community-list>p,.community-start>p,.community-form-panel>p{color:#7a8a7c;line-height:1.7;font-size:13px}
+.community-item{border:1px solid #dce7db;border-radius:12px;width:100%;display:flex;gap:13px;align-items:center;padding:14px;text-align:left;margin:9px 0;background:#f9fcf7;color:#214937}
+.community-item span{flex:1}.community-item strong,.community-item small{display:block}
+.community-item strong{font-size:13px}.community-item small{margin-top:6px;color:#829389;font-size:11px}
+.community-start .button{margin-top:9px}
+.community-limit{color:#a45b3c!important}
+.community-editor{max-width:850px;margin:auto}
+.community-editor>h2{font-size:32px;margin:20px 0 5px}.community-editor>p{font-size:13px;color:#718678}
+.community-back{display:flex;gap:8px;align-items:center;border:0;background:transparent;font-weight:800;color:#326c4c;padding:10px 0}
+.community-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:23px 0}
+.community-steps button{padding:13px 8px;background:#e9f1e8;border:1px solid #dce7dc;border-radius:9px;color:#496a54;font-weight:800;font-size:12px}
+.community-steps button.active{background:#245840;color:#fff}
+.community-form-panel h3{font-size:23px;margin:0}.community-form-panel form{display:flex;flex-direction:column;gap:13px}
+.community-form-panel .check-field{display:flex;align-items:start;gap:9px;font-size:12px;font-weight:600}
+.community-form-panel input[type='checkbox']{width:auto}
+.community-form-panel .button{align-self:flex-start}
+.community-attachment{display:flex;gap:10px;align-items:center;background:#f5f8f2;padding:12px;border:1px solid #e0e9dd;border-radius:9px;font-size:12px;overflow-wrap:anywhere}
+.community-attachment span{flex:1}
+.community-attachment button{display:flex;align-items:center;gap:6px;border:0;background:transparent;font-weight:800;color:#30704a;font-size:11px}
+html[data-theme='dark'] .community-page{background:#17241e;color:#f0f7ee}
+html[data-theme='dark'] .community-auth-box,html[data-theme='dark'] .community-list,html[data-theme='dark'] .community-start,html[data-theme='dark'] .community-form-panel{background:#25382d;color:#f0f7ee}
+html[data-theme='dark'] .community-auth-box h2,html[data-theme='dark'] .community-benefits h1{color:#f0f7ee}
+@media(max-width:800px){.community-login-grid,.community-main{grid-template-columns:1fr;gap:26px}}
+@media(max-width:530px){.community-page{padding:36px 0}.community-auth-box,.community-list,.community-start,.community-form-panel{padding:19px}.community-top{display:block}.community-quota{display:block}.quota-tracks{margin-top:17px}.community-steps{gap:5px}.community-steps button{font-size:10px}}
