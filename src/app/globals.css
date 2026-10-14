@@ -293,3 +293,6 @@
 .wizard-review-summary .button{justify-self:start}
 .wizard-draft-note{display:flex;align-items:center;gap:8px;color:#839386;font-size:11px;margin:40px 0}
 @media(max-width:600px){.worksheet-wizard-tab{flex-direction:column;padding:12px 5px;font-size:11px;text-align:center;gap:6px}.worksheet-wizard-steps{gap:5px}}
+
+.admin-file-manager .publication-box .check-field{display:flex;align-items:start;gap:10px;margin:8px 0 12px;font-size:12px;color:#375d47}
+.admin-file-manager .publication-box input[type="checkbox"]{width:auto;margin-top:2px;accent-color:#286344}
