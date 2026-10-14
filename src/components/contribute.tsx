@@ -227,3 +227,4 @@ export default function Contribute(){
    </div>}
   </div>}
  </div></section>;
+}
