@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {useRouter} from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
 import {
