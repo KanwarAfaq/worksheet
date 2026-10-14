@@ -8,16 +8,18 @@ import {ArrowRight,FileText} from 'lucide-react';
 
 export const dynamic='force-dynamic';
 export const metadata:Metadata={title:'Worksheet Library',description:'Browse worksheet topics by subject, school grade and document format.'};
-type Filters={subject?:string;grade?:string;format?:string};
+type Filters={subject?:string;grade?:string;format?:string;q?:string};
 export default async function Worksheets({searchParams}:{searchParams:Promise<Filters>}){
  const filters=await searchParams;
  const live=await publishedWorksheets();
  const subject=subjects.find(s=>s.slug===filters.subject)?.slug||'';
  const grade=grades.find(g=>g.slug===filters.grade)?.slug||'';
  const format=formats.find(f=>f.slug===filters.format)?.slug||'';
+ const query=(filters.q||'').trim().toLowerCase().slice(0,100);
  const href=(next:Filters)=>{
   const params=new URLSearchParams();
   const active={subject,grade,format,...next};
+  if(query)params.set('q',query);
   if(active.subject)params.set('subject',active.subject);
   if(active.grade)params.set('grade',active.grade);
   if(active.format)params.set('format',active.format);
@@ -27,15 +29,17 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
  const visibleSamples=samples.filter(item=>
   (!subject||item.subject===subject) &&
   (!grade||item.grade==='Grade '+grade.split('-')[1]) &&
-  !format
+  !format && (!query||(item.title+' '+item.description+' '+item.category).toLowerCase().includes(query))
  );
  const matchingLive=live.filter(item=>
   (!subject||item.categorySlug===subject) &&
   (!grade||item.gradeSlug===grade) &&
-  (!format||item.availableFormats.includes(format as 'pdf'|'docx'|'pptx')));
+  (!format||item.availableFormats.includes(format as 'pdf'|'docx')) &&
+  (!query||(item.title+' '+(item.summary||'')+' '+item.categoryName).toLowerCase().includes(query)));
  const chosenFormat=formats.find(f=>f.slug===format);
  return <div className="container inner-page">
   <div className="section-kicker">THE WORKSHEET LIBRARY</div><h1>Find a little <em>inspiration.</em></h1>
+ {query&&<div className="library-query-note">Search results for <strong>{query}</strong><Link href="/worksheets">Clear search</Link></div>}
   <p className="page-lead">Browse by subject, grade, or file type. Real downloads will appear here as verified files are added to the library.</p>
   <div className="library-filters">
     <div className="library-filter-group"><span>SUBJECT</span><div className="filter-bar">

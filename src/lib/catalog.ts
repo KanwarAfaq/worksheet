@@ -19,8 +19,7 @@ export const grades = [
 ] as const;
 export const formats = [
   {slug:'pdf',title:'PDF',description:'Print-ready documents',extension:'.pdf'},
-  {slug:'docx',title:'Word',description:'Editable DOCX worksheets',extension:'.docx'},
-  {slug:'pptx',title:'PowerPoint',description:'Classroom presentation worksheets',extension:'.pptx'},
+  {slug:'docx',title:'Word',description:'Editable DOCX worksheets',extension:'.docx'}
 ] as const;
 export type Worksheet = {
  slug:string;title:string;description:string;subject:Subject;grade:string;

@@ -1,49 +1,72 @@
 'use client';
 import Link from 'next/link';
-import {useState} from 'react';
-import {BookOpen,Menu,X,ArrowUpRight,ChevronDown} from 'lucide-react';
+import {useEffect,useState} from 'react';
+import {BookOpen,Menu,X,ChevronDown,Sun,Moon,PanelLeftClose,PanelLeftOpen,Upload,Plus} from 'lucide-react';
 import {grades,subjects} from '@/lib/catalog';
-
 export default function Header(){
-  const [mobileOpen,setMobileOpen]=useState(false);
-  return <header className="site-header">
-    <div className="container nav-inner">
-      <Link href="/" className="brand" aria-label="Worksheet Studio home" onClick={()=>setMobileOpen(false)}>
-        <span className="brand-icon"><BookOpen size={20} strokeWidth={2.5}/></span>
-        <span>worksheet<span className="brand-accent">studio.</span></span>
-      </Link>
-      <nav className="desktop-nav" aria-label="Site navigation">
-        <Link href="/worksheets">All worksheets</Link>
-        <Link href="/worksheets?grade=grade-1">Grades 1–6</Link>
-        <Link href="/create">Worksheet makers</Link>
-      </nav>
-      <Link href="/create" className="button button-dark header-cta">Create a worksheet <ArrowUpRight size={16}/></Link>
-      <button type="button" className="menu-toggle" onClick={()=>setMobileOpen(open=>!open)}
-        aria-expanded={mobileOpen} aria-controls="mobile-subject-nav"
-        aria-label={mobileOpen?'Close navigation':'Open navigation'}>
-        {mobileOpen?<X/>:<Menu/>}
-      </button>
-    </div>
-    <nav className="subject-navigation" aria-label="Subjects and grade submenus">
-      <div className="container subject-navigation-inner">
-        {subjects.map(subject=><details className="subject-menu-item" key={subject.slug}>
-          <summary>{subject.title}<ChevronDown size={14} aria-hidden="true"/></summary>
-          <div className="subject-submenu">
-            <Link className="subject-all-link" href={'/'+subject.slug}>All {subject.title} worksheets <ArrowUpRight size={14}/></Link>
-            <div className="subject-submenu-caption">BROWSE BY GRADE</div>
-            {grades.map(grade=><Link key={grade.slug} href={'/worksheets?subject='+subject.slug+'&grade='+grade.slug}>{grade.title}</Link>)}
-          </div>
-        </details>)}
-      </div>
-    </nav>
-    {mobileOpen&&<nav id="mobile-subject-nav" className="mobile-nav mobile-subjects" aria-label="Mobile subjects and grades">
-      <div className="mobile-shortcuts"><Link href="/worksheets" onClick={()=>setMobileOpen(false)}>All worksheets</Link><Link href="/create" onClick={()=>setMobileOpen(false)}>Worksheet makers</Link></div>
-      {subjects.map(subject=><div className="mobile-subject-group" key={subject.slug}>
-        <Link className="mobile-subject-title" href={'/'+subject.slug} onClick={()=>setMobileOpen(false)}>{subject.title} <ArrowUpRight size={15}/></Link>
-        <div className="mobile-grade-links">
-          {grades.map(grade=><Link key={grade.slug} href={'/worksheets?subject='+subject.slug+'&grade='+grade.slug} onClick={()=>setMobileOpen(false)}>{grade.title}</Link>)}
-        </div>
-      </div>)}
-    </nav>}
-  </header>;
+ const [sidebar,setSidebar]=useState(false);
+ const [dark,setDark]=useState(false);
+ useEffect(()=>{
+   const saved=window.localStorage.getItem('worksheet-theme');
+   const enabled=saved==='dark';
+   setDark(enabled);
+   document.documentElement.dataset.theme=enabled?'dark':'light';
+ },[]);
+ function changeTheme(){
+   setDark(v=>{
+     const next=!v;
+     document.documentElement.dataset.theme=next?'dark':'light';
+     window.localStorage.setItem('worksheet-theme',next?'dark':'light');
+     return next;
+   });
+ }
+ return <>
+ <header className="site-header single-header">
+  <div className="container nav-inner single-nav">
+   <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(true)}
+     aria-label="Open subjects and settings sidebar" aria-expanded={sidebar} aria-controls="worksheet-sidebar">
+     <Menu size={23}/></button>
+   <Link href="/" className="brand" aria-label="Worksheet Studio home">
+     <span className="brand-icon"><BookOpen size={19}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
+   </Link>
+   <nav className="main-subject-nav" aria-label="Browse worksheet subjects">
+    {subjects.map(subject=><details className="subject-menu-item" key={subject.slug}>
+       <summary>{subject.title}<ChevronDown size={13} aria-hidden="true"/></summary>
+       <div className="subject-submenu">
+         <Link className="subject-all-link" href={'/'+subject.slug}>All {subject.title}</Link>
+         <div className="subject-submenu-caption">GRADES 1–6</div>
+         {grades.map(grade=><Link key={grade.slug} href={'/worksheets?subject='+subject.slug+'&grade='+grade.slug}>{grade.title}</Link>)}
+       </div>
+    </details>)}
+   </nav>
+   <div className="single-nav-actions">
+     <Link className="single-nav-link" href="/create"><Plus size={15}/> Create</Link>
+     <Link className="single-nav-upload" href="/contribute"><Upload size={16}/> Upload</Link>
+   </div>
+  </div>
+ </header>
+ {sidebar&&<div className="sidebar-scrim" onClick={()=>setSidebar(false)} aria-hidden="true"/>}
+ <aside className={'worksheet-sidebar '+(sidebar?'is-open':'')} id="worksheet-sidebar" aria-label="Browse and appearance">
+   <div className="sidebar-top"><strong>Explore Worksheet Studio</strong>
+     <button type="button" className="icon-control" aria-label="Close sidebar" onClick={()=>setSidebar(false)}><X size={23}/></button>
+   </div>
+   <div className="sidebar-section-title">QUICK LINKS</div>
+   <Link href="/worksheets" onClick={()=>setSidebar(false)}>All worksheets</Link>
+   <Link href="/create" onClick={()=>setSidebar(false)}>Worksheet maker</Link>
+   <Link href="/contribute" onClick={()=>setSidebar(false)}>Upload a worksheet</Link>
+   <div className="sidebar-section-title">SUBJECTS · GRADES 1–6</div>
+   {subjects.map(sub=><details className="sidebar-subject" key={sub.slug}>
+     <summary>{sub.title}<ChevronDown size={16}/></summary>
+     <Link href={'/'+sub.slug} onClick={()=>setSidebar(false)}>All {sub.title}</Link>
+     <div className="sidebar-grades">{grades.map(g=><Link href={'/worksheets?subject='+sub.slug+'&grade='+g.slug}
+      onClick={()=>setSidebar(false)} key={g.slug}>{g.title}</Link>)}</div>
+   </details>)}
+   <div className="sidebar-theme">
+     <div><strong>Appearance</strong><small>Choose your reading theme</small></div>
+     <button type="button" className="theme-toggle" onClick={changeTheme} aria-label={dark?'Use light theme':'Use dark theme'}>
+      {dark?<Moon size={20}/>:<Sun size={20}/>}<span>{dark?'Dark':'Light'}</span>
+     </button>
+   </div>
+ </aside>
+ </>;
 }

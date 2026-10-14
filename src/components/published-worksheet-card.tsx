@@ -1,19 +1,36 @@
 import Link from 'next/link';
-import {ArrowUpRight,BookOpen,Download} from 'lucide-react';
+import {ArrowUpRight,FileText,Download,FilePenLine} from 'lucide-react';
 import type {PublicWorksheet} from '@/lib/public-catalog';
 const labels:Record<string,string>={pdf:'PDF',docx:'Word',pptx:'PPT',png:'PNG',jpg:'JPG',webp:'WebP'};
 export default function PublishedWorksheetCard({item}:{item:PublicWorksheet}){
- return <article className="published-worksheet-card">
-  <Link className="published-worksheet-art" href={'/worksheets/'+item.slug} aria-label={'View '+item.title}>
-    <BookOpen size={42} strokeWidth={1.6}/><span className="published-worksheet-tag">READY TO PRINT</span>
-  </Link>
-  <div className="published-worksheet-info">
-   <div className="sheet-meta"><span>{item.gradeName||'All grades'}</span><span>·</span><span>{item.categoryName}</span></div>
-   <Link href={'/worksheets/'+item.slug} className="sheet-title">{item.title}<ArrowUpRight size={16}/></Link>
-   <p>{item.summary||'Verified printable worksheet for independent and classroom learning.'}</p>
-   <div className="published-formats">{item.availableFormats.map(format=><a href={'/api/worksheets/'+item.id+'/download?format='+format}
-    key={format} className="download-format-link" aria-label={'Download '+item.title+' as '+labels[format]}>
-    <Download size={14}/>{labels[format]}</a>)}</div>
-  </div>
- </article>;
+ const cover=item.availableFormats.includes('pdf')?'pdf':item.availableFormats.find(f=>['png','jpg','webp'].includes(f));
+ return <article className="resource-card">
+   <Link href={'/worksheets/'+item.slug} className="resource-preview" aria-label={'View '+item.title}>
+    <div className="resource-preview-inner">
+      {cover==='pdf'?
+       <iframe loading="lazy" title={'First page preview of '+item.title} aria-hidden="true"
+        src={'/api/worksheets/'+item.id+'/preview?format=pdf#page=1&zoom=page-fit'}
+        tabIndex={-1} className="pdf-page-preview"/>:
+       cover?<img alt="" loading="lazy" src={'/api/worksheets/'+item.id+'/preview?format='+cover}/>:
+       <div className="word-page-preview"><div className="word-preview-line"/><strong>{item.title}</strong>
+        <p>{item.summary||'Worksheet learning activity'}</p><div className="word-preview-lines"/>
+        <FilePenLine size={38}/></div>}
+    </div>
+    <span className="resource-page-badge">{cover==='pdf'?'PDF':cover?'IMAGE':'WORD'}</span>
+   </Link>
+   <div className="resource-card-copy">
+    <div className="resource-byline"><span className="resource-avatar">W</span><span>Worksheet Studio Community</span></div>
+    <Link className="resource-card-title" href={'/worksheets/'+item.slug}>{item.title}<ArrowUpRight size={16}/></Link>
+    <p>{item.summary||'Print-ready learning activity.'}</p>
+    <div className="resource-card-tags"><span>{item.categoryName}</span><span>{item.gradeName||'All grades'}</span></div>
+   </div>
+   <div className="resource-card-footer">
+    <span>Free resource</span>
+    <div>{item.availableFormats.filter(f=>f==='pdf'||f==='docx').map(f=>
+      <a key={f} href={'/api/worksheets/'+item.id+'/download?format='+f} aria-label={'Download '+labels[f]}
+       className="resource-download"><Download size={14}/>{labels[f]}</a>)}
+      <Link href={'/worksheets/'+item.slug} aria-label="Worksheet details"><FileText size={18}/></Link>
+    </div>
+   </div>
+  </article>;
 }

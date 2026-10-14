@@ -4,7 +4,12 @@ import {ArrowRight,ArrowUpRight,BookOpen,Calculator,Palette,Search,Shuffle,Spell
 import WorksheetCard from '@/components/worksheet-card';
 import FormatHero from '@/components/format-hero';
 import {samples,subjects} from '@/lib/catalog';
-export default function Home(){return <>
+import PublishedWorksheetCard from '@/components/published-worksheet-card';
+import {publishedWorksheets} from '@/lib/public-catalog';
+export const dynamic='force-dynamic';
+export default async function Home(){
+ const published=await publishedWorksheets();
+ return <>
 <FormatHero/>
 <section className="hero"><div className="container hero-grid">
   <div className="hero-copy"><div className="eyebrow"><span className="sparkle">✳</span> PRINTABLE LEARNING, MADE SIMPLE</div>
