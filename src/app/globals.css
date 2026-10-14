@@ -262,3 +262,34 @@
 .download-format-link:hover{background:#e2f2df}
 .published-detail-actions{display:flex;gap:8px;flex-wrap:wrap}
 .published-detail-actions .button{font-size:12px}
+
+/* Streamlined two-page admin flow */
+.dashboard-create-card{display:flex;flex-direction:column;gap:16px}
+.dashboard-create-card h2{font-size:25px;margin:0}
+.dashboard-create-card p{color:#63766a;font-size:13px;line-height:1.65}
+.dashboard-create-card small{font-size:11px;color:#819084}
+.dashboard-create-icon{width:65px;height:65px;border-radius:18px;background:#e7f2e4;color:#2c6947;display:grid;place-items:center}
+.dashboard-flow-mini{display:flex;flex-direction:column;gap:10px;padding:14px;background:#f5f9f3;border-radius:9px;font-size:13px;font-weight:700;color:#356b4d}
+.worksheet-wizard-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0 30px}
+.worksheet-wizard-tab{display:flex;align-items:center;justify-content:center;gap:11px;border:1px solid #d9e6d9;border-radius:11px;padding:15px 12px;background:#f8faf7;color:#456a52;font-size:13px;font-weight:800}
+.worksheet-wizard-tab span{display:grid;place-items:center;width:25px;height:25px;background:#e5eee4;border-radius:50%}
+.worksheet-wizard-tab.selected{background:#214c39;color:#fff}
+.worksheet-wizard-tab.selected span{background:#fff;color:#214c39}
+.worksheet-wizard-tab:disabled{opacity:.45}
+.wizard-stage{width:min(850px,100%);margin:0 auto;display:grid;gap:20px}
+.wizard-stage-intro h2{font-size:29px;margin:0 0 7px}
+.wizard-stage-intro p{color:#687d70;font-size:14px;line-height:1.7}
+.wizard-stage .admin-file-manager{width:100%}
+.wizard-details-form{display:grid;gap:19px}
+.wizard-step-footer{display:flex;align-items:center;justify-content:space-between;gap:13px;flex-wrap:wrap;padding:18px 0 25px;border-top:1px solid #e1eae1}
+.wizard-step-footer>span{font-size:12px;color:#648172}
+.wizard-more{border:1px solid #dfe8de;background:#fff;border-radius:12px;overflow:hidden}
+.wizard-more>summary{cursor:pointer;padding:16px;font-size:13px;font-weight:800}
+.wizard-more>.worksheet-editor-panel{border:0}
+.wizard-review-summary{display:grid;gap:14px;background:#fff;border:1px solid #e5ede4;border-radius:16px;padding:25px}
+.wizard-review-summary small{font-size:10px;font-weight:900;color:#879789;letter-spacing:.1em}
+.wizard-review-summary h3{font-size:24px;margin:8px 0}
+.wizard-review-summary p{font-size:13px;color:#597565;line-height:1.6;margin:6px 0 0;white-space:pre-line}
+.wizard-review-summary .button{justify-self:start}
+.wizard-draft-note{display:flex;align-items:center;gap:8px;color:#839386;font-size:11px;margin:40px 0}
+@media(max-width:600px){.worksheet-wizard-tab{flex-direction:column;padding:12px 5px;font-size:11px;text-align:center;gap:6px}.worksheet-wizard-steps{gap:5px}}

@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
+import {useRouter} from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
 import {
   BookOpen, LayoutDashboard, LogOut, LockKeyhole, ShieldCheck, FileText,
@@ -28,6 +29,7 @@ async function ownerFetch(session: Session, init?: RequestInit) {
 }
 
 export default function AdminConsole() {
+  const router=useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
   const [role, setRole] = useState<'owner' | 'denied' | null>(null);
@@ -114,26 +116,18 @@ export default function AdminConsole() {
     setAuthBusy(false);
   }
 
-  async function createDraft(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!session || role !== 'owner') return;
-    setCreating(true); setNotice({});
-    try {
-      const response = await ownerFetch(session, {
-        method: 'POST',
-        body: JSON.stringify({
-          title: draftTitle, summary: draftSummary, category_id: categoryId, grade_id: gradeId || null
-        })
-      });
-      const json = await response.json();
-      if (!response.ok) { setNotice({ error: json.error || 'Creation failed.' }); }
-      else {
-        setNotice({ info: 'Draft created. It stays private until verified files and the publication workflow are enabled.' });
-        setDraftTitle(''); setDraftSummary('');
-        await loadRows(session);
-      }
-    } catch { setNotice({ error: 'Could not contact the admin API.' }); }
-    finally { setCreating(false); }
+  async function createDraft() {
+    if (!session || role!=='owner' || creating)return;
+    if(!categories.length){setNotice({error:'Please wait until categories load.'});return;}
+    setCreating(true);setNotice({});
+    try{
+      const response=await ownerFetch(session,{method:'POST',body:JSON.stringify({
+        title:'Untitled worksheet',summary:'',category_id:categories[0].id,grade_id:null
+      })});
+      const json=await response.json();
+      if(!response.ok)throw new Error(json.error||'Cannot create draft.');
+      router.push('/admin/worksheets/'+json.worksheet.id);
+    }catch(e){setNotice({error:e instanceof Error?e.message:'Could not create draft.'});setCreating(false);}
   }
 
   if (checking) return <div className="container admin-loading"><RefreshCcw className="admin-spin" /> Checking admin session…</div>;
@@ -168,7 +162,7 @@ export default function AdminConsole() {
   const published = rows.filter(row=>row.status==='published').length;
   const drafts = rows.filter(row=>row.status==='draft').length;
   return <div className="admin-area"><div className="container">
-    <div className="admin-topbar"><div><div className="section-kicker">WORKSHEET STUDIO / ADMIN</div><h1>Dashboard <em>overview.</em></h1><p>Private content management · Signed in as {session.user.email}</p></div>
+    <div className="admin-topbar"><div><div className="section-kicker">WORKSHEET STUDIO / ADMIN</div><h1>Your <em>worksheets.</em></h1><p>Manage drafts and published worksheets · Signed in as {session.user.email}</p></div>
       <button onClick={()=>supabaseBrowser.auth.signOut()} type="button" className="button button-outline"><LogOut size={16}/> Sign out</button></div>
     <div className="admin-stats">
       <div><LayoutDashboard size={22}/><small>Total worksheets</small><strong>{rows.length}</strong></div>
@@ -176,36 +170,28 @@ export default function AdminConsole() {
       <div><FileText size={22}/><small>Published</small><strong>{published}</strong></div>
       <div><ShieldCheck size={22}/><small>Account</small><strong className="admin-owner-label">Owner</strong></div>
     </div>
-    <div className="admin-safety"><ShieldCheck size={22}/><div><strong>Safe draft mode is active</strong><p>Draft metadata can be created. Publishing, file upload, bulk generation and deletion stay disabled until private R2 storage, verified SHA-256 checks and auditing are connected.</p></div></div>
+    <div className="admin-safety"><ShieldCheck size={22}/><div><strong>Your simple publishing flow</strong><p>Create a draft, upload a supported file, write metadata, then preview and publish. Saved drafts stay private until you approve them.</p></div></div>
     {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}
     {notice.info&&<p role="status" className="admin-alert good"><CheckCircle2 size={17}/>{notice.info}</p>}
     <div className="admin-content">
       <section className="admin-list">
-        <div className="admin-panel-heading"><div><h2>Worksheet manager</h2><p>Edit, duplicate and archive worksheet records</p></div><button type="button" className="admin-icon-button" onClick={()=>loadRows(session)} disabled={loadingRows} aria-label="Refresh worksheets"><RefreshCcw size={18}/></button></div>
+        <div className="admin-panel-heading"><div><h2>Worksheet manager</h2><p>Open and manage your saved worksheets</p></div><button type="button" className="admin-icon-button" onClick={()=>loadRows(session)} disabled={loadingRows} aria-label="Refresh worksheets"><RefreshCcw size={18}/></button></div>
         <div className="admin-filters"><label className="admin-search"><Search size={16}/><input type="search" aria-label="Search worksheet records" value={rowQuery} onChange={e=>setRowQuery(e.target.value)} placeholder="Search by title…"/></label><select aria-label="Filter worksheet status" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="draft">Draft</option><option value="archived">Archived</option><option value="published">Published</option></select></div>
-        {loadingRows?<p className="admin-empty">Loading worksheet records…</p>:rows.length===0?<div className="admin-empty"><FileText size={34}/><strong>No worksheets yet</strong><p>Create your first draft using the form on the right.</p></div>:
+        {loadingRows?<p className="admin-empty">Loading worksheet records…</p>:rows.length===0?<div className="admin-empty"><FileText size={34}/><strong>No worksheets yet</strong><p>Click “New worksheet” to start.</p></div>:
           <div className="admin-rows">{visibleRows.length === 0 ? <p className="admin-empty">No worksheets match your filters.</p> : visibleRows.map(row=><div key={row.id} className="admin-row">
             <div><strong>{row.title}</strong><small>{row.slug} · {new Date(row.created_at).toLocaleDateString()}</small></div>
-            <div className="admin-row-actions"><span className={'admin-status '+row.status}>{row.status}</span><a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Edit</a></div>
+            <div className="admin-row-actions"><span className={'admin-status '+row.status}>{row.status}</span><a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Open</a></div>
           </div>)}</div>}
       </section>
-      <section className="admin-new-draft"><div className="admin-panel-heading"><div><h2><Plus size={19}/> Create worksheet draft</h2><p>Add private metadata before uploading files later</p></div></div>
-        <form onSubmit={createDraft}>
-          <label htmlFor="draft-title">Worksheet title</label>
-          <input id="draft-title" minLength={3} maxLength={140} required value={draftTitle} onChange={e=>setDraftTitle(e.target.value)} placeholder="e.g. Addition Practice 1–20"/>
-          <label htmlFor="draft-category">Subject</label>
-          <select id="draft-category" value={categoryId} onChange={e=>setCategoryId(e.target.value)} required>
-            {categories.map(cat=><option key={cat.id} value={cat.id}>{cat.name}</option>)}
-          </select>
-          <label htmlFor="draft-grade">Grade (optional)</label>
-          <select id="draft-grade" value={gradeId} onChange={e=>setGradeId(e.target.value)}>
-            <option value="">Not specified</option>
-            {grades.map(grade=><option key={grade.id} value={grade.id}>{grade.display_name}</option>)}
-          </select>
-          <label htmlFor="draft-summary">Description (optional)</label>
-          <textarea id="draft-summary" rows={4} maxLength={700} value={draftSummary} onChange={e=>setDraftSummary(e.target.value)} placeholder="What will children learn?" />
-          <button type="submit" className="button button-dark admin-submit" disabled={creating||!categoryId}><Plus size={17}/>{creating?'Creating…':'Save private draft'}</button>
-        </form>
+      <section className="admin-new-draft dashboard-create-card">
+        <div className="dashboard-create-icon"><Plus size={31}/></div>
+        <h2>Create a worksheet</h2>
+        <p>Start with a private draft and finish it on one guided page.</p>
+        <div className="dashboard-flow-mini"><span>1. Upload</span><span>2. Metadata</span><span>3. Preview & publish</span></div>
+        <button type="button" className="button button-dark admin-submit" onClick={createDraft} disabled={creating||!categories.length}>
+          <Plus size={17}/>{creating?'Creating…':'New worksheet'}
+        </button>
+        <small>Your draft is saved even if you leave before publishing.</small>
       </section>
     </div>
   </div></div>;
