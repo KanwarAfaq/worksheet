@@ -5,7 +5,7 @@ import type {Session} from '@supabase/supabase-js';
 import {UploadCloud,LockKeyhole,BookOpen,FileText,Plus,CheckCircle2,AlertCircle,LogOut,ArrowLeft,ArrowRight,Download,FilePenLine,ShieldCheck} from 'lucide-react';
 import {supabaseBrowser} from '@/lib/supabase-browser';
 
-type Item={id:string;title:string;summary:string|null;status:string;category_id:string;grade_id:string|null;created_at:string};
+type Item={id:string;slug:string;title:string;summary:string|null;status:string;category_id:string;grade_id:string|null;created_at:string};
 type Category={id:string;name:string};type Grade={id:string;display_name:string};
 type Attached={id:string;original_name:string;variant:string;role:string;size_bytes:number};
 const root='/api/community/worksheets';
@@ -24,6 +24,7 @@ export default function Contribute(){
  const [step,setStep]=useState<0|1|2>(0);
  const [file,setFile]=useState<File|null>(null);
  const [agree,setAgree]=useState(false);
+ const [rightsBasis,setRightsBasis]=useState<'original'|'licensed'>('original');
  const [attachments,setAttachments]=useState<Attached[]>([]);
  const [title,setTitle]=useState('');const [summary,setSummary]=useState('');
  const [subject,setSubject]=useState('');const [grade,setGrade]=useState('');
@@ -79,7 +80,7 @@ export default function Contribute(){
   if(busy||!subject)return;setBusy(true);setError('');setNotice('');
   try{
    const response=await api(root,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category_id:subject,grade_id:grade||null})});
-   const created={id:response.id,title:'Untitled worksheet',summary:null,status:'draft',category_id:subject,grade_id:grade||null,created_at:new Date().toISOString()};
+   const created={id:response.id,slug:'',title:'Untitled worksheet',summary:null,status:'draft',category_id:subject,grade_id:grade||null,created_at:new Date().toISOString()};
    setActive(created);setTitle('');setSummary('');setFile(null);setAttachments([]);setStep(0);setAgree(false);setSignedPolicy(false);
    await load();setNotice('Your private draft is saved.');
   }catch(e){setError(e instanceof Error?e.message:'Unable to create a draft.');}
@@ -98,7 +99,7 @@ export default function Contribute(){
   if(!active||!file||!agree||busy)return;
   setBusy(true);setError('');setNotice('');
   try{
-   const data=new FormData();data.set('file',file);data.set('rights_confirmed','yes');
+   const data=new FormData();data.set('file',file);data.set('rights_confirmed','yes');data.set('license_basis',rightsBasis);
    await api(root+'/'+active.id+'/files',{method:'POST',body:data});
    const latest=await api(root+'/'+active.id+'/files');
    setAttachments(latest.files||[]);setFile(null);setAgree(false);setNotice('File securely uploaded and verified.');
@@ -202,7 +203,12 @@ export default function Contribute(){
       <button onClick={()=>download(f,f.variant==='pdf')} type="button">{f.variant==='pdf'?'Preview':'Download'} <Download size={15}/></button></div>)}
     {active.status==='draft'&&<form onSubmit={upload}><label htmlFor="community-upload">Choose document</label>
      <input type="file" id="community-upload" accept=".pdf,.docx" required onChange={e=>setFile(e.target.files?.[0]||null)}/>
-     <label className="check-field"><input type="checkbox" checked={agree} onChange={e=>setAgree(e.target.checked)}/> I created or have redistribution rights to this worksheet.</label>
+     <label htmlFor="community-rights">Copyright and redistribution rights</label>
+    <select id="community-rights" value={rightsBasis} onChange={e=>setRightsBasis(e.target.value as 'original'|'licensed')}>
+      <option value="original">I created this worksheet</option>
+      <option value="licensed">I have a redistribution license</option>
+    </select>
+    <label className="check-field"><input type="checkbox" checked={agree} onChange={e=>setAgree(e.target.checked)}/> I created or have redistribution rights to this worksheet.</label>
      <button className="button button-dark" type="submit" disabled={!file||!agree||busy}><UploadCloud size={16}/>{busy?'Uploading…':'Upload and verify'}</button></form>}
     <button className="button button-outline" type="button" onClick={()=>setStep(1)}>Next: Metadata <ArrowRight size={15}/></button>
    </div>}
@@ -223,7 +229,7 @@ export default function Contribute(){
     {active.status==='draft'&&<><label className="check-field"><input type="checkbox" checked={signedPolicy} onChange={e=>setSignedPolicy(e.target.checked)}/> I confirm this file is safe, appropriate for children, and I hold permission to share it publicly.</label>
       <button className="button button-dark" type="button" disabled={!signedPolicy||!attachments.length||!active.summary||busy} onClick={submit}>Submit for automated review <ArrowRight size={16}/></button></>}
     {active.status==='review'&&<p className="admin-alert good"><ShieldCheck size={16}/> Submission queued for moderation. It is not publicly visible yet.</p>}
-    {active.status==='published'&&<Link className="button button-dark" href={'/worksheets/'+active.id}>View public worksheet</Link>}
+    {active.status==='published'&&<Link className="button button-dark" href={'/worksheets/'+active.slug}>View public worksheet</Link>}
    </div>}
   </div>}
  </div></section>;

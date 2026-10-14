@@ -1,0 +1,13 @@
+-- Community upload allowance and moderation queue.
+-- Already applied using connected Supabase migrations:
+-- community_five_worksheet_limit_and_review_queue
+-- community_owner_review_and_concurrent_upload_limit
+-- Database requirements to preserve in future schema resets:
+-- * create_free_worksheet(category,grade): SECURITY DEFINER, confirmed auth user,
+--   per-user advisory lock, max five lifetime worksheet records
+-- * submit_free_worksheet(id): draft -> review only after metadata and verified student file
+-- * community RLS: creator sees own records and writes only their own private drafts
+-- * file metadata: private R2 keys never anonymously readable
+-- * moderation queue: pending -> needs_review until reliable file/content/rights verification
+-- * owner publish RPC supports draft and community review statuses
+-- * five uploads per community worksheet enforced by trigger

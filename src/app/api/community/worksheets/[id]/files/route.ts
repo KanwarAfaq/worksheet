@@ -27,7 +27,9 @@ export async function POST(request:Request,{params}:Context){
  let data:FormData;
  try{data=await request.formData();}catch{return json({error:'Invalid upload.'},400);}
  const f=data.get('file'),confirmed=data.get('rights_confirmed');
- if(!(f instanceof File)||confirmed!=='yes')return json({error:'Choose a file and confirm you have redistribution rights.'},400);
+ const basis=data.get('license_basis');
+ if(!(f instanceof File)||confirmed!=='yes'||!['original','licensed'].includes(String(basis)))
+   return json({error:'Choose a file and confirm your original authorship or redistribution rights.'},400);
  if(f.size>MAX_UPLOAD_BYTES||f.size<64)return json({error:'File must be less than 3 MB.'},413);
  const {data:existing,error:fetchError}=await a.db.from('worksheet_files').select('id')
   .eq('worksheet_id',id).eq('role','student').limit(6);
@@ -53,7 +55,7 @@ export async function POST(request:Request,{params}:Context){
  const {data:record,error}=await a.db.from('worksheet_files')
  .insert({worksheet_id:id,role:'student',variant:verified.type,original_name:f.name.slice(0,160),
   mime_type:verified.mime,size_bytes:body.length,sha256:verified.sha256,
-  r2_bucket:bucket,object_key:key,is_primary:true,license_basis:'original',
+  r2_bucket:bucket,object_key:key,is_primary:true,license_basis:basis,
   upload_status:'verified',checksum_verified_at:new Date().toISOString(),uploaded_by:a.user.id})
  .select('id,variant,original_name').single();
  if(error){try{await client.send(new DeleteObjectCommand({Bucket:bucket,Key:key}));}catch{}
