@@ -1,8 +1,16 @@
+import type { MetadataRoute } from 'next';
+import { subjects } from '@/lib/catalog';
+import { siteOrigin, indexingEnabled } from '@/lib/site-url';
 
-import type {MetadataRoute} from 'next';
-import {samples,subjects} from '@/lib/catalog';
-export default function sitemap():MetadataRoute.Sitemap{
-const base=(process.env.NEXT_PUBLIC_SITE_URL||'http://localhost:3000').replace(/\/$/,'');
-return ['/', '/worksheets','/create','/about','/privacy',...subjects.map(s=>'/'+s.slug),...Object.keys({'word-search':1,'word-scramble':1,'missing-letters':1}).map(x=>'/create/'+x)].map(path=>({url:base+path,changeFrequency:'monthly',priority:path==='/'?1:.6}));
+export default function sitemap(): MetadataRoute.Sitemap {
+  // Avoid indexing an unfinished library or sample worksheet detail pages.
+  if (!indexingEnabled) return [];
+  const origin = siteOrigin();
+  const routes = ['/', '/worksheets', '/create', '/about', '/privacy',
+    ...subjects.map(subject => '/' + subject.slug)];
+  return routes.map(path => ({
+    url: origin + path,
+    changeFrequency: 'monthly' as const,
+    priority: path === '/' ? 1 : 0.6,
+  }));
 }
-// Catalog sample/detail pages are intentionally excluded until real approved downloads exist.

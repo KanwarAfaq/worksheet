@@ -1,27 +1,24 @@
 # Worksheet Studio — Vercel preview setup
 
 1. Sign in to Vercel and import **KanwarAfaq/worksheet** from GitHub.
-2. Set Framework Preset to **Next.js**, Root Directory to repository root.
-3. Leave the custom domain unset for now; use the Vercel-generated preview hostname.
-4. Set `NEXT_PUBLIC_SITE_URL` to the final Vercel preview URL once known, then redeploy.
-5. Deploy the `main` branch, with automatic deployments enabled on future commits.
-6. Review build logs and visit home, English/Math/Coloring, catalog, and three generator routes.
+2. Framework Preset: **Next.js**; Root Directory: repository root.
+3. Use the temporary Vercel hostname until a custom domain is ready.
+4. The site recognizes `VERCEL_PROJECT_PRODUCTION_URL` automatically and falls back to the current preview origin.
+5. Once a purchased domain is attached, set `NEXT_PUBLIC_SITE_URL=https://yourdomain.example`.
+6. Do **not** set `ENABLE_SEARCH_INDEXING=true` until the website has verified published content, legal pages, SEO and a live custom domain.
+7. Deploy the `main` branch and enable automatic deployments.
 
 ## Supabase
 
-The Supabase project `ijikaqxgsfsakdtzzgkc` is connected and has a foundation schema applied.
-The public preview catalog currently contains clearly labeled sample data. It does **not** yet query Supabase or expose private files.
-The initial database is intentionally locked down: RLS on all tables and no anonymous file-object-key exposure.
+Project: `ijikaqxgsfsakdtzzgkc`. Foundation schema created with RLS enabled.
+The public catalog is still labeled sample data. It does **not** expose private file object keys or connect to worksheet downloads.
+Owner email: `kmafaq2@gmail.com`. Supabase Auth user must be created separately; do not share passwords.
 
-## Next phase
+## Future R2 storage
 
-Provision R2 private bucket and credentials, implement authenticated file gateway and Supabase role-checked CRUD.
-Do not put R2 keys or the Supabase service-role secret in `NEXT_PUBLIC_*` environment variables.
-The Supabase Auth owner has not been created yet. Owner email: `kmafaq2@gmail.com`.
-Set up the owner through Supabase Auth securely before turning on administration.
+Create a **private** Cloudflare R2 bucket and backend file delivery on `/api/worksheets/{id}/download`.
+No public R2 domain is used. Upload signatures, file inspection, server-verified SHA-256 and admin authorization must be implemented first.
 
-## Hosting and cost
+## Hosting costs
 
-Vercel Hobby is a development-preview option only when eligible under Vercel's terms; commercial use requires eligible hosting.
-R2/Supabase limits and potential billing requirements must be checked before production release.
-Do not assume `pages.dev` or Vercel preview URLs are permanent canonical domains.
+Vercel Hobby is for eligible non-commercial preview use. Before commercial launch, choose a plan/provider that allows the intended business use. Confirm current Supabase and Cloudflare quotas and billing requirements.

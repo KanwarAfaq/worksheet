@@ -1,3 +1,12 @@
+import type { MetadataRoute } from 'next';
+import { siteOrigin, indexingEnabled } from '@/lib/site-url';
 
-import type {MetadataRoute} from 'next';
-export default function robots():MetadataRoute.Robots{return{rules:[{userAgent:'*',allow:'/',disallow:['/admin/','/api/','/create/']}],sitemap:(process.env.NEXT_PUBLIC_SITE_URL||'http://localhost:3000')+'/sitemap.xml'};}
+export default function robots(): MetadataRoute.Robots {
+  if (!indexingEnabled) {
+    return { rules: [{ userAgent: '*', disallow: '/' }] };
+  }
+  return {
+    rules: [{ userAgent: '*', allow: '/', disallow: ['/admin/', '/api/', '/create/'] }],
+    sitemap: siteOrigin() + '/sitemap.xml',
+  };
+}
