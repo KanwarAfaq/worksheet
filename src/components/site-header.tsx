@@ -2,66 +2,81 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useEffect,useState} from 'react';
-import {BookOpen,Menu,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
-import {grades,subjects} from '@/lib/catalog';
+import {BookOpen,Menu,X,ChevronDown,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
+import {grades} from '@/lib/catalog';
+import {mainMenus} from '@/lib/navigation';
 export default function Header(){
- const [sidebar,setSidebar]=useState(false);
  const pathname=usePathname();
- useEffect(()=>{setSidebar(window.matchMedia('(min-width: 1250px)').matches);},[]);
- useEffect(()=>{if(window.matchMedia('(max-width: 1249px)').matches)setSidebar(false);},[pathname]);
+ const [sidebar,setSidebar]=useState(false);
  const [dark,setDark]=useState(false);
  useEffect(()=>{
-   const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setSidebar(false);};
-   window.addEventListener('keydown',onKey);
-   const onResize=()=>{if(window.innerWidth<1250)setSidebar(false);};
-   window.addEventListener('resize',onResize);
-   return()=>{window.removeEventListener('keydown',onKey);window.removeEventListener('resize',onResize);};
+  setDark(window.localStorage.getItem('worksheet-theme')==='dark');
+  document.documentElement.dataset.theme=window.localStorage.getItem('worksheet-theme')==='dark'?'dark':'light';
  },[]);
+ useEffect(()=>{setSidebar(false);},[pathname]);
  useEffect(()=>{
-   const saved=window.localStorage.getItem('worksheet-theme');
-   const enabled=saved==='dark';
-   setDark(enabled);
-   document.documentElement.dataset.theme=enabled?'dark':'light';
+  const close=(e:KeyboardEvent)=>{if(e.key==='Escape')setSidebar(false);};
+  window.addEventListener('keydown',close);
+  return()=>window.removeEventListener('keydown',close);
  },[]);
  function changeTheme(){
-   setDark(v=>{
-     const next=!v;
-     document.documentElement.dataset.theme=next?'dark':'light';
-     window.localStorage.setItem('worksheet-theme',next?'dark':'light');
-     return next;
-   });
+  const next=!dark;setDark(next);
+  document.documentElement.dataset.theme=next?'dark':'light';
+  window.localStorage.setItem('worksheet-theme',next?'dark':'light');
  }
  return <>
- <header className="site-header single-header">
-  <div className="container nav-inner single-nav">
-   <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(v=>!v)}
-     aria-label={sidebar?"Collapse navigation":"Expand navigation"} aria-expanded={sidebar} aria-controls="worksheet-sidebar">
-     <Menu size={23}/></button>
-   <Link href="/" className="brand" aria-label="Worksheet Studio home">
-     <span className="brand-icon"><BookOpen size={19}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
-   </Link>
-   <nav className="main-subject-nav" aria-label="Worksheet subjects">
-    {subjects.map(subject=><Link key={subject.slug} href={'/'+subject.slug} aria-current={pathname==='/'+subject.slug?'page':undefined}>{subject.title}</Link>)}
-   </nav>
-   <div className="single-nav-actions"><button type="button" className="icon-control header-theme-control" onClick={changeTheme} aria-label={dark?"Switch to light theme":"Switch to dark theme"} title={dark?"Light theme":"Dark theme"}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button><Link className="single-nav-link account-link" href="/contribute"><UserRound size={16}/> Account</Link>
-     <Link className="single-nav-link" href="/create"><Plus size={15}/> Create</Link>
-     <Link className="single-nav-upload" href="/contribute"><Upload size={16}/> Upload</Link>
+  <header className="site-header single-header">
+   <div className="container nav-inner single-nav">
+    <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(s=>!s)}
+     aria-label={sidebar?'Close sidebar':'Open sidebar'} aria-expanded={sidebar} aria-controls="worksheet-sidebar"><Menu size={24}/></button>
+    <Link href="/" className="brand" aria-label="Worksheet Studio home">
+     <span className="brand-icon"><BookOpen size={20}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
+    </Link>
+    <nav className="main-subject-nav simplified-main-menu" aria-label="Main subjects">
+     {mainMenus.map(menu=><details className="top-subject-dropdown" key={pathname+menu.key}>
+      <summary aria-label={menu.name+' menu'}>{menu.name}<ChevronDown size={18}/></summary>
+      <div className="top-subject-panel">
+       <Link className="top-subject-all" href={menu.href}>All {menu.name} worksheets</Link>
+       <div className="top-subject-links">
+        {menu.items.map(item=><Link key={item.name} href={item.href}>{item.name}</Link>)}
+       </div>
+       <div className="top-subject-grade-title">GRADES 1–6</div>
+       <div className="top-subject-grade-links">
+        {grades.map(grade=><Link href={'/worksheets?subject='+menu.gradeSubject+'&grade='+grade.slug}
+          key={grade.slug}>{grade.title.replace('Grade ','')}</Link>)}
+       </div>
+      </div>
+     </details>)}
+    </nav>
+    <div className="single-nav-actions">
+      <Link className="single-nav-link account-link" href="/contribute"><UserRound size={19}/> Account</Link>
+      <Link className="single-nav-link" href="/create"><Plus size={18}/> Create</Link>
+      <Link className="single-nav-upload" href="/contribute"><Upload size={18}/> Upload</Link>
+    </div>
    </div>
-  </div>
- </header>
- {sidebar&&<div className="sidebar-scrim" onClick={()=>setSidebar(false)} aria-hidden="true"/>}
- <aside className={'worksheet-sidebar '+(sidebar?'is-open':'')} id="worksheet-sidebar" aria-label="Browse and appearance">
-   <div className="sidebar-top"><strong>Worksheet Studio</strong></div>
-   <div className="sidebar-section-title">QUICK LINKS</div>
-   <Link href="/worksheets" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>All worksheets</Link>
-   <Link href="/create" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Worksheet maker</Link>
-   <Link href="/contribute" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Upload a worksheet</Link>
-   <Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet maker</Link>
-   <div className="sidebar-section-title">BROWSE</div>
-   <details className="sidebar-menu-group"><summary>Subjects <span>⌄</span></summary><div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} aria-current={pathname==='/'+sub.slug?'page':undefined} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{sub.title}</Link>)}</div></details>
-   <details className="sidebar-menu-group"><summary>Grades 1–6 <span>⌄</span></summary><div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{g.title}</Link>)}</div></details>
-   <details className="sidebar-menu-group"><summary>Worksheet templates <span>⌄</span></summary><div className="sidebar-subject-links"><Link href="/create/templates" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>4 editable templates</Link><Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet creator</Link></div></details>
-
- </aside>
+  </header>
+  {sidebar&&<div className="sidebar-scrim" onClick={()=>setSidebar(false)} aria-hidden="true"/>}
+  <aside className={'worksheet-sidebar simple-sidebar '+(sidebar?'is-open':'')} id="worksheet-sidebar" aria-label="Quick navigation">
+   <div className="sidebar-top"><strong>Menu</strong>
+    <button className="icon-control" type="button" onClick={()=>setSidebar(false)} aria-label="Close sidebar"><X size={21}/></button>
+   </div>
+   <nav className="simple-sidebar-links" aria-label="Quick links">
+    <Link href="/worksheets" onClick={()=>setSidebar(false)}>Worksheets</Link>
+    <Link href="/create" onClick={()=>setSidebar(false)}>Create</Link>
+    <Link href="/contribute" onClick={()=>setSidebar(false)}>Upload</Link>
+   </nav>
+   <details className="simple-sidebar-grades">
+    <summary>Grades 1–6 <ChevronDown size={18}/></summary>
+    <div>{grades.map(grade=><Link key={grade.slug} href={'/worksheets?grade='+grade.slug}
+      onClick={()=>setSidebar(false)}>{grade.title}</Link>)}</div>
+   </details>
+   <div className="sidebar-theme">
+    <span>Theme</span>
+    <button className="theme-toggle" type="button" onClick={changeTheme}
+      aria-label={dark?'Switch to light mode':'Switch to dark mode'} aria-pressed={dark}>
+     {dark?<Moon size={19}/>:<Sun size={19}/>} {dark?'Dark':'Light'}
+    </button>
+   </div>
+  </aside>
  </>;
 }

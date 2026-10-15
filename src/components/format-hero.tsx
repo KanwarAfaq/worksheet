@@ -40,7 +40,7 @@ export default function FormatHero(){
        <option value="">All grades</option>{Array.from({length:6},(_,i)=><option key={i} value={'grade-'+(i+1)}>Grade {i+1}</option>)}
      </select></label>
      <label>Subject <select value={subject} onChange={e=>setSubject(e.target.value)}>
-       <option value="">All subjects</option>{['math','reading','kindergarten','vocabulary','spelling','grammar','writing','colors'].map(s=><option key={s} value={s}>{s[0].toUpperCase()+s.slice(1)}</option>)}
+       <option value="">All subjects</option>{['math','reading','colors'].map(s=><option key={s} value={s}>{s==='reading'?'English':s==='colors'?'Color':'Math'}</option>)}
      </select></label>
      <button type="button" onClick={()=>{setGrade('');setSubject('');setQuery('');}}>Clear filters</button>
     </div>}

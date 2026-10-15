@@ -17,6 +17,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   {path:'/',priority:1},
   {path:'/worksheets',priority:.85},
   {path:'/create',priority:.8},
+  {path:'/create/coloring',priority:.8},
   {path:'/create/templates',priority:.8},
   {path:'/faq',priority:.7},
   {path:'/guides/printing-worksheets',priority:.7},

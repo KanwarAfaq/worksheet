@@ -25,9 +25,9 @@ export default async function Home(){
    <FormatHero/>
    <section className="simple-home-section container">
     <div className="simple-section-heading"><h2>Choose a subject</h2><Link href="/worksheets">View all <ArrowRight size={18}/></Link></div>
-    <div className="simple-subjects">{subjects.map(subject=>
+    <div className="simple-subjects three-main-subjects">{subjects.filter(subject=>['math','reading','colors'].includes(subject.slug)).map(subject=>
       <Link key={subject.slug} href={'/'+subject.slug} className={'simple-subject '+subject.tint}>
-       <BookOpen size={29}/><strong>{subject.title}</strong>
+       <BookOpen size={29}/><strong>{subject.slug==='reading'?'English':subject.slug==='colors'?'Color':subject.title}</strong>
       </Link>)}</div>
    </section>
    <section className="simple-home-section simple-maker-section">

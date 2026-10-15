@@ -30,6 +30,10 @@ export default async function Category({params}:{params:Promise<{category:string
  const published=(await publishedWorksheets()).filter(w=>w.categorySlug===category);
  return <div className="container inner-page">
  <StructuredData value={breadcrumbs([{label:'Home',url:'/'},{label:sub.title+' worksheets',url:'/'+sub.slug}])}/>
+ {category==='colors'&&<div className="color-category-cta">
+   <div><h2>Coloring Page Maker</h2><p>Pick up to 4 pictures and print your own page.</p></div>
+   <Link href="/create/coloring" className="button button-dark">Create coloring page <ArrowRight size={19}/></Link>
+ </div>}
  <div className="section-kicker">EXPLORE BY SUBJECT</div>
  <h1>{sub.title} <em>worksheets.</em></h1>
  <p className="page-lead">{sub.description} Find activities by grade or create a free printable worksheet with our makers.</p>
@@ -42,6 +46,7 @@ export default async function Category({params}:{params:Promise<{category:string
  examples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div><div className="worksheet-grid">{examples.map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></>:
  <div className="category-pending"><h3>{sub.title} worksheets are on the way</h3><p>We are preparing and reviewing original or licensed worksheets. No downloadable files are published in this category yet.</p><Link href="/create">Make a worksheet instead <ArrowRight size={16}/></Link></div>}
  <p className="sample-disclaimer">Published documents have download links. Example listings are not downloadable.</p>
- <div className="bottom-prompt">Need a printable today? <Link href="/create">Try the free worksheet maker <ArrowRight size={17}/></Link></div>
+ <div className="bottom-prompt">Make your own activity
+   <Link href={category==='colors'?'/create/coloring':'/create'}>{category==='colors'?'Open coloring maker':'Open worksheet maker'} <ArrowRight size={17}/></Link></div>
  </div>;
 }

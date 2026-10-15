@@ -1,12 +1,12 @@
-export const coloringChoices=['cat','apple','flower','tree','fish','butterfly','star','house'] as const;
+export const coloringChoices=['cat','apple','flower','tree','fish','butterfly','star','house','computer','car','sun','ball'] as const;
 export type ColoringObject=typeof coloringChoices[number];
 export const coloringNames:Record<ColoringObject,string>={
  cat:'Cat',apple:'Apple',flower:'Flower',tree:'Tree',fish:'Fish',
- butterfly:'Butterfly',star:'Star',house:'House'
+ butterfly:'Butterfly',star:'Star',house:'House',computer:'Computer',car:'Car',sun:'Sun',ball:'Ball'
 };
 export const suggestedColors:Record<ColoringObject,string>={
  cat:'orange',apple:'red',flower:'pink',tree:'green',fish:'blue',
- butterfly:'purple',star:'yellow',house:'brown'
+ butterfly:'purple',star:'yellow',house:'brown',computer:'gray',car:'blue',sun:'yellow',ball:'red'
 };
 export function isColoringObject(s:string):s is ColoringObject{
  return (coloringChoices as readonly string[]).includes(s);
@@ -71,6 +71,43 @@ export function drawColoringObject(ctx:CanvasRenderingContext2D,object:ColoringO
   path(()=>{ctx.moveTo(68,183);ctx.lineTo(200,60);ctx.lineTo(330,183);ctx.closePath();},'#d88b77');
   path(()=>{ctx.rect(178,245,52,103);},'#c79e77');
   path(()=>{ctx.rect(117,215,45,49);},'#b8e4f0');path(()=>{ctx.rect(254,215,33,49);},'#b8e4f0');
+ }else if(object==='computer'){
+  // Screen, stand and keyboard: large open areas for easy coloring.
+  path(()=>{ctx.rect(56,69,288,210);},'#dae7f4');
+  path(()=>{ctx.rect(73,87,254,169);},'#f0f7fe');
+  line(180,279,180,318);line(219,279,219,318);
+  path(()=>{ctx.moveTo(148,318);ctx.lineTo(252,318);ctx.lineTo(269,337);ctx.lineTo(133,337);ctx.closePath();},'#cad2d9');
+  path(()=>{ctx.moveTo(104,344);ctx.lineTo(296,344);ctx.lineTo(321,377);ctx.lineTo(79,377);ctx.closePath();},'#e3e7eb');
+  line(113,354,288,354);line(101,365,302,365);
+ }else if(object==='car'){
+  path(()=>{ctx.moveTo(64,201);ctx.lineTo(97,191);ctx.lineTo(140,127);ctx.quadraticCurveTo(155,111,185,111);
+   ctx.lineTo(258,111);ctx.quadraticCurveTo(274,111,291,132);ctx.lineTo(329,189);ctx.lineTo(346,201);
+   ctx.lineTo(346,289);ctx.lineTo(55,289);ctx.lineTo(55,214);ctx.closePath();});
+  path(()=>{ctx.moveTo(145,141);ctx.lineTo(183,141);ctx.lineTo(183,185);ctx.lineTo(116,185);ctx.closePath();},'#cfe7f2');
+  path(()=>{ctx.moveTo(207,141);ctx.lineTo(260,141);ctx.lineTo(289,185);ctx.lineTo(207,185);ctx.closePath();},'#cfe7f2');
+  ellipse(118,289,36,36,'#a4aeb4');ellipse(292,289,36,36,'#a4aeb4');
+  ellipse(118,289,15,15,'#fff');ellipse(292,289,15,15,'#fff');
+  line(64,230,104,230);line(300,230,342,230);
+ }else if(object==='sun'){
+  for(let i=0;i<12;i++){const a=Math.PI*2*i/12;
+    line(200+Math.cos(a)*115,200+Math.sin(a)*115,200+Math.cos(a)*166,200+Math.sin(a)*166);}
+  ellipse(200,200,88,88,'#ffe484');
+ }else if(object==='ball'){
+  ellipse(200,200,144,144,'#ffd0d1');
+  path(()=>{ctx.moveTo(111,87);ctx.bezierCurveTo(198,140,196,262,290,314);},'#fff');
+  path(()=>{ctx.moveTo(89,276);ctx.bezierCurveTo(170,194,240,195,318,126);},'#fff');
  }
  ctx.restore();
+}
+
+export const coloringGroups = [
+ {slug:'animals',title:'Animals',objects:['cat','fish','butterfly']},
+ {slug:'fruits',title:'Fruits',objects:['apple']},
+ {slug:'nature',title:'Nature',objects:['flower','tree','sun']},
+ {slug:'shapes',title:'Shapes',objects:['star','ball']},
+ {slug:'objects',title:'Everyday Objects',objects:['house','computer','car']},
+] as const;
+export function matchColoringWords(text:string):ColoringObject[]{
+ const words=text.toLowerCase().replace(/[^a-z,\s-]/g,' ').split(/[\s,;-]+/).filter(Boolean);
+ return [...new Set(words.filter(isColoringObject))];
 }
