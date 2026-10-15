@@ -27,7 +27,7 @@ export async function publishedWorksheets():Promise<PublicWorksheet[]> {
     return{id:row.id,slug:row.slug,title:row.title,summary:row.summary,description:row.description,
       categorySlug:c?.slug||'other',categoryName:c?.name||'Worksheet',
       gradeSlug:g?.slug||null,gradeName:g?.display_name||null,
-      availableFormats:(row.available_formats||[]).filter(x=>['pdf','docx','pptx','png','jpg','webp'].includes(x)) as Array<'pdf'|'docx'|'pptx'|'png'|'jpg'|'webp'>};
+      availableFormats:(row.available_formats||[]).filter(x=>['pdf','png','jpg','webp'].includes(x)) as Array<'pdf'|'docx'|'pptx'|'png'|'jpg'|'webp'>};
   });
  }catch{return [];}
 }
