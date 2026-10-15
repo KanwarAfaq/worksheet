@@ -1,5 +1,6 @@
 import {requireContributor,json} from '@/lib/community-server';
 import {generateAIWorksheet} from '@/lib/ai-worksheet';
+import {notifyWorksheetAdmin} from '@/lib/line-admin';
 export const runtime='nodejs';export const dynamic='force-dynamic';export const maxDuration=60;
 const subjects=['math','reading','kindergarten','vocabulary','spelling','grammar','writing','colors'];
 export async function POST(request:Request){
@@ -17,6 +18,7 @@ export async function POST(request:Request){
  if(error)return json({error:'Daily AI worksheet limit reached (5 per day), or quota could not be checked.'},429);
  try{
   const result=await generateAIWorksheet(topic,subject,grade,level);
+  await notifyWorksheetAdmin('ai_worksheet_generated',{worksheetId:'AI draft',actorId:a.user.id});
   return json({worksheet:result});
  }catch(e){
   console.error('Worksheet AI generation failed:',e instanceof Error?e.message:'unknown');
