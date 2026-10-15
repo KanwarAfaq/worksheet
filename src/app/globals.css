@@ -694,3 +694,5 @@ html[data-theme='dark'] .template-preview{background:#1a2d24}
 .provider-status p{font-size:11px;line-height:1.5}
 html[data-theme='dark'] .provider-status{background:#254b36;color:#f5fff5;border-color:#78a88a}
 html[data-theme='dark'] .provider-status small{color:#d4e4d7}
+
+@media(min-width:1250px){.sidebar-trigger{display:none!important}}
