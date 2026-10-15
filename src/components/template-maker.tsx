@@ -20,7 +20,7 @@ function printPage(canvas:HTMLCanvasElement,type:TemplateType,words:string[],tit
   if(!answer){c.strokeStyle='#bdc8c0';c.beginPath();c.moveTo(115,y+36);c.lineTo(1120,y+36);c.stroke();}
  };
  const use=words.slice(pageIndex*12,(pageIndex+1)*12);
- if(type==='tracing'||type==='copy'){
+ if(type==='tracing'){
   const items=use;
   const n=Math.min(items.length,12),step=112;
   for(let i=0;i<n;i++){
@@ -30,9 +30,7 @@ function printPage(canvas:HTMLCanvasElement,type:TemplateType,words:string[],tit
    c.setLineDash([6,7]);c.beginPath();c.moveTo(80,y+25);c.lineTo(1160,y+25);c.stroke();
    c.setLineDash([]);c.beginPath();c.moveTo(80,y+70);c.lineTo(1160,y+70);c.stroke();
    c.font="76px 'Comic Sans MS','Chalkboard SE','Comic Neue',cursive";c.textBaseline='alphabetic';
-   if(type==='tracing'){
-    c.lineWidth=1.6;c.strokeStyle='#576f62';c.setLineDash([3,5]);c.strokeText(items[i],103,y+66);c.setLineDash([]);
-   }else{c.fillStyle='#6c8a77';c.fillText(items[i],103,y+66);}
+   c.lineWidth=1.6;c.strokeStyle='#576f62';c.setLineDash([3,5]);c.strokeText(items[i],103,y+66);c.setLineDash([]);
   }
  }else if(type==='word-search'){
   try{
@@ -43,18 +41,10 @@ function printPage(canvas:HTMLCanvasElement,type:TemplateType,words:string[],tit
    if(answer&&puzzle.placements){c.strokeStyle='#357f55';c.lineWidth=5;puzzle.placements.forEach(p=>{const first=p.cells[0],last=p.cells[p.cells.length-1];c.beginPath();c.moveTo(110+first[1]*size+size*.23,340+first[0]*size+size*.1);c.lineTo(110+last[1]*size+size*.23,340+last[0]*size+size*.1);c.stroke();});}
    c.font='bold 22px Arial';use.forEach((x,i)=>c.fillText(x,105+(i%3)*330,1250+Math.floor(i/3)*47));
   }catch{c.fillText('Use shorter words to make the word search.',90,400);}
- }else if(type==='matching'){
-  const right=[...use].reverse();
-  use.forEach((x,i)=>{const y=360+i*98;c.fillStyle='#193b2e';c.font='30px Arial';c.fillText((i+1)+'. '+x,100,y);c.fillText(String.fromCharCode(65+i)+'. '+right[i],760,y);
-   if(answer){c.font='19px Arial';c.fillText('→ '+String.fromCharCode(65+right.indexOf(x)),460,y);}
-  });
- }else if(type==='alphabetical'){
-  const sorted=[...use].sort((a,b)=>a.localeCompare(b));
-  use.forEach((x,i)=>row(359,x,i,sorted[i]));
  }else{
   use.forEach((x,i)=>{
-   const q=type==='scramble'?shuffleWord(x,seed+i+1):type==='missing'?x.split('').map((ch,j)=>j>0&&j%2===1?'_':ch).join(' '):x+'  = ______ letters';
-   row(359,q,i,type==='count'?x+' = '+x.replace(/[^a-z]/gi,'').length:x);
+   const q=type==='scramble'?shuffleWord(x,seed+i+1):x.split('').map((ch,j)=>j>0&&j%2===1?'_':ch).join(' ';
+   row(359,q,i,x);
   });
  }
  c.textBaseline='alphabetic';c.setLineDash([]);c.fillStyle='#829186';c.font='19px Arial';c.fillText(answer?'Teacher copy — verify answers before use':'Worksheet Studio · Printable activity',75,1710);
