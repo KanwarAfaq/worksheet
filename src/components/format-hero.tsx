@@ -1,10 +1,9 @@
 'use client';
 import {useState,type FormEvent} from 'react';
 import {useRouter} from 'next/navigation';
-import {Search,FileText,Image as ImageIcon,SlidersHorizontal,ArrowRight} from 'lucide-react';
+import {Search,SlidersHorizontal,ArrowRight} from 'lucide-react';
 import Link from 'next/link';
 export default function FormatHero(){
- const [format,setFormat]=useState<'pdf'|'image'|'all'>('all');
  const [query,setQuery]=useState('');
  const [filters,setFilters]=useState(false);
  const [grade,setGrade]=useState('');
@@ -14,7 +13,6 @@ export default function FormatHero(){
    event.preventDefault();
    const params=new URLSearchParams();
    if(query.trim())params.set('q',query.trim().slice(0,100));
-   if(format!=='all')params.set('format',format);
    if(grade)params.set('grade',grade);
    if(subject)params.set('subject',subject);
    router.push('/worksheets'+(params.size?'?'+params.toString():''));
@@ -27,12 +25,6 @@ export default function FormatHero(){
       <p>Free printable PDF and image worksheets, organized by subject and grade.</p>
     </div>
     <form className="search-mega-form" onSubmit={submit}>
-     <fieldset className="search-file-picker" aria-label="File type">
-       <legend className="visually-hidden">Choose file format</legend>
-       <button className={format==='all'?'selected':''} type="button" onClick={()=>setFormat('all')}><FileText size={24}/><span>All</span></button>
-       <button className={format==='pdf'?'selected':''} type="button" onClick={()=>setFormat('pdf')}><span className="format-mini pdf-mini"><FileText size={22}/></span><span>PDF</span></button>
-       <button className={format==='image'?'selected':''} type="button" onClick={()=>setFormat('image')}><span className="format-mini word-mini"><ImageIcon size={22}/></span><span>Images</span></button>
-     </fieldset>
      <label className="search-input-wrap"><Search size={22}/>
        <input type="search" value={query} onChange={e=>setQuery(e.target.value)}
          placeholder="Search worksheets, topics or skills..." aria-label="Search worksheets"/>
@@ -50,7 +42,7 @@ export default function FormatHero(){
      <label>Subject <select value={subject} onChange={e=>setSubject(e.target.value)}>
        <option value="">All subjects</option>{['math','reading','kindergarten','vocabulary','spelling','grammar','writing','colors'].map(s=><option key={s} value={s}>{s[0].toUpperCase()+s.slice(1)}</option>)}
      </select></label>
-     <button type="button" onClick={()=>{setGrade('');setSubject('');setFormat('all');setQuery('');}}>Clear filters</button>
+     <button type="button" onClick={()=>{setGrade('');setSubject('');setQuery('');}}>Clear filters</button>
     </div>}
     <div className="search-underlinks"><span>POPULAR:</span>
      <Link href="/worksheets?subject=math&grade=grade-1">Grade 1 Math</Link>
