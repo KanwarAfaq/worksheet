@@ -29,7 +29,7 @@ export default function FormatHero(){
        <input type="search" value={query} onChange={e=>setQuery(e.target.value)}
          placeholder="Search worksheets, topics or skills..." aria-label="Search worksheets"/>
      </label>
-     <button className="mega-search-button" type="submit"><Search size={21}/> Search</button>
+     <button className="mega-search-button" type="submit"><Search size={23}/><span className="visually-hidden">Search</span></button>
      <button className={'mega-filter-button '+(filters?'filter-active':'')} type="button"
         onClick={()=>setFilters(x=>!x)} aria-expanded={filters} aria-controls="advanced-search-options">
        <SlidersHorizontal size={22}/><span>Filters</span>
