@@ -506,3 +506,28 @@ html[data-theme='dark'] .button-dark{background:#57b987!important;color:#092318!
 html[data-theme='dark'] .community-stats>div{background:#20372b;border-color:#506659}
 html[data-theme='dark'] .community-stats span{color:#c3d8c8}
 @media(max-width:700px){.community-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.community-dashboard-head{align-items:flex-start;flex-direction:column}}
+
+.community-profile-card,.community-collection-card{background:#fff;border:1px solid #dde8df;border-radius:18px;padding:24px;margin:20px 0;display:flex;gap:22px}
+.community-profile-avatar{height:100px;width:100px;flex:none;border-radius:50%;background:#d7ece2;display:grid;place-items:center;overflow:hidden;color:#1a5e40;font-size:42px;font-weight:800}
+.community-profile-avatar img{height:100%;width:100%;object-fit:cover}
+.community-profile-content{flex:1;min-width:0}
+.community-profile-content p{color:#697d70}
+.community-profile-form{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:13px}
+.community-profile-form label{font-size:12px;font-weight:800}
+.community-profile-form input,.quick-upload-form input:not([type='checkbox']),.quick-upload-form textarea{padding:10px;border:1px solid #c8d9ce;border-radius:9px;min-width:0;max-width:100%}
+.community-photo-label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}
+.community-collection-card{display:block}
+.community-collection-card>p{color:#64796a}
+.community-collection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:15px 0}
+.community-collection-item{display:flex;align-items:center;gap:9px;border:1px solid #d7e3dc;border-radius:10px;padding:13px}
+.community-collection-item span{flex:1;font-weight:800}
+.quick-upload-form{display:grid;gap:10px}
+.quick-upload-form label{font-weight:800;font-size:12px}
+.quick-upload-form textarea{resize:vertical}
+.quick-upload-form .check-field{margin:8px 0}
+html[data-theme='dark'] .community-profile-card,
+html[data-theme='dark'] .community-collection-card{background:#20372b;color:#eef8ef;border-color:#506659}
+html[data-theme='dark'] .community-profile-content p,
+html[data-theme='dark'] .community-collection-card>p{color:#c6d6c9}
+html[data-theme='dark'] .community-collection-item{border-color:#506659;color:#ecf8ed}
+@media(max-width:600px){.community-profile-card{flex-direction:column}.community-profile-form{display:grid;align-items:stretch}.community-profile-form input{width:100%}.community-profile-avatar{width:85px;height:85px}}
