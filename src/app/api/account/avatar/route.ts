@@ -1,5 +1,5 @@
 import {PutObjectCommand,GetObjectCommand,DeleteObjectCommand} from '@aws-sdk/client-s3';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHash} from 'node:crypto';
 import {requireContributor,json} from '@/lib/community-server';
 import {r2Client,r2Bucket,r2Configured} from '@/lib/r2-server';
 import {checkWorksheetFile} from '@/lib/file-validation';
@@ -14,7 +14,7 @@ export async function GET(request:Request){
   const object=await r2Client().send(new GetObjectCommand({Bucket:r2Bucket(),Key:data.avatar_object_key}));
   if(!object.Body)return json({error:'Avatar missing'},404);
   const bytes=await object.Body.transformToByteArray();
-  return new Response(bytes,{headers:{'Content-Type':data.avatar_mime,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+  return new Response(Buffer.from(bytes),{headers:{'Content-Type':data.avatar_mime,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
  }catch{return json({error:'Unable to load avatar'},502);}
 }
 export async function POST(request:Request){
@@ -34,7 +34,7 @@ export async function POST(request:Request){
   await r2Client().send(new PutObjectCommand({Bucket:r2Bucket(),Key:key,Body:bytes,ContentType:checked.mime,Metadata:{sha256:checked.sha256}}));
   const object=await r2Client().send(new GetObjectCommand({Bucket:r2Bucket(),Key:key}));
   const received=object.Body?Buffer.from(await object.Body.transformToByteArray()):null;
-  if(!received||received.length!==bytes.length||require('node:crypto').createHash('sha256').update(received).digest('hex')!==checked.sha256)throw new Error('Checksum failed');
+  if(!received||received.length!==bytes.length||createHash('sha256').update(received).digest('hex')!==checked.sha256)throw new Error('Checksum failed');
  }catch{
   try{await r2Client().send(new DeleteObjectCommand({Bucket:r2Bucket(),Key:key}));}catch{}
   return json({error:'Cloudflare upload verification failed'},502);
