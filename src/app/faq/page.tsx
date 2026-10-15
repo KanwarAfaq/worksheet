@@ -9,7 +9,7 @@ export const metadata:Metadata={
  description:'Answers about Worksheet Studio: free printable PDFs, supported grades, worksheet makers, answer keys, copyright rules, accounts and downloads.',
  alternates:{canonical:'/faq'},robots:indexableRobots()
 };
-export const questions=[
+const questions=[
  {q:'Are Worksheet Studio worksheets free?',a:'The worksheet makers are free to use. Published resources in the public library are free to download. Some tools, such as the AI-assisted worksheet maker, require an account and may have usage limits.'},
  {q:'Which grades are supported?',a:'The site organizes worksheets for Grades 1 through 6. The catalog also includes kindergarten and early-learning activities. Choose a subject and grade to find suitable practice.'},
  {q:'Can I download a worksheet as PDF?',a:'Yes. Published PDF worksheets have a download link. Classic worksheet makers let you generate and save a PDF in your browser. A library listing shows only the file types that are actually available.'},
