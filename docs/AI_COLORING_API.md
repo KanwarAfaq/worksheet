@@ -18,3 +18,8 @@ Official CGU image documentation: https://air.cgu.edu.tw/workspace4/LLMAPI/api_c
 - Test one actual CGU image request using a signed-in test account; compilation alone cannot verify API key permission or remaining balance.
 - Configure billing alerts and spending controls in the CGU portal, plus abuse monitoring on production.
 - For future deployment: content moderation, explicit public-upload consent, provider error rate tracking, image-result format handling, and improved per-request quota accounting under concurrency.
+
+## Coloring quality
+- Coloring image requests use a stricter vector-like prompt: EXACT object count, individual white panels, one solid-black outline, no extras/shadows/sketching and medium provider quality.
+- The browser converts returned images into pure black/white pixels with a luminance threshold before previewing or PDF/PNG export. This removes pale gray shadows and duplicated pencil-like strokes; no model can guarantee perfectly accurate shapes. Built-in drawings are unchanged.
+- Tracing templates use one handwriting baseline per item rather than top/middle/bottom guide lines.

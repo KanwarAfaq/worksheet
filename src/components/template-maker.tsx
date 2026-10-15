@@ -25,9 +25,8 @@ function printPage(canvas:HTMLCanvasElement,type:TemplateType,words:string[],tit
   const n=Math.min(items.length,12),step=112;
   for(let i=0;i<n;i++){
    const y=332+i*step;
+   // A single handwriting baseline for each letter or word.
    c.strokeStyle='#9ab0a3';c.lineWidth=2;
-   c.setLineDash([]);c.beginPath();c.moveTo(80,y-19);c.lineTo(1160,y-19);c.stroke();
-   c.setLineDash([6,7]);c.beginPath();c.moveTo(80,y+25);c.lineTo(1160,y+25);c.stroke();
    c.setLineDash([]);c.beginPath();c.moveTo(80,y+70);c.lineTo(1160,y+70);c.stroke();
    c.font="76px 'Comic Sans MS','Chalkboard SE','Comic Neue',cursive";c.textBaseline='alphabetic';
    c.lineWidth=1.6;c.strokeStyle='#576f62';c.setLineDash([3,5]);c.strokeText(items[i],103,y+66);c.setLineDash([]);
@@ -74,7 +73,7 @@ export default function TemplateMaker(){
  }
  return <div className="container workspace template-maker"><Link href="/create" className="back-link"><ArrowLeft size={16}/> Worksheet maker</Link>
   <div className="section-kicker">CUSTOM PRINTABLE WORKSHEETS</div><h1>Choose a template. <em>Make it yours.</em></h1>
-  <p className="page-lead">Pick an activity, load sample words or enter your own, and download a printable PDF or PNG. Letter tracing uses dotted letter outlines and handwriting guide lines.</p>
+  <p className="page-lead">Pick an activity, load sample words or enter your own, and download a printable PDF or PNG. Letter tracing uses dotted letters and one writing line.</p>
   <div className="template-picker" role="group" aria-label="Worksheet template">{worksheetTemplates.map(item=><button key={item.id} aria-pressed={type===item.id} className={type===item.id?'selected':''} type="button" onClick={()=>chooseTemplate(item.id)}><strong>{item.name}</strong><small>{item.description}</small></button>)}</div>
   <div className="ai-maker-grid"><div className="editor-panel"><h2>Edit your worksheet</h2>
     <label className="field-label" htmlFor="template-sample">Sample word bank</label><select className="field-select" id="template-sample" value={sample} onChange={e=>chooseSample(e.target.value as keyof typeof worksheetSamples)}>{Object.keys(worksheetSamples).map(x=><option key={x}>{x}</option>)}</select>

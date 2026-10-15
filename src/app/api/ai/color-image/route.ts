@@ -48,15 +48,20 @@ export async function POST(request:Request){
  const {error:quota}=await a.db.rpc('reserve_worksheet_ai_generation');
  if(quota)return json({error:'Five AI generations per day are allowed for each verified account.'},429);
  try{
-  const prompt='Create an original, printable black-and-white coloring-book illustration for early elementary school children. '+
-   'Depict exactly '+names.length+' clear separate subject'+(names.length===1?'':'s')+': '+names.join(', ')+'. '+
-   'Put objects into '+(names.length>2?'a balanced 2 by 2 grid':'a spacious uncluttered row')+
-   '. Use bold continuous black outlines, large enclosed white shapes, simple age-appropriate features. '+
-   'Pure white background, no greyscale shading, no colored ink, no gradients, no words or numbers, no watermark, no tiny details. '+
-   'Keep every object fully inside the image with generous white space. Do not depict logos or copyrighted characters.';
+  const prompt='Make a clean, print-ready CHILDREN\'S COLORING PAGE, resembling professionally drawn VECTOR OUTLINE ART, not a sketch or photograph. '+
+   'EXACTLY '+names.length+' isolated object'+(names.length===1?'':'s')+' in separate spacious panels: '+
+   names.map((name,i)=>'panel '+(i+1)+': one '+name+' only').join('; ')+'. '+
+   'If there are two objects, place one object on the left and one on the right. For three or four objects, use a simple two-column grid. '+
+   'Every requested item is drawn once, fully visible, centered in its own panel, with generous whitespace around it. '+
+   'NO objects except the explicitly requested items: no scenes, no environment, no tables/chairs unless requested, no decorative props, no duplicates, no people or faces on nonliving objects. '+
+   'STYLE RULES: pure white #FFFFFF background and ONE sharp, smooth, solid BLACK #000000 outline for each shape. '+
+   'Contours are unbroken, moderately thick, and uniform like a simple SVG icon. Large closed empty white areas must be easy for a young child to color. '+
+   'STRICTLY NO shadows, cast shadows, drop shadows, shadow outlines, gray pixels, pencil strokes, sketch lines, doubled edges, ghosting, blur, stippling, texture, gradients, hatching, fills or depth effects. '+
+   'Flat front-facing 2D outline, NOT 3D or isometric. NO lettering, borders, watermarks, logos, or captions. '+
+   'If the object is a desk, draw ONLY the desk, never a chair. The result MUST look like clean black ink line art ready to print.';
   const response=await fetch(provider.endpoint,{
    method:'POST',headers:{Authorization:'Bearer '+provider.key,'Content-Type':'application/json'},
-   body:JSON.stringify({model:provider.model,prompt,n:1,size:'1024x1024',quality:'low',output_format:'png'}),
+   body:JSON.stringify({model:provider.model,prompt,n:1,size:'1024x1024',quality:'medium',output_format:'png'}),
    signal:AbortSignal.timeout(50000),cache:'no-store',redirect:'error'
   });
   if(!response.ok){

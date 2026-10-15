@@ -62,8 +62,31 @@ function render(canvas:HTMLCanvasElement,objects:Selected[],grade:number,title:s
  ctx.fillStyle='#73867c';ctx.font='20px Arial';
  ctx.fillText(example?'Teacher suggestions':'Worksheet Studio',85,1697);
 }
+/** Convert generative image output into true black-and-white coloring outlines.
+ * Remove pale shadow/ghost strokes and all grayscale; never affect the original
+ * built-in vector outlines or consume another API request. */
 async function loadImage(src:string):Promise<HTMLImageElement>{
- const image=new Image();image.src=src;await image.decode();return image;
+ const source=new Image();source.src=src;await source.decode();
+ const canvas=document.createElement('canvas');
+ canvas.width=source.naturalWidth;canvas.height=source.naturalHeight;
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ if(!ctx)throw new Error('Your browser cannot prepare the coloring image.');
+ ctx.drawImage(source,0,0);
+ const image=ctx.getImageData(0,0,canvas.width,canvas.height);
+ const data=image.data;
+ // Use one uniform black stroke. Dark source ink remains; grey pencil
+ // shadows, gradients, photographic shading and texture become white.
+ const limit=125;
+ for(let i=0;i<data.length;i+=4){
+  const opacity=data[i+3]/255;
+  const brightness=(data[i]*0.2126+data[i+1]*0.7152+data[i+2]*0.0722)*opacity+255*(1-opacity);
+  const value=brightness<limit?0:255;
+  data[i]=value;data[i+1]=value;data[i+2]=value;data[i+3]=255;
+ }
+ ctx.putImageData(image,0,0);
+ const cleaned=new Image();
+ cleaned.src=canvas.toDataURL('image/png');await cleaned.decode();
+ return cleaned;
 }
 export default function ColoringMaker({initialGroup}:Props){
  const initial=(coloringGroups.some(g=>g.slug===initialGroup)?initialGroup:'all') as Group;
@@ -132,8 +155,9 @@ export default function ColoringMaker({initialGroup}:Props){
     body:JSON.stringify({objects})});
    const data=await response.json() as {image?:string;error?:string};
    if(!response.ok||!data.image)throw new Error(data.error||'AI image unavailable.');
-   await loadImage(data.image);
-   setAiImage(data.image);setNotice('AI drawing ready.');
+   // The printable preview and exported PDF/PNG use the same cleaned lines.
+   const prepared=await loadImage(data.image);
+   setAiImage(prepared.src);setNotice('Clean coloring page ready.');
   }catch(e){setError(e instanceof Error?e.message:'AI image unavailable.');}
   finally{setGenerating(false);}
  }

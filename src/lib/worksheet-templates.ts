@@ -1,6 +1,6 @@
 export type TemplateType='tracing'|'word-search'|'scramble'|'missing';
 export const worksheetTemplates:{id:TemplateType;name:string;description:string}[]=[
- {id:'tracing',name:'Letter tracing',description:'Dotted outlines with handwriting guide lines'},
+ {id:'tracing',name:'Letter tracing',description:'Dotted letters with one writing line'},
  {id:'word-search',name:'Word search',description:'Find words hidden in a letter grid'},
  {id:'scramble',name:'Word scramble',description:'Rearrange mixed-up letters'},
  {id:'missing',name:'Missing letters',description:'Complete words with missing characters'}
