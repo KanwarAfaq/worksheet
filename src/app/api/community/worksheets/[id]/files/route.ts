@@ -36,12 +36,12 @@ export async function POST(request:Request,{params}:Context){
   .eq('worksheet_id',id).eq('role','student').limit(6);
  if(fetchError)return json({error:'Unable to check upload quota.'},500);
  if((existing||[]).length>=5)return json({error:'Maximum 5 files per worksheet.'},409);
- // Public library prioritizes PDF/Word. Other legacy formats are not accepted for new community submissions.
+ // New community uploads are restricted to PDF or safe raster images.
  let verified:ReturnType<typeof checkWorksheetFile>;
  const body=Buffer.from(await f.arrayBuffer());
  try{verified=checkWorksheetFile(f.name,body);}
  catch(e){return json({error:e instanceof Error?e.message:'Invalid file.'},400);}
- if(!['pdf','docx'].includes(verified.type))return json({error:'Community uploads currently support PDF or Word (.docx).'},400);
+ if(!['pdf','png','jpg','webp'].includes(verified.type))return json({error:'Only PDF, PNG, JPG or WebP worksheet files are allowed.'},400);
  const client=r2Client(),bucket=r2Bucket(),key='community/'+a.user.id+'/'+id+'/'+randomUUID()+'.'+verified.type;
  try{
   await client.send(new PutObjectCommand({Bucket:bucket,Key:key,Body:body,ContentType:verified.mime,Metadata:{sha256:verified.sha256}}));

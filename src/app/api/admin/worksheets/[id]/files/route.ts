@@ -4,6 +4,7 @@ import {createHash,randomUUID} from 'node:crypto';
 import {requireOwner} from '@/lib/admin-server';
 import {r2Client,r2Bucket,r2Configured,MAX_UPLOAD_BYTES} from '@/lib/r2-server';
 import {checkWorksheetFile} from '@/lib/file-validation';
+import {notifyWorksheetAdmin} from '@/lib/line-admin';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -50,13 +51,14 @@ export async function POST(request:Request,{params}:Context){
     || form.get('rights_confirmed')!=='yes'||note.length>600)
     return reply({error:'Choose a student/answer file and confirm original authorship or license.'},400);
   if(file.size>MAX_UPLOAD_BYTES || file.size<64)
-    return reply({error:'Choose a PDF, Word, PowerPoint or image file smaller than 3 MB.'},413);
+    return reply({error:'Choose a PDF, PNG, JPG or WebP file smaller than 3 MB.'},413);
 
   const input=Buffer.from(await file.arrayBuffer());
   let verified:ReturnType<typeof checkWorksheetFile>;
   try{verified=checkWorksheetFile(file.name,input);}
   catch(e){return reply({error:e instanceof Error?e.message:'Invalid file type.'},400);}
   
+  if(!['pdf','png','jpg','webp'].includes(verified.type))return reply({error:'Only PDF and image files are allowed.'},400);
   const {data:duplicate,error:dupError}=await a.db.from('worksheet_files')
     .select('id,worksheet_id').eq('sha256',verified.sha256)
     .eq('size_bytes',input.length).eq('upload_status','verified').limit(1);
@@ -92,5 +94,6 @@ export async function POST(request:Request,{params}:Context){
     try{await s3.send(new DeleteObjectCommand({Bucket:bucket,Key:key}));}catch{}
     return reply({error:'File stored but database registration failed. Upload rolled back.'},500);
   }
+  await notifyWorksheetAdmin('worksheet_file_uploaded',{worksheetId:id,actorId:a.user.id,fileName:file.name});
   return reply({file:data,verified:true},201);
 }

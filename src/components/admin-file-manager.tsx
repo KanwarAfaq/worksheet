@@ -52,7 +52,7 @@ export default function AdminFileManager({id,status,session,onStatusChanged,mode
    event.preventDefault();
    if(!file||!token||!confirmed||status!=='draft'||busy)return;
    if(file.size>(config?.maxUploadBytes||3_000_000)){
-     setError('The file exceeds 3 MB. Use a smaller PDF, Word, PPT, PNG, JPG or WebP.');return;
+     setError('The file exceeds 3 MB. Use a smaller PDF, PNG, JPG or WebP.');return;
    }
    setBusy(true);setNotice('');setError('');
    const data=new FormData();
@@ -108,7 +108,7 @@ export default function AdminFileManager({id,status,session,onStatusChanged,mode
  const canPublish=!!config?.storageConfigured&&!!config?.publicationConfigured&&hasStudentFile&&['draft','review'].includes(status)&&reviewConfirmed;
  return <div className="worksheet-editor-panel admin-file-manager">
   <h2><UploadCloud size={22}/> {mode==='upload'?'Upload files':'Review attached files'}</h2>
-  <p className="admin-files-note">Upload or review PDF, DOCX, PPTX, PNG, JPG and WebP files. No PDF is required. All files remain private until published.</p>
+  <p className="admin-files-note">Upload or review PDF, PNG, JPG and WebP files. No PDF is required. All files remain private until published.</p>
   <div className="r2-indicator">
    <ShieldCheck size={18}/>
    <span>{config===null?'Checking private storage…':config.storageConfigured?'R2 credentials detected in Vercel':'R2 credentials missing from Vercel'}</span>
@@ -127,11 +127,11 @@ export default function AdminFileManager({id,status,session,onStatusChanged,mode
    </div>)}
   </div>
   {preview&&<div className="admin-pdf-preview"><div><span>{preview.name}</span><button type="button" onClick={()=>{if(previewRef.current)URL.revokeObjectURL(previewRef.current);previewRef.current=null;setPreview(null);}}>Close</button></div><iframe src={preview.url} title={'Private preview: '+preview.name}/></div>}
-  {mode==='review'&&files.some(f=>f.variant==='docx'||f.variant==='pptx')&&<p className="admin-files-note">Word and PowerPoint files cannot be previewed in your browser. Download them to check before publishing.</p>}
+  {mode==='review'&&files.some(f=>f.variant==='docx'||f.variant==='pptx')&&<p className="admin-files-note">Legacy non-image documents cannot be previewed in your browser. They are not accepted for new uploads.</p>}
   {mode==='upload'&&status==='draft'&&config?.storageConfigured&&<form onSubmit={upload} className="private-upload-form">
     <h3>Attach a document</h3>
-    <label htmlFor="private-file-input">Choose PDF, DOCX, PPTX, PNG, JPG or WebP (max 3 MB)</label>
-    <input id="private-file-input" type="file" accept=".pdf,.docx,.pptx,.png,.jpg,.jpeg,.webp" required onChange={(e:ChangeEvent<HTMLInputElement>)=>setFile(e.target.files?.[0]||null)}/>
+    <label htmlFor="private-file-input">Choose PDF, PNG, JPG or WebP (max 3 MB)</label>
+    <input id="private-file-input" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required onChange={(e:ChangeEvent<HTMLInputElement>)=>setFile(e.target.files?.[0]||null)}/>
     <div className="editor-two">
      <div><label htmlFor="private-file-role">File role</label><select id="private-file-role" value={role} onChange={e=>setRole(e.target.value as 'student'|'answer')}><option value="student">Student worksheet</option><option value="answer">Teacher answer key (optional)</option></select></div>
      <div><label htmlFor="private-file-license">Copyright basis</label><select id="private-file-license" value={license} onChange={e=>setLicense(e.target.value as 'original'|'licensed')}><option value="original">My original content</option><option value="licensed">Licensed for redistribution</option></select></div>

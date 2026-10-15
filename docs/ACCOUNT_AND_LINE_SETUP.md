@@ -21,7 +21,8 @@ Never put tokens in GitHub commits, client-side variables, screenshots, or chat.
 ## LINE alert events
 - Verified user PDF/DOCX upload
 - User submits worksheet for review
-- New user registration, once the database webhook is configured
+- Google/password sign-in, deduplicated by authenticated session in `worksheet_signin_notices` (new accounts signing in shortly after creation are labeled as registrations)
+- Direct registration webhook (optional backup mechanism, not yet configured)
 
 Set up a Supabase **Database Webhook** on schema `auth`, table `users`, `INSERT`, URL:
 `https://worksheet-tau-six.vercel.app/api/webhooks/user-registered`
@@ -38,3 +39,12 @@ Test a new signup, one legitimate PDF upload and a submission after credentials 
 - Run type checks, integration tests and browser QA for mobile navigation, light/dark persistence and login redirects.
 - Verify protected download gateway, review permissions, PDFs, and upload abuse limits.
 - Review all admin event types and extend notification coverage only where appropriate.
+
+## Troubleshooting Google login / missing LINE alerts
+- Google OAuth succeeding does **not** imply a registration webhook has been configured.
+- The account page posts a verified, session-deduplicated login event to `/api/account/signin-notice`.
+- If LINE secrets are missing, invalid, or the bot cannot reach the admin user, this endpoint returns a server error and does not mark the alert delivered. Check Vercel runtime logs and LINE Messaging API channel permissions.
+- The Messaging API bot must be added as a friend by the admin LINE user.
+- A user registered by email but not yet signed in is not covered by the login event. Enable a secure `auth.users` webhook for immediate email registrations. Never send a webhook without an authentication secret.
+- `WORKSHEET_WEBHOOK_SECRET` is only required for the separate registration webhook, not the authenticated sign-in endpoint.
+- Save/like and avatar records use RLS and only their owners can read them.

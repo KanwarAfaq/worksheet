@@ -30,10 +30,20 @@ export default function Contribute(){
  const [title,setTitle]=useState('');const [summary,setSummary]=useState('');
  const [subject,setSubject]=useState('');const [grade,setGrade]=useState('');
  const [signedPolicy,setSignedPolicy]=useState(false);
+ const [profileName,setProfileName]=useState('');
+ const [profileAvatar,setProfileAvatar]=useState<string|null>(null);
+ const [profileBusy,setProfileBusy]=useState(false);
+ const [savedIds,setSavedIds]=useState<string[]>([]);
+ const [likedIds,setLikedIds]=useState<string[]>([]);
+ const [collectionWorksheets,setCollectionWorksheets]=useState<{id:string;slug:string;title:string;status:string}[]>([]);
+ const [quickTitle,setQuickTitle]=useState('');
+ const [quickSummary,setQuickSummary]=useState('');
+ const [quickFile,setQuickFile]=useState<File|null>(null);
+ const [quickAgreed,setQuickAgreed]=useState(false);
  useEffect(()=>{
   let mounted=true;
   supabaseBrowser.auth.getSession().then(({data})=>{if(mounted){setSession(data.session);setInitializing(false);}});
-  const {data:{subscription}}=supabaseBrowser.auth.onAuthStateChange((_event,next)=>{if(mounted){setSession(next);setInitializing(false);}});
+  const {data:{subscription}}=supabaseBrowser.auth.onAuthStateChange((event,next)=>{if(mounted){setSession(next);setInitializing(false);}if(event==='SIGNED_IN'&&next?.access_token){void fetch('/api/account/signin-notice',{method:'POST',headers:{Authorization:'Bearer '+next.access_token}}).catch(()=>{});}});
   return()=>{mounted=false;subscription.unsubscribe();};
  },[]);
  const api=useCallback(async(path:string,init?:RequestInit)=>{
@@ -56,7 +66,15 @@ export default function Contribute(){
    supabaseBrowser.from('grades').select('id,display_name').order('sort_order').then(({data})=>{if(mounted)setGrades(data||[]);});
    return()=>{mounted=false;};
  },[]);
- useEffect(()=>{if(session){load().catch(e=>setError(e.message));}else{setItems([]);setActive(null);}},[session?.user.id,load]);
+ useEffect(()=>{if(session){
+   load().catch(e=>setError(e.message));
+   api('/api/account/profile').then(x=>setProfileName(x.profile?.display_name||'')).catch(()=>{});
+   api('/api/account/collections').then(x=>{setSavedIds(x.saved||[]);setLikedIds(x.liked||[]);setCollectionWorksheets(x.worksheets||[]);}).catch(()=>{});
+   api('/api/account/avatar').then(async response=>response.blob()).then(blob=>{
+    const objectUrl=URL.createObjectURL(blob);setProfileAvatar(old=>{if(old)URL.revokeObjectURL(old);return objectUrl;});
+   }).catch(()=>{});
+  }else{setItems([]);setActive(null);setSavedIds([]);setLikedIds([]);setCollectionWorksheets([]);setProfileAvatar(old=>{if(old)URL.revokeObjectURL(old);return null;});}
+ },[session?.user.id,load,api]);
  async function authenticate(event:FormEvent<HTMLFormElement>){
   event.preventDefault();setBusy(true);setError('');setNotice('');
   try{
@@ -111,6 +129,49 @@ export default function Contribute(){
    if(error)throw error;
    setNotice('If this email has an account, you will receive a password reset link.');
   }catch(e){setError(e instanceof Error?e.message:'Could not request password reset.');}
+  finally{setBusy(false);}
+ }
+ async function saveProfile(event:FormEvent<HTMLFormElement>){
+  event.preventDefault();setProfileBusy(true);setError('');setNotice('');
+  try{
+   await api('/api/account/profile',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({display_name:profileName})});
+   setNotice('Profile saved.');
+  }catch(e){setError(e instanceof Error?e.message:'Unable to save profile.');}
+  finally{setProfileBusy(false);}
+ }
+ async function uploadAvatar(event:React.ChangeEvent<HTMLInputElement>){
+  const picture=event.target.files?.[0];if(!picture)return;
+  setProfileBusy(true);setError('');setNotice('');
+  try{
+   const form=new FormData();form.set('file',picture);
+   await api('/api/account/avatar',{method:'POST',body:form});
+   const {data}=await supabaseBrowser.auth.getSession();
+   const response=await fetch('/api/account/avatar',{headers:{Authorization:'Bearer '+data.session?.access_token}});
+   if(!response.ok)throw new Error('Photo saved, but unable to preview it.');
+   const url=URL.createObjectURL(await response.blob());
+   setProfileAvatar(old=>{if(old)URL.revokeObjectURL(old);return url;});
+   setNotice('Profile image uploaded to private Cloudflare storage.');
+  }catch(e){setError(e instanceof Error?e.message:'Unable to upload photo.');}
+  finally{setProfileBusy(false);event.target.value='';}
+ }
+ async function quickUpload(event:FormEvent<HTMLFormElement>){
+  event.preventDefault();
+  if(!quickFile||!quickAgreed||busy||!subject||count>=5)return;
+  setBusy(true);setError('');setNotice('');
+  let id='';
+  try{
+   if(!/\.(pdf|png|jpe?g|webp)$/i.test(quickFile.name))throw new Error('Choose a PDF, PNG, JPG or WebP worksheet.');
+   if(quickFile.size>3*1024*1024)throw new Error('Maximum 3 MB per worksheet file.');
+   const newRecord=await api(root,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category_id:subject,grade_id:grade||null})});
+   id=newRecord.id;
+   await api(root+'/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:quickTitle,summary:quickSummary,category_id:subject,grade_id:grade||null})});
+   const data=new FormData();data.set('file',quickFile);data.set('rights_confirmed','yes');data.set('license_basis',rightsBasis);
+   await api(root+'/'+id+'/files',{method:'POST',body:data});
+   await api(root+'/'+id+'/submit',{method:'POST'});
+   setQuickTitle('');setQuickSummary('');setQuickFile(null);setQuickAgreed(false);
+   setNotice('Worksheet uploaded with metadata and submitted for review.');
+   await load();
+  }catch(e){setError((e instanceof Error?e.message:'Upload failed.')+(id?' Your draft has been saved so you can resume it.':''));await load().catch(()=>{});}
   finally{setBusy(false);}
  }
  async function start(){
@@ -181,9 +242,9 @@ export default function Contribute(){
  if(!session)return <div className="community-page"><div className="container community-login-grid">
   <div className="community-benefits"><div className="section-kicker">SHARE LEARNING, FREE</div>
    <h1>Your worksheets can help <em>other learners.</em></h1>
-   <p>Make and upload up to five free PDF or Word worksheets per account. Submissions are reviewed before becoming public.</p>
+   <p>Make and upload up to five free PDF or image worksheets per account. Submissions are reviewed before becoming public.</p>
    <div className="community-benefit"><CheckCircle2 size={19}/> 5 free saved worksheets</div>
-   <div className="community-benefit"><CheckCircle2 size={19}/> PDF or Word uploads</div>
+   <div className="community-benefit"><CheckCircle2 size={19}/> PDF and image uploads</div>
    <div className="community-benefit"><ShieldCheck size={19}/> Copyright and file safety review</div>
    <p className="community-future">Private sharing and subscription plans are planned for later, not available yet.</p>
    <Link href="/create" className="text-link">Make a printable anonymously <ArrowRight size={16}/></Link>
@@ -218,33 +279,43 @@ export default function Contribute(){
   {error&&<p className="admin-alert error" role="alert"><AlertCircle size={16}/>{error}</p>}
   {notice&&<p className="admin-alert good" role="status"><CheckCircle2 size={16}/>{notice}</p>}
   {!active?<div className="community-main">
-   <div className="community-list"><h2>My saved and submitted worksheets</h2>
+   <div className="community-list" id="my-uploads"><h2>My saved and submitted worksheets</h2>
     {items.length===0?<p>No worksheets yet. Start with an original learning resource.</p>:
       items.map(item=><button type="button" key={item.id} onClick={()=>open(item)} className="community-item">
        <FileText size={23}/><span><strong>{item.title}</strong><small>{item.status==='review'?'Submitted for review':item.status==='published'?'Published':'Private draft'}</small></span><ArrowRight size={18}/>
       </button>)}
    </div>
    <div className="community-start"><div className="dashboard-create-icon"><UploadCloud size={29}/></div>
-    <h2>Share a worksheet</h2><p>Upload an original PDF or Word worksheet, describe it, and send it for automated checks.</p>
+    <h2>Quick upload with metadata</h2><p>Submit a PDF or image, title, description, subject and grade together.</p>
+    <form className="quick-upload-form" onSubmit={quickUpload}>
+     <label htmlFor="quick-title">Worksheet title</label><input id="quick-title" required minLength={3} maxLength={140} value={quickTitle} onChange={e=>setQuickTitle(e.target.value)}/>
+     <label htmlFor="quick-summary">Description</label><textarea id="quick-summary" required minLength={10} maxLength={700} rows={3} value={quickSummary} onChange={e=>setQuickSummary(e.target.value)}/>
+     <label htmlFor="quick-file">PDF or image</label><input id="quick-file" type="file" required accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" onChange={e=>setQuickFile(e.target.files?.[0]||null)}/>
+     <label htmlFor="quick-license">Rights to redistribute</label><select id="quick-license" value={rightsBasis} onChange={e=>setRightsBasis(e.target.value as 'original'|'licensed')}><option value="original">My original work</option><option value="licensed">Licensed for redistribution</option></select>
+     <label className="check-field"><input type="checkbox" checked={quickAgreed} onChange={e=>setQuickAgreed(e.target.checked)}/> I created this worksheet or have redistribution rights, and agree to moderation before publication.</label>
+
     <label htmlFor="new-subject">Subject</label><select id="new-subject" value={subject} onChange={e=>setSubject(e.target.value)}>
      {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
     <label htmlFor="new-grade">Grade</label><select id="new-grade" value={grade} onChange={e=>setGrade(e.target.value)}>
      <option value="">All grades</option>{grades.map(g=><option key={g.id} value={g.id}>{g.display_name}</option>)}</select>
-    <button className="button button-dark" type="button" disabled={busy||count>=5||!subject} onClick={start}><Plus size={16}/> New worksheet</button>
+    <button className="button button-dark" type="submit" disabled={busy||count>=5||!subject||!quickAgreed||!quickFile}><UploadCloud size={16}/>{busy?'Uploading…':'Upload & submit worksheet'}</button>
+    </form>
+    <button className="button button-outline" type="button" disabled={busy||count>=5||!subject} onClick={start}><Plus size={16}/> Start a draft instead</button>
     {count>=5&&<p className="community-limit">You have used your five free slots. Paid/private plans are not active yet.</p>}
    </div>
   </div>:<div className="community-editor">
    <button type="button" className="community-back" onClick={()=>setActive(null)}><ArrowLeft size={16}/> Back to my worksheets</button>
    <h2>{active.title==='Untitled worksheet'?'New worksheet':active.title}</h2>
    <p>Status: <strong>{active.status==='review'?'Awaiting checks':active.status==='published'?'Public':'Private draft'}</strong></p>
+   <p className="community-upload-note">Accepted: PDF, PNG, JPG, WebP. Each file is privately verified and reviewed before publication.</p>
    <div className="community-steps"><button className={step===0?'active':''} onClick={()=>setStep(0)}>1 Upload</button><button className={step===1?'active':''} onClick={()=>setStep(1)}>2 Metadata</button><button className={step===2?'active':''} onClick={()=>setStep(2)}>3 Review</button></div>
    {step===0&&<div className="community-form-panel">
-    <h3>Upload PDF or Word</h3>
+    <h3>Upload PDF or image</h3>
     <p>Files are private while you prepare your draft. Max 3 MB each, five files per worksheet. Do not submit copyrighted material without permission.</p>
     {attachments.map(f=><div className="community-attachment" key={f.id}><FileText size={18}/><span>{f.original_name}</span>
-      <button onClick={()=>download(f,f.variant==='pdf')} type="button">{f.variant==='pdf'?'Preview':'Download'} <Download size={15}/></button></div>)}
-    {active.status==='draft'&&<form onSubmit={upload}><label htmlFor="community-upload">Choose document</label>
-     <input type="file" id="community-upload" accept=".pdf,.docx" required onChange={e=>setFile(e.target.files?.[0]||null)}/>
+      <button onClick={()=>download(f,['pdf','png','jpg','webp'].includes(f.variant))} type="button">{f.variant==='pdf'?'Preview':'Download'} <Download size={15}/></button></div>)}
+    {active.status==='draft'&&<form onSubmit={upload}><label htmlFor="community-upload">Choose PDF or image</label>
+     <input type="file" id="community-upload" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" required onChange={e=>setFile(e.target.files?.[0]||null)}/>
      <label htmlFor="community-rights">Copyright and redistribution rights</label>
     <select id="community-rights" value={rightsBasis} onChange={e=>setRightsBasis(e.target.value as 'original'|'licensed')}>
       <option value="original">I created this worksheet</option>
