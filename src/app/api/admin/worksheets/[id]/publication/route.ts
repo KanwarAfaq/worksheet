@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server';
 import {requireOwner} from '@/lib/admin-server';
 import {r2Configured} from '@/lib/r2-server';
+import {notifyWorksheetAdmin} from '@/lib/line-admin';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function POST(request:Request,{params}:{params:Promise<{id:string}>}){
@@ -17,5 +18,6 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
   // Definer RPC double-checks ownership, completed metadata, draft state and any verified student file.
   const {error}=await a.db.rpc(action==='publish'?'publish_verified_worksheet':'unpublish_worksheet',{p_worksheet_id:id});
   if(error)return NextResponse.json({error:'Action refused. Verify your metadata (title and summary), one student file, owner role and worksheet status.'},{status:409});
+  await notifyWorksheetAdmin(action==='publish'?'worksheet_published':'worksheet_unpublished',{worksheetId:id,actorId:a.user.id});
   return NextResponse.json({status:action==='publish'?'published':'draft'},{headers:{'Cache-Control':'private, no-store'}});
 }

@@ -15,6 +15,7 @@ export default function Contribute(){
  const [tab,setTab]=useState<'signin'|'signup'>('signup');
  const [email,setEmail]=useState('');
  const [password,setPassword]=useState('');
+ const [otp,setOtp]=useState('');const [otpPending,setOtpPending]=useState(false);
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState('');const [error,setError]=useState('');
  const [items,setItems]=useState<Item[]>([]);
@@ -74,6 +75,42 @@ export default function Contribute(){
    }
    setPassword('');
   }catch(e){setError(e instanceof Error?e.message:'Authentication failed.');}
+  finally{setBusy(false);}
+ }
+ async function googleSignIn(){
+  setBusy(true);setError('');setNotice('');
+  try{
+   const {error}=await supabaseBrowser.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+'/contribute'}});
+   if(error)throw error;
+  }catch(e){setError(e instanceof Error?e.message:'Google sign-in failed.');setBusy(false);}
+ }
+ async function sendOtp(){
+  if(!email.trim()){setError('Enter your email address first.');return;}
+  setBusy(true);setError('');setNotice('');
+  try{
+   const {error}=await supabaseBrowser.auth.signInWithOtp({email:email.trim(),options:{shouldCreateUser:false}});
+   if(error)throw error;
+   setOtpPending(true);setNotice('Check your email for a one-time code. Enter the code from your email below.');
+  }catch(e){setError(e instanceof Error?e.message:'Could not send the sign-in code.');}
+  finally{setBusy(false);}
+ }
+ async function verifyOtp(event:FormEvent<HTMLFormElement>){
+  event.preventDefault();setBusy(true);setError('');
+  try{
+   const {error}=await supabaseBrowser.auth.verifyOtp({email:email.trim(),token:otp.trim(),type:'email'});
+   if(error)throw error;
+   setOtpPending(false);setOtp('');setNotice('Signed in successfully.');
+  }catch(e){setError(e instanceof Error?e.message:'Invalid or expired code.');}
+  finally{setBusy(false);}
+ }
+ async function sendPasswordReset(){
+  if(!email.trim()){setError('Enter your account email address first.');return;}
+  setBusy(true);setError('');setNotice('');
+  try{
+   const {error}=await supabaseBrowser.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin+'/account/reset-password'});
+   if(error)throw error;
+   setNotice('If this email has an account, you will receive a password reset link.');
+  }catch(e){setError(e instanceof Error?e.message:'Could not request password reset.');}
   finally{setBusy(false);}
  }
  async function start(){
@@ -155,6 +192,8 @@ export default function Contribute(){
    <div className="community-auth-tabs"><button className={tab==='signup'?'active':''} onClick={()=>setTab('signup')}>Create account</button>
    <button className={tab==='signin'?'active':''} onClick={()=>setTab('signin')}>Sign in</button></div>
    <h2>{tab==='signup'?'Join Worksheet Studio':'Welcome back'}</h2>
+   <button className="button button-outline auth-google" type="button" onClick={googleSignIn} disabled={busy}>Continue with Google</button>
+   <p className="auth-divider">or use your email</p>
    <form onSubmit={authenticate}>
     <label htmlFor="community-email">Email address</label><input id="community-email" required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/>
     <label htmlFor="community-password">Password</label><input id="community-password" required type="password" minLength={tab==='signup'?12:1}
@@ -163,6 +202,9 @@ export default function Contribute(){
     {notice&&<p className="admin-alert good" role="status"><CheckCircle2 size={17}/>{notice}</p>}
     <button className="button button-dark" disabled={busy} type="submit">{busy?'Please wait…':tab==='signup'?'Create free account':'Sign in'}</button>
    </form>
+   {tab==='signin'&&<button type="button" className="auth-otp-link" disabled={busy} onClick={sendPasswordReset}>Forgot password?</button>}
+   <button type="button" className="auth-otp-link" disabled={busy} onClick={sendOtp}>Sign in with email one-time code</button>
+   {otpPending&&<form className="auth-otp-form" onSubmit={verifyOtp}><label htmlFor="community-otp">Email verification code</label><input id="community-otp" value={otp} onChange={e=>setOtp(e.target.value)} inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,8}" required/><button type="submit" className="button button-dark" disabled={busy}>Verify code</button></form>}
    <p>For adults, parents and educators. Do not upload student personal information.</p>
   </section></div></div>;
  const count=items.length;

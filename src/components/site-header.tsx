@@ -1,11 +1,16 @@
 'use client';
 import Link from 'next/link';
 import {useEffect,useState} from 'react';
-import {BookOpen,Menu,X,ChevronDown,Sun,Moon,PanelLeftClose,PanelLeftOpen,Upload,Plus} from 'lucide-react';
+import {BookOpen,Menu,X,ChevronDown,Sun,Moon,PanelLeftClose,PanelLeftOpen,Upload,Plus,LogIn,UserRound} from 'lucide-react';
 import {grades,subjects} from '@/lib/catalog';
 export default function Header(){
  const [sidebar,setSidebar]=useState(false);
  const [dark,setDark]=useState(false);
+ useEffect(()=>{
+   const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setSidebar(false);};
+   window.addEventListener('keydown',onKey);
+   return()=>window.removeEventListener('keydown',onKey);
+ },[]);
  useEffect(()=>{
    const saved=window.localStorage.getItem('worksheet-theme');
    const enabled=saved==='dark';
@@ -23,7 +28,7 @@ export default function Header(){
  return <>
  <header className="site-header single-header">
   <div className="container nav-inner single-nav">
-   <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(true)}
+   <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(v=>!v)}
      aria-label="Open subjects and settings sidebar" aria-expanded={sidebar} aria-controls="worksheet-sidebar">
      <Menu size={23}/></button>
    <Link href="/" className="brand" aria-label="Worksheet Studio home">
@@ -39,7 +44,7 @@ export default function Header(){
        </div>
     </details>)}
    </nav>
-   <div className="single-nav-actions">
+   <div className="single-nav-actions"><button type="button" className="icon-control header-theme-control" onClick={changeTheme} aria-label={dark?"Switch to light theme":"Switch to dark theme"} title={dark?"Light theme":"Dark theme"}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button><Link className="single-nav-link account-link" href="/contribute"><UserRound size={16}/> Account</Link>
      <Link className="single-nav-link" href="/create"><Plus size={15}/> Create</Link>
      <Link className="single-nav-upload" href="/contribute"><Upload size={16}/> Upload</Link>
    </div>
@@ -61,12 +66,7 @@ export default function Header(){
      <div className="sidebar-grades">{grades.map(g=><Link href={'/worksheets?subject='+sub.slug+'&grade='+g.slug}
       onClick={()=>setSidebar(false)} key={g.slug}>{g.title}</Link>)}</div>
    </details>)}
-   <div className="sidebar-theme">
-     <div><strong>Appearance</strong><small>Choose your reading theme</small></div>
-     <button type="button" className="theme-toggle" onClick={changeTheme} aria-label={dark?'Use light theme':'Use dark theme'}>
-      {dark?<Moon size={20}/>:<Sun size={20}/>}<span>{dark?'Dark':'Light'}</span>
-     </button>
-   </div>
+
  </aside>
  </>;
 }
