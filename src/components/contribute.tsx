@@ -33,6 +33,7 @@ export default function Contribute(){
  const [profileName,setProfileName]=useState('');
  const [profileAvatar,setProfileAvatar]=useState<string|null>(null);
  const [profileBusy,setProfileBusy]=useState(false);
+ const [dashboardTab,setDashboardTab]=useState<'uploads'|'saved'|'liked'|'profile'>('uploads');
  const [savedIds,setSavedIds]=useState<string[]>([]);
  const [likedIds,setLikedIds]=useState<string[]>([]);
  const [collectionWorksheets,setCollectionWorksheets]=useState<{id:string;slug:string;title:string;status:string}[]>([]);
@@ -66,15 +67,16 @@ export default function Contribute(){
    supabaseBrowser.from('grades').select('id,display_name').order('sort_order').then(({data})=>{if(mounted)setGrades(data||[]);});
    return()=>{mounted=false;};
  },[]);
+ const refreshCollections=useCallback(async()=>{const x=await api('/api/account/collections');setSavedIds(x.saved||[]);setLikedIds(x.liked||[]);setCollectionWorksheets(x.worksheets||[]);},[api]);
  useEffect(()=>{if(session){
    load().catch(e=>setError(e.message));
    api('/api/account/profile').then(x=>setProfileName(x.profile?.display_name||'')).catch(()=>{});
-   api('/api/account/collections').then(x=>{setSavedIds(x.saved||[]);setLikedIds(x.liked||[]);setCollectionWorksheets(x.worksheets||[]);}).catch(()=>{});
-   api('/api/account/avatar').then(async response=>response.blob()).then(blob=>{
+   refreshCollections().catch(()=>{});
+   supabaseBrowser.auth.getSession().then(({data})=>fetch('/api/account/avatar',{headers:{Authorization:'Bearer '+data.session?.access_token}})).then(async response=>{if(!response.ok)throw new Error('No avatar');return response.blob();}).then(blob=>{
     const objectUrl=URL.createObjectURL(blob);setProfileAvatar(old=>{if(old)URL.revokeObjectURL(old);return objectUrl;});
    }).catch(()=>{});
   }else{setItems([]);setActive(null);setSavedIds([]);setLikedIds([]);setCollectionWorksheets([]);setProfileAvatar(old=>{if(old)URL.revokeObjectURL(old);return null;});}
- },[session?.user.id,load,api]);
+ },[session?.user.id,load,api,refreshCollections]);
  async function authenticate(event:FormEvent<HTMLFormElement>){
   event.preventDefault();setBusy(true);setError('');setNotice('');
   try{
@@ -278,15 +280,16 @@ export default function Contribute(){
    <div className="quota-tracks">{[0,1,2,3,4].map(n=><span className={n<count?'used':''} key={n}/>)}</div></div>
   {error&&<p className="admin-alert error" role="alert"><AlertCircle size={16}/>{error}</p>}
   {notice&&<p className="admin-alert good" role="status"><CheckCircle2 size={16}/>{notice}</p>}
-  {!active?<div className="community-main">
-   <div className="community-list" id="my-uploads"><h2>My saved and submitted worksheets</h2>
-    {items.length===0?<p>No worksheets yet. Start with an original learning resource.</p>:
-      items.map(item=><button type="button" key={item.id} onClick={()=>open(item)} className="community-item">
-       <FileText size={23}/><span><strong>{item.title}</strong><small>{item.status==='review'?'Submitted for review':item.status==='published'?'Published':'Private draft'}</small></span><ArrowRight size={18}/>
-      </button>)}
-   </div>
-   <div className="community-start"><div className="dashboard-create-icon"><UploadCloud size={29}/></div>
-    <h2>Quick upload with metadata</h2><p>Submit a PDF or image, title, description, subject and grade together.</p>
+  {!active?<div className="member-dashboard">
+   <nav className="member-tabs" aria-label="My worksheet dashboard">
+    {(['uploads','saved','liked','profile'] as const).map(t=><button key={t} type="button" aria-selected={dashboardTab===t} onClick={()=>{setDashboardTab(t);if(t==='saved'||t==='liked')refreshCollections().catch(e=>setError(e.message));}}>{t==='uploads'?'My worksheets':t==='saved'?'Saved ('+savedIds.length+')':t==='liked'?'Liked ('+likedIds.length+')':'Profile'}</button>)}
+   </nav>
+   <div className="member-workspace">
+    {dashboardTab==='uploads'&&<div className="member-two-col">
+     <section className="community-list" id="my-uploads"><h2>My worksheets <small>{items.length} / 5</small></h2>
+      {items.length===0?<p>No uploads yet. Use the form to add your first worksheet.</p>:items.map(item=><button type="button" key={item.id} onClick={()=>open(item)} className="community-item"><FileText size={20}/><span><strong>{item.title}</strong><small>{item.status==='review'?'In review':item.status==='published'?'Published':'Draft'}</small></span><ArrowRight size={18}/></button>)}
+     </section>
+     <section className="community-start"><h2><UploadCloud size={22}/> Upload a worksheet</h2><p>PDF or image with title, description, subject and grade.</p>
     <form className="quick-upload-form" onSubmit={quickUpload}>
      <label htmlFor="quick-title">Worksheet title</label><input id="quick-title" required minLength={3} maxLength={140} value={quickTitle} onChange={e=>setQuickTitle(e.target.value)}/>
      <label htmlFor="quick-summary">Description</label><textarea id="quick-summary" required minLength={10} maxLength={700} rows={3} value={quickSummary} onChange={e=>setQuickSummary(e.target.value)}/>
@@ -301,7 +304,22 @@ export default function Contribute(){
     <button className="button button-dark" type="submit" disabled={busy||count>=5||!subject||!quickAgreed||!quickFile}><UploadCloud size={16}/>{busy?'Uploading…':'Upload & submit worksheet'}</button>
     </form>
     <button className="button button-outline" type="button" disabled={busy||count>=5||!subject} onClick={start}><Plus size={16}/> Start a draft instead</button>
-    {count>=5&&<p className="community-limit">You have used your five free slots. Paid/private plans are not active yet.</p>}
+
+      {count>=5&&<p className="community-limit">All five free slots are in use.</p>}
+     </section>
+    </div>}
+    {(dashboardTab==='saved'||dashboardTab==='liked')&&<section className="community-list member-library">
+     <div className="member-section-head"><h2>{dashboardTab==='saved'?'Saved':'Liked'} worksheets</h2><button type="button" className="button button-outline" onClick={()=>refreshCollections().catch(e=>setError(e.message))}>Refresh</button></div>
+     {collectionWorksheets.filter(w=>(dashboardTab==='saved'?savedIds:likedIds).includes(w.id)).length===0?<p>No worksheets here yet. <Link href="/worksheets">Browse the library to save or like worksheets.</Link></p>:
+     <div className="community-collection-grid">{collectionWorksheets.filter(w=>(dashboardTab==='saved'?savedIds:likedIds).includes(w.id)).map(w=><Link key={w.id} href={'/worksheets/'+w.slug} className="community-collection-item"><FileText size={19}/><span>{w.title}</span><ArrowRight size={16}/></Link>)}</div>}
+    </section>}
+    {dashboardTab==='profile'&&<section className="community-profile-card">
+      <div className="community-profile-avatar">{profileAvatar?<img alt="My profile photo" src={profileAvatar}/>:<span>{(profileName||session.user.email||'U')[0].toUpperCase()}</span>}</div>
+      <div className="community-profile-content"><h2>Profile settings</h2><p>{session.user.email}</p>
+       <form onSubmit={saveProfile} className="community-profile-form"><label htmlFor="profile-display-name">Display name</label><input id="profile-display-name" maxLength={80} value={profileName} onChange={e=>setProfileName(e.target.value)}/><button className="button button-dark" disabled={profileBusy} type="submit">Save</button></form>
+       <label htmlFor="profile-photo" className="community-photo-label">Profile photo (PNG, JPG, WebP · 2 MB)</label><input type="file" id="profile-photo" accept=".png,.jpg,.jpeg,.webp" disabled={profileBusy} onChange={uploadAvatar}/>
+      </div>
+    </section>}
    </div>
   </div>:<div className="community-editor">
    <button type="button" className="community-back" onClick={()=>setActive(null)}><ArrowLeft size={16}/> Back to my worksheets</button>
