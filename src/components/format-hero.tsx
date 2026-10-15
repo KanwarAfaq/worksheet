@@ -1,10 +1,10 @@
 'use client';
 import {useState,type FormEvent} from 'react';
 import {useRouter} from 'next/navigation';
-import {Search,FileText,FilePenLine,SlidersHorizontal,ArrowRight} from 'lucide-react';
+import {Search,FileText,Image as ImageIcon,SlidersHorizontal,ArrowRight} from 'lucide-react';
 import Link from 'next/link';
 export default function FormatHero(){
- const [format,setFormat]=useState<'pdf'|'docx'|'all'>('all');
+ const [format,setFormat]=useState<'pdf'|'png'|'all'>('all');
  const [query,setQuery]=useState('');
  const [filters,setFilters]=useState(false);
  const [grade,setGrade]=useState('');
@@ -24,14 +24,14 @@ export default function FormatHero(){
     <div className="search-heading">
       <div className="section-kicker">FREE PRINTABLE LEARNING RESOURCES</div>
       <h1>Find your next <em>great worksheet.</em></h1>
-      <p>Ready-to-print PDFs and editable Word worksheets, organized by subject and grade.</p>
+      <p>Free printable PDF and image worksheets, organized by subject and grade.</p>
     </div>
     <form className="search-mega-form" onSubmit={submit}>
      <fieldset className="search-file-picker" aria-label="File type">
        <legend className="visually-hidden">Choose file format</legend>
        <button className={format==='all'?'selected':''} type="button" onClick={()=>setFormat('all')}><FileText size={24}/><span>All</span></button>
        <button className={format==='pdf'?'selected':''} type="button" onClick={()=>setFormat('pdf')}><span className="format-mini pdf-mini"><FileText size={22}/></span><span>PDF</span></button>
-       <button className={format==='docx'?'selected':''} type="button" onClick={()=>setFormat('docx')}><span className="format-mini word-mini"><FilePenLine size={22}/></span><span>Word</span></button>
+       <button className={format==='png'?'selected':''} type="button" onClick={()=>setFormat('png')}><span className="format-mini word-mini"><ImageIcon size={22}/></span><span>Images</span></button>
      </fieldset>
      <label className="search-input-wrap"><Search size={22}/>
        <input type="search" value={query} onChange={e=>setQuery(e.target.value)}
