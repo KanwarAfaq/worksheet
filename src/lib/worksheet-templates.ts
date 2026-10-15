@@ -1,13 +1,9 @@
-export type TemplateType='tracing'|'word-search'|'scramble'|'missing'|'matching'|'alphabetical'|'copy'|'count';
+export type TemplateType='tracing'|'word-search'|'scramble'|'missing';
 export const worksheetTemplates:{id:TemplateType;name:string;description:string}[]=[
  {id:'tracing',name:'Letter tracing',description:'Dotted outlines with handwriting guide lines'},
  {id:'word-search',name:'Word search',description:'Find words hidden in a letter grid'},
  {id:'scramble',name:'Word scramble',description:'Rearrange mixed-up letters'},
- {id:'missing',name:'Missing letters',description:'Complete words with missing characters'},
- {id:'matching',name:'Word matching',description:'Connect words to their scrambled partners'},
- {id:'alphabetical',name:'Alphabetical order',description:'Rearrange words from A to Z'},
- {id:'copy',name:'Copy the words',description:'Practice handwriting on lined spaces'},
- {id:'count',name:'Count the letters',description:'Count how many letters are in each word'}
+ {id:'missing',name:'Missing letters',description:'Complete words with missing characters'}
 ];
 export const worksheetSamples={
  Alphabet:['Aa','Bb','Cc','Dd','Ee','Ff','Gg','Hh','Ii','Jj','Kk','Ll','Mm','Nn','Oo','Pp','Qq','Rr','Ss','Tt','Uu','Vv','Ww','Xx','Yy','Zz'],
