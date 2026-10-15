@@ -165,7 +165,7 @@ export default function Contribute(){
    const newRecord=await api(root,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category_id:subject,grade_id:grade||null})});
    id=newRecord.id;
    await api(root+'/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:quickTitle,summary:quickSummary,category_id:subject,grade_id:grade||null})});
-   const data=new FormData();data.set('file',quickFile);data.set('rights_confirmed','yes');data.set('license_basis','original');
+   const data=new FormData();data.set('file',quickFile);data.set('rights_confirmed','yes');data.set('license_basis',rightsBasis);
    await api(root+'/'+id+'/files',{method:'POST',body:data});
    await api(root+'/'+id+'/submit',{method:'POST'});
    setQuickTitle('');setQuickSummary('');setQuickFile(null);setQuickAgreed(false);
@@ -291,7 +291,8 @@ export default function Contribute(){
      <label htmlFor="quick-title">Worksheet title</label><input id="quick-title" required minLength={3} maxLength={140} value={quickTitle} onChange={e=>setQuickTitle(e.target.value)}/>
      <label htmlFor="quick-summary">Description</label><textarea id="quick-summary" required minLength={10} maxLength={700} rows={3} value={quickSummary} onChange={e=>setQuickSummary(e.target.value)}/>
      <label htmlFor="quick-file">PDF or image</label><input id="quick-file" type="file" required accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" onChange={e=>setQuickFile(e.target.files?.[0]||null)}/>
-     <label className="check-field"><input type="checkbox" checked={quickAgreed} onChange={e=>setQuickAgreed(e.target.checked)}/> I created this worksheet, own its rights, and agree to moderation before publication.</label>
+     <label htmlFor="quick-license">Rights to redistribute</label><select id="quick-license" value={rightsBasis} onChange={e=>setRightsBasis(e.target.value as 'original'|'licensed')}><option value="original">My original work</option><option value="licensed">Licensed for redistribution</option></select>
+     <label className="check-field"><input type="checkbox" checked={quickAgreed} onChange={e=>setQuickAgreed(e.target.checked)}/> I created this worksheet or have redistribution rights, and agree to moderation before publication.</label>
 
     <label htmlFor="new-subject">Subject</label><select id="new-subject" value={subject} onChange={e=>setSubject(e.target.value)}>
      {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
@@ -312,7 +313,7 @@ export default function Contribute(){
     <h3>Upload PDF or image</h3>
     <p>Files are private while you prepare your draft. Max 3 MB each, five files per worksheet. Do not submit copyrighted material without permission.</p>
     {attachments.map(f=><div className="community-attachment" key={f.id}><FileText size={18}/><span>{f.original_name}</span>
-      <button onClick={()=>download(f,f.variant==='pdf')} type="button">{f.variant==='pdf'?'Preview':'Download'} <Download size={15}/></button></div>)}
+      <button onClick={()=>download(f,['pdf','png','jpg','webp'].includes(f.variant))} type="button">{f.variant==='pdf'?'Preview':'Download'} <Download size={15}/></button></div>)}
     {active.status==='draft'&&<form onSubmit={upload}><label htmlFor="community-upload">Choose PDF or image</label>
      <input type="file" id="community-upload" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" required onChange={e=>setFile(e.target.files?.[0]||null)}/>
      <label htmlFor="community-rights">Copyright and redistribution rights</label>
