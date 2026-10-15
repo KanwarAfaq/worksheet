@@ -22,7 +22,7 @@ export function drawColoringObject(ctx:CanvasRenderingContext2D,object:ColoringO
  ctx.lineWidth=5;ctx.lineJoin='round';ctx.lineCap='round';
  ctx.strokeStyle='#182f27';
  const color:Record<ColoringObject,string>={cat:'#efb26f',apple:'#f47878',flower:'#f4a0c9',
-  tree:'#94cb81',fish:'#93c7ee',butterfly:'#bea1e8',star:'#ffe184',house:'#deb98c'};
+  tree:'#94cb81',fish:'#93c7ee',butterfly:'#bea1e8',star:'#ffe184',house:'#deb98c',computer:'#cfdde8',car:'#b6d9f4',sun:'#ffe789',ball:'#ffcdcf'};
  const fill=(other='#fff')=>{ctx.fillStyle=teacher?other:'#fff';ctx.fill();ctx.stroke();};
  const path=(fn:()=>void,shade=color[object])=>{ctx.beginPath();fn();fill(shade);};
  const ellipse=(cx:number,cy:number,rx:number,ry:number,shade?:string)=>{
