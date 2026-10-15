@@ -2,7 +2,8 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import WorksheetCard from '@/components/worksheet-card';
 import PublishedWorksheetCard from '@/components/published-worksheet-card';
-import {publishedWorksheets} from '@/lib/public-catalog';
+import {publishedWorksheetPage,WORKSHEETS_PER_PAGE} from '@/lib/public-catalog';
+import WorksheetPagination from '@/components/worksheet-pagination';
 import {samples,subjects,grades,formats} from '@/lib/catalog';
 import {ArrowRight,FileText} from 'lucide-react';
 import {indexableRobots} from '@/lib/seo';
@@ -15,10 +16,11 @@ export async function generateMetadata({searchParams}:{searchParams:Promise<Filt
  description:'Browse ready-to-print PDF and image worksheets by subject and grade. Find math, reading, spelling, writing and other learning activities.',
  alternates:{canonical:'/worksheets'},robots:indexableRobots(!filtered)};
 }
-type Filters={subject?:string;grade?:string;format?:string;q?:string};
+type Filters={subject?:string;grade?:string;format?:string;q?:string;page?:string};
 export default async function Worksheets({searchParams}:{searchParams:Promise<Filters>}){
  const filters=await searchParams;
- const live=await publishedWorksheets();
+
+ const currentPage=Math.max(1,Number.isSafeInteger(Number(filters.page))?Number(filters.page||1):1);
  const subject=subjects.find(s=>s.slug===filters.subject)?.slug||'';
  const grade=grades.find(g=>g.slug===filters.grade)?.slug||'';
  const format=formats.find(f=>f.slug===filters.format)?.slug||'';
@@ -38,16 +40,13 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
   (!grade||item.grade==='Grade '+grade.split('-')[1]) &&
   !format && (!query||(item.title+' '+item.description+' '+item.category).toLowerCase().includes(query))
  );
- const matchingLive=live.filter(item=>
-  (!subject||item.categorySlug===subject) &&
-  (!grade||item.gradeSlug===grade) &&
-  (!format||(format==='image'?item.availableFormats.some(f=>['png','jpg','webp'].includes(f)):item.availableFormats.includes(format as 'pdf'))) &&
-  (!query||(item.title+' '+(item.summary||'')+' '+item.categoryName).toLowerCase().includes(query)));
+ const livePage=await publishedWorksheetPage({subject,grade,format,q:query,page:currentPage});
+ const matchingLive=livePage.items;
  const chosenFormat=formats.find(f=>f.slug===format);
  return <div className="container inner-page">
   <div className="section-kicker">THE WORKSHEET LIBRARY</div><h1>Find a little <em>inspiration.</em></h1>
  {query&&<div className="library-query-note">Search results for <strong>{query}</strong><Link href="/worksheets">Clear search</Link></div>}
-  <p className="page-lead">Browse by subject, grade, or file type. Real downloads will appear here as verified files are added to the library.</p>
+  <p className="page-lead">Browse by subject, grade, or file type. </p>
   <div className="library-filters">
     <div className="library-filter-group"><span>SUBJECT</span><div className="filter-bar">
       <Link href={href({subject:''})} className={'filter-pill '+(!subject?'active':'')}>All</Link>
@@ -62,11 +61,14 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
       {formats.map(f=><Link href={href({format:f.slug})} key={f.slug} className={'filter-pill '+(format===f.slug?'active':'')}>{f.title}</Link>)}
     </div></div>
   </div>
-  {matchingLive.length>0?<div className="worksheet-grid">{matchingLive.map(item=><PublishedWorksheetCard item={item} key={item.id}/>)}</div>:
+  {livePage.total>0&&matchingLive.length===0?<div className="category-pending">No worksheets on this page. <Link href={href({})}>Go to results</Link></div>:
+  matchingLive.length>0?<><div className="worksheet-grid">{matchingLive.map(item=><PublishedWorksheetCard item={item} key={item.id}/>)}</div>
+  <WorksheetPagination base="/worksheets" page={livePage.page} pages={livePage.pages} total={livePage.total}
+  filters={{subject,grade,format,q:query}}/></>:
  chosenFormat?<div className="category-pending"><FileText size={36}/><h3>No published {chosenFormat.title} worksheets yet</h3><p>There are no verified {chosenFormat.title} files for these filters. They appear automatically after uploading and publishing.</p><Link href="/create">Create a printable PDF now <ArrowRight size={16}/></Link></div>:
- visibleSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div><div className="worksheet-grid">{visibleSamples.map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></>:
- <div className="category-pending"><h3>No worksheets for these filters yet</h3><p>We're preparing original and licensed worksheets for all eight subjects and Grades 1–6.</p><Link href="/create">Make your own printable <ArrowRight size={16}/></Link></div>}
-  <p className="sample-disclaimer">Catalog previews are examples only. They do not represent uploaded or publicly downloadable files.</p>
+ visibleSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div><div className="worksheet-grid">{visibleSamples.slice((currentPage-1)*WORKSHEETS_PER_PAGE,currentPage*WORKSHEETS_PER_PAGE).map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></>:
+ <div className="category-pending"><h3>No worksheets for these filters yet</h3><p>New worksheets will appear here after publication.</p><Link href="/create">Make your own printable <ArrowRight size={16}/></Link></div>}
+
   <div className="bottom-prompt">Need a custom activity? <Link href="/create">Open the free worksheet maker <ArrowRight size={17}/></Link></div>
  </div>;
 }

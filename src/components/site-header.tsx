@@ -13,11 +13,13 @@ export default function Header(){
   setDark(window.localStorage.getItem('worksheet-theme')==='dark');
   document.documentElement.dataset.theme=window.localStorage.getItem('worksheet-theme')==='dark'?'dark':'light';
  },[]);
- useEffect(()=>{setSidebar(false);},[pathname]);
+ useEffect(()=>{setSidebar(window.matchMedia('(min-width: 1250px)').matches);},[]);
+ useEffect(()=>{if(window.innerWidth<1250)setSidebar(false);},[pathname]);
  useEffect(()=>{
-  const close=(e:KeyboardEvent)=>{if(e.key==='Escape')setSidebar(false);};
-  window.addEventListener('keydown',close);
-  return()=>window.removeEventListener('keydown',close);
+  const close=(e:KeyboardEvent)=>{if(e.key==='Escape'&&window.innerWidth<1250)setSidebar(false);};
+  const resize=()=>{if(window.innerWidth<1250)setSidebar(false);};
+  window.addEventListener('keydown',close);window.addEventListener('resize',resize);
+  return()=>{window.removeEventListener('keydown',close);window.removeEventListener('resize',resize);};
  },[]);
  function changeTheme(){
   const next=!dark;setDark(next);
@@ -55,20 +57,20 @@ export default function Header(){
     </div>
    </div>
   </header>
-  {sidebar&&<div className="sidebar-scrim" onClick={()=>setSidebar(false)} aria-hidden="true"/>}
+  {sidebar&&<div className="sidebar-scrim" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}} aria-hidden="true"/>}
   <aside className={'worksheet-sidebar simple-sidebar '+(sidebar?'is-open':'')} id="worksheet-sidebar" aria-label="Quick navigation">
    <div className="sidebar-top"><strong>Menu</strong>
     <button className="icon-control" type="button" onClick={()=>setSidebar(false)} aria-label="Close sidebar"><X size={21}/></button>
    </div>
    <nav className="simple-sidebar-links" aria-label="Quick links">
-    <Link href="/worksheets" onClick={()=>setSidebar(false)}>Worksheets</Link>
-    <Link href="/create" onClick={()=>setSidebar(false)}>Create</Link>
-    <Link href="/contribute" onClick={()=>setSidebar(false)}>Upload</Link>
+    <Link href="/worksheets" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Worksheets</Link>
+    <Link href="/create" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Create</Link>
+    <Link href="/contribute" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Upload</Link>
    </nav>
    <details className="simple-sidebar-grades">
     <summary>Grades 1–6 <ChevronDown size={18}/></summary>
     <div>{grades.map(grade=><Link key={grade.slug} href={'/worksheets?grade='+grade.slug}
-      onClick={()=>setSidebar(false)}>{grade.title}</Link>)}</div>
+      onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{grade.title}</Link>)}</div>
    </details>
    <div className="sidebar-theme">
     <span>Theme</span>
