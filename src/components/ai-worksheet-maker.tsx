@@ -36,7 +36,7 @@ export default function AIWorksheetMaker(){
  const [grade,setGrade]=useState(2);
  const [level,setLevel]=useState('easy');
  const [worksheet,setWorksheet]=useState<AIWorksheet|null>(null);
- const [providerStatus,setProviderStatus]=useState<{name:string;configured:boolean;model:string}[]>([]);
+ const [providerStatus,setProviderStatus]=useState<{name:string;configured:boolean;model:string;status?:string}[]>([]);
  const [tracing,setTracing]=useState(false);
  const [busy,setBusy]=useState(false),[error,setError]=useState('');
  async function checkProviders(){
@@ -92,7 +92,7 @@ export default function AIWorksheetMaker(){
    <select id="ai-level" className="field-select" value={level} onChange={e=>setLevel(e.target.value)}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
    <button className="button button-dark" disabled={busy} type="submit">{busy?<RefreshCw size={18}/>:<Sparkles size={18}/>} {busy?'Creating worksheet…':'Generate worksheet'}</button>
    <button className="regenerate" type="button" onClick={checkProviders}>Check configured AI providers</button>
-   {providerStatus.length>0&&<div className="provider-status">{providerStatus.map(x=><div key={x.name}><strong>{x.name}</strong><span>{x.configured?'Key present':'Key missing'}</span><small>{x.model}</small></div>)}<p>Keys present does not mean the account is authorized for every model. The next available provider is attempted if a call fails.</p></div>}
+   {providerStatus.length>0&&<div className="provider-status">{providerStatus.map(x=><div key={x.name}><strong>{x.name}</strong><span>{x.status|| (x.configured?'Key present':'Key missing')}</span><small>{x.model}</small></div>)}<p>Model-list checks do not prove text generation succeeds. If the model is not listed, configure a model your provider account permits.</p></div>}
    <p className="generator-setting-help"><ShieldCheck size={14}/> Sign-in required · 5 AI generations daily · Provider keys stay on the server.</p>
    {error&&<p className="error-message" role="alert">{error}</p>}
   </form>
