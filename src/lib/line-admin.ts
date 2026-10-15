@@ -2,14 +2,14 @@
  * Best-effort operational LINE alerts. Never expose secrets to the browser.
  * Configure LINE_CHANNEL_ACCESS_TOKEN and LINE_ADMIN_USER_ID on the server.
  */
-export async function notifyWorksheetAdmin(event:'worksheet_file_uploaded'|'worksheet_submitted',details:{worksheetId:string;actorId:string;fileName?:string}):Promise<void>{
+export async function notifyWorksheetAdmin(event:'worksheet_file_uploaded'|'worksheet_submitted'|'user_registered',details:{worksheetId:string;actorId:string;fileName?:string}):Promise<void>{
  const token=process.env.LINE_CHANNEL_ACCESS_TOKEN;
  const recipient=process.env.LINE_ADMIN_USER_ID;
  if(!token||!recipient)return;
  const safeFile=(details.fileName||'').slice(0,100).replace(/[\r\n]/g,' ');
  const text=[
   '📚 Worksheet Studio · Admin alert',
-  event==='worksheet_file_uploaded'?'📎 New worksheet file uploaded':'📝 Worksheet submitted for review',
+  event==='worksheet_file_uploaded'?'📎 New worksheet file uploaded':event==='user_registered'?'👤 New user registered':'📝 Worksheet submitted for review',
   'Worksheet: '+details.worksheetId,
   'User: '+details.actorId,
   ...(safeFile?['File: '+safeFile]:[]),
