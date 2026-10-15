@@ -781,3 +781,14 @@ html[data-theme='dark'] .sidebar-menu-group>summary:hover{background:#345842}
 html[data-theme='dark'] .seo-faq-item{background:#223b2c;color:#f2f7ef;border-color:#375444}
 html[data-theme='dark'] .seo-faq-item p,html[data-theme='dark'] .seo-guide-steps p{color:#c0d5c6}
 html[data-theme='dark'] .seo-prose-page a:not(.button){color:#b2eac2}
+
+/* Helpful, answer-first content on homepage */
+.seo-home-help>h2{font-size:clamp(27px,3vw,42px);line-height:1.25;margin:14px 0 30px}
+.seo-home-help h2 em{color:#cb915e}
+.seo-home-help-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:19px;margin-bottom:25px}
+.seo-home-help-grid article{border-radius:14px;border:1px solid #e1eae0;padding:23px;background:#f9fcf8}
+.seo-home-help-grid h3{font-size:18px}
+.seo-home-help-grid p{font-size:13px;line-height:1.7;color:#687f70}
+html[data-theme='dark'] .seo-home-help-grid article{background:#203a2b;color:#f2f7f0;border-color:#446047}
+html[data-theme='dark'] .seo-home-help-grid p{color:#c7d9ca}
+@media(max-width:760px){.seo-home-help-grid{grid-template-columns:1fr}}

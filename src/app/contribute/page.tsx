@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
 import Contribute from '@/components/contribute';
-export const metadata:Metadata={title:'Share a worksheet',description:'Make or share up to five free printable worksheets with the community.'};
+import {indexableRobots} from '@/lib/seo';
+export const metadata:Metadata={title:'Share a Worksheet',description:'Sign in to upload your own worksheet and manage saved resources.',robots:indexableRobots(false)};
 export default function ContributePage(){return <Contribute/>;}

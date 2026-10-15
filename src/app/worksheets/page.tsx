@@ -5,9 +5,16 @@ import PublishedWorksheetCard from '@/components/published-worksheet-card';
 import {publishedWorksheets} from '@/lib/public-catalog';
 import {samples,subjects,grades,formats} from '@/lib/catalog';
 import {ArrowRight,FileText} from 'lucide-react';
+import {indexableRobots} from '@/lib/seo';
 
 export const dynamic='force-dynamic';
-export const metadata:Metadata={title:'Worksheet Library',description:'Browse worksheet topics by subject, school grade and document format.'};
+export async function generateMetadata({searchParams}:{searchParams:Promise<Filters>}):Promise<Metadata>{
+ const f=await searchParams;
+ const filtered=Boolean(f.subject||f.grade||f.format||f.q);
+ return{title:'Free Printable Worksheet Library — Grades 1–6',
+ description:'Browse ready-to-print PDF and image worksheets by subject and grade. Find math, reading, spelling, writing and other learning activities.',
+ alternates:{canonical:'/worksheets'},robots:indexableRobots(!filtered)};
+}
 type Filters={subject?:string;grade?:string;format?:string;q?:string};
 export default async function Worksheets({searchParams}:{searchParams:Promise<Filters>}){
  const filters=await searchParams;

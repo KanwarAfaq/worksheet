@@ -1,8 +1,11 @@
 
 import type {Metadata} from 'next';
+import {indexableRobots} from '@/lib/seo';
 import Link from 'next/link';
 import {Search,Shuffle,SpellCheck,ArrowUpRight,CheckCircle2,Sparkles,Layers3} from 'lucide-react';
-export const metadata:Metadata={title:'Free Worksheet Maker'};
+export const metadata:Metadata={title:'Free Worksheet Maker — Word Search, Spelling and Tracing',
+ description:'Make free printable worksheets using customizable word search, spelling, missing letters and tracing templates, with PDF export.',
+ alternates:{canonical:'/create'},robots:indexableRobots()};
 const makers=[
   {href:'/create/templates',name:'4 Printable Templates',icon:Layers3,description:'Create tracing sheets, word searches, scrambles and missing-letter worksheets with editable content.',accent:'blue',tag:'NO SIGN-IN REQUIRED'},
   {href:'/create/ai',name:'AI Worksheet Maker',icon:Sparkles,description:'Create original grade-level questions and download student PDFs, PNGs and separate teacher keys.',accent:'mint',tag:'AI-ASSISTED · SIGN-IN'},

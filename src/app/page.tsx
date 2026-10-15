@@ -6,7 +6,14 @@ import FormatHero from '@/components/format-hero';
 import {samples,subjects} from '@/lib/catalog';
 import PublishedWorksheetCard from '@/components/published-worksheet-card';
 import {publishedWorksheets} from '@/lib/public-catalog';
+import type {Metadata} from 'next';
+import {indexableRobots} from '@/lib/seo';
 export const dynamic='force-dynamic';
+export const metadata:Metadata={
+ title:'Free Printable Worksheets for Grades 1–6',
+ description:'Find printable math, reading, spelling and writing worksheets for Grades 1–6. Browse PDF activities or make custom word searches and tracing sheets for free.',
+ alternates:{canonical:'/'},robots:indexableRobots()
+};
 export default async function Home(){
  const published=await publishedWorksheets();
  return <>
@@ -43,6 +50,16 @@ export default async function Home(){
   <Link href="/create/missing-letters"><span className="maker-icon maker-pink"><SpellCheck size={25}/></span><span><strong>Missing Letters</strong><small>Fill in the blanks</small></span><ArrowUpRight size={20}/></Link>
 </div></div></section>
 <section className="section popular-section"><div className="container"><div className="section-heading heading-aligned"><div><div className="section-kicker">LITTLE PICKS, BIG SMILES</div><h2>A peek at the <em>worksheet library.</em></h2></div><Link href="/worksheets" className="text-link">Browse the library <ArrowUpRight size={18}/></Link></div>
-<div className="worksheet-grid">{samples.slice(0,3).map(w=><WorksheetCard key={w.slug} item={w}/>)}</div><p className="sample-disclaimer">These are example listings while our downloadable worksheet library is being prepared. The interactive makers above are ready to try.</p></div></section>
+<div className="worksheet-grid">{published.length?published.slice(0,6).map(w=><PublishedWorksheetCard key={w.id} item={w}/>):samples.slice(0,3).map(w=><WorksheetCard key={w.slug} item={w}/>)}</div><p className="sample-disclaimer">{published.length?'Published learning resources from the worksheet library.':'Sample listings; they are not downloadable until publication.'}</p></div></section>
+<section className="container seo-home-help section" aria-labelledby="home-faq-heading">
+ <div className="section-kicker">COMMON QUESTIONS</div>
+ <h2 id="home-faq-heading">Plan, create, and print <em>with confidence.</em></h2>
+ <div className="seo-home-help-grid">
+   <article><h3>Which grades are covered?</h3><p>Browse learning activities for Grades 1–6, plus kindergarten and early-reading practice.</p></article>
+   <article><h3>Can I make my own worksheet?</h3><p>Yes. Customize words, instructions and difficulty in free printable worksheet makers.</p></article>
+   <article><h3>Are downloads always available?</h3><p>Published worksheets show their actual file formats. Sample listings are clearly marked and have no download button.</p></article>
+ </div>
+ <Link href="/faq" className="text-link">More questions and answers <ArrowRight size={17}/></Link>
+</section>
 <section className="last-cta"><div className="container"><div className="cta-box"><div><span className="section-kicker">READY, SET, CREATE</span><h2>A whole world of learning,<br/><em>one worksheet at a time.</em></h2></div><Link href="/create" className="button button-white">Create a worksheet <ArrowUpRight size={17}/></Link><Star className="cta-star" size={105} strokeWidth={1}/></div></div></section>
 </>}
