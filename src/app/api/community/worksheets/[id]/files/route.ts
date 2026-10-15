@@ -3,6 +3,7 @@ import {randomUUID,createHash} from 'node:crypto';
 import {requireContributor,json} from '@/lib/community-server';
 import {r2Client,r2Bucket,r2Configured,MAX_UPLOAD_BYTES} from '@/lib/r2-server';
 import {checkWorksheetFile} from '@/lib/file-validation';
+import {notifyWorksheetAdmin} from '@/lib/line-admin';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 type Context={params:Promise<{id:string}>};
@@ -60,5 +61,6 @@ export async function POST(request:Request,{params}:Context){
  .select('id,variant,original_name').single();
  if(error){try{await client.send(new DeleteObjectCommand({Bucket:bucket,Key:key}));}catch{}
   return json({error:'Could not register file. Duplicate or quota exceeded.'},409);}
+ await notifyWorksheetAdmin('worksheet_file_uploaded',{worksheetId:id,actorId:a.user.id,fileName:f.name});
  return json({file:record},201);
 }
