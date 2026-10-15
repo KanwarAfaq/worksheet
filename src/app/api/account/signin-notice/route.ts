@@ -21,7 +21,8 @@ export async function POST(request:Request){
   if(error.code==='23505')return json({ok:true,duplicate:true});
   return json({error:'Unable to record login event'},500);
  }
- const wasCreatedRecently=Date.now()-Date.parse(a.user.created_at)<10*60*1000;
+ const {count}=await a.db.from('worksheet_signin_notices').select('session_id',{count:'exact',head:true}).eq('user_id',a.user.id);
+ const wasCreatedRecently=count===1&&Date.now()-Date.parse(a.user.created_at)<10*60*1000;
  const delivered=await notifyWorksheetAdmin(wasCreatedRecently?'user_registered':'user_signed_in',{worksheetId:'N/A',actorId:a.user.id});
  if(!delivered){
   await a.db.from('worksheet_signin_notices').delete().eq('user_id',a.user.id).eq('session_id',sessionId);
