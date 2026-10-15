@@ -35,7 +35,7 @@ export default function Header(){
  <header className="site-header single-header">
   <div className="container nav-inner single-nav">
    <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(v=>!v)}
-     aria-label={sidebar?"Close worksheet sidebar":"Open worksheet sidebar"} aria-expanded={sidebar} aria-controls="worksheet-sidebar">
+     aria-label={sidebar?"Collapse navigation":"Expand navigation"} aria-expanded={sidebar} aria-controls="worksheet-sidebar">
      {sidebar?<X size={23}/>:<Menu size={23}/>}</button>
    <Link href="/" className="brand" aria-label="Worksheet Studio home">
      <span className="brand-icon"><BookOpen size={19}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
@@ -51,18 +51,17 @@ export default function Header(){
  </header>
  {sidebar&&<div className="sidebar-scrim" onClick={()=>setSidebar(false)} aria-hidden="true"/>}
  <aside className={'worksheet-sidebar '+(sidebar?'is-open':'')} id="worksheet-sidebar" aria-label="Browse and appearance">
-   <div className="sidebar-top"><strong>Explore Worksheet Studio</strong>
-     <button type="button" className="icon-control" aria-label="Close sidebar" onClick={()=>setSidebar(false)}><X size={23}/></button>
-   </div>
+   <div className="sidebar-top"><strong>Worksheet Studio</strong></div>
    <div className="sidebar-section-title">QUICK LINKS</div>
    <Link href="/worksheets" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>All worksheets</Link>
    <Link href="/create" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Worksheet maker</Link>
    <Link href="/contribute" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Upload a worksheet</Link>
    <Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet maker</Link>
-   <div className="sidebar-section-title">BROWSE BY SUBJECT & GRADE</div>
-   <div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} aria-current={pathname==='/'+sub.slug?'page':undefined} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{sub.title}</Link>)}</div>
-   <div className="sidebar-section-title">ALL GRADES</div>
-   <div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{g.title}</Link>)}</div>
+   <div className="sidebar-section-title">BROWSE</div>
+   <details className="sidebar-menu-group" open><summary>Subjects <span>⌄</span></summary><div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} aria-current={pathname==='/'+sub.slug?'page':undefined} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{sub.title}</Link>)}</div></details>
+   <details className="sidebar-menu-group"><summary>Grades 1–6 <span>⌄</span></summary><div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{g.title}</Link>)}</div></details>
+   <details className="sidebar-menu-group"><summary>Worksheet templates <span>⌄</span></summary><div className="sidebar-subject-links"><Link href="/create/templates" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>All 8 printable templates</Link><Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet creator</Link></div></details>
+
  </aside>
  </>;
 }
