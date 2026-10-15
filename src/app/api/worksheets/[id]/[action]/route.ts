@@ -4,7 +4,7 @@ import {deliverPrivateFile} from '@/lib/file-response';
 import {r2Configured} from '@/lib/r2-server';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const allowed=['pdf','docx','pptx','png','jpg','webp'];
+const allowed=['pdf','png','jpg','webp'];
 export async function GET(request:Request,{params}:{params:Promise<{id:string;action:string}>}){
  const {id,action}=await params;
  if(!uuid.test(id)||!['download','preview','print','answer-key'].includes(action))
