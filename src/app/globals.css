@@ -539,3 +539,10 @@ html[data-theme='dark'] .community-collection-item{border-color:#506659;color:#e
 html[data-theme='dark'] .worksheet-actions{border-color:#4d6657}
 html[data-theme='dark'] .worksheet-actions button{background:#274f3e;color:#ebffef;border-color:#608774}
 html[data-theme='dark'] .worksheet-actions button[aria-pressed='true']{background:#326e50;color:#fff}
+
+.sidebar-subject-links{display:grid;gap:4px;margin:6px 0 18px}
+.sidebar-subject-links a{display:flex;align-items:center;min-height:42px;padding:10px 12px;border-radius:9px;font-weight:750;color:#204f38}
+.sidebar-subject-links a:hover{background:#e5f2e8}
+html[data-theme='dark'] .sidebar-subject-links a{color:#e5f4eb}
+html[data-theme='dark'] .sidebar-subject-links a:hover{background:#2d4c3b}
+@media(max-width:1200px){.main-subject-nav{display:none!important}.single-nav-actions{margin-left:auto}}
