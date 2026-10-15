@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, type FormEvent } from 'react';
 import {useRouter} from 'next/navigation';
+import Link from 'next/link';
 import type { Session } from '@supabase/supabase-js';
 import {
   BookOpen, LayoutDashboard, LogOut, LockKeyhole, ShieldCheck, FileText,
