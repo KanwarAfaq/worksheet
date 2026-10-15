@@ -1,15 +1,21 @@
 'use client';
 import Link from 'next/link';
+import {usePathname} from 'next/navigation';
 import {useEffect,useState} from 'react';
 import {BookOpen,Menu,X,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
 import {grades,subjects} from '@/lib/catalog';
 export default function Header(){
  const [sidebar,setSidebar]=useState(false);
+ const pathname=usePathname();
+ useEffect(()=>{setSidebar(window.matchMedia('(min-width: 1250px)').matches);},[]);
+ useEffect(()=>{if(window.matchMedia('(max-width: 1249px)').matches)setSidebar(false);},[pathname]);
  const [dark,setDark]=useState(false);
  useEffect(()=>{
    const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setSidebar(false);};
    window.addEventListener('keydown',onKey);
-   return()=>window.removeEventListener('keydown',onKey);
+   const onResize=()=>{if(window.innerWidth<1250)setSidebar(false);};
+   window.addEventListener('resize',onResize);
+   return()=>{window.removeEventListener('keydown',onKey);window.removeEventListener('resize',onResize);};
  },[]);
  useEffect(()=>{
    const saved=window.localStorage.getItem('worksheet-theme');
@@ -49,13 +55,14 @@ export default function Header(){
      <button type="button" className="icon-control" aria-label="Close sidebar" onClick={()=>setSidebar(false)}><X size={23}/></button>
    </div>
    <div className="sidebar-section-title">QUICK LINKS</div>
-   <Link href="/worksheets" onClick={()=>setSidebar(false)}>All worksheets</Link>
-   <Link href="/create" onClick={()=>setSidebar(false)}>Worksheet maker</Link>
-   <Link href="/contribute" onClick={()=>setSidebar(false)}>Upload a worksheet</Link>
+   <Link href="/worksheets" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>All worksheets</Link>
+   <Link href="/create" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Worksheet maker</Link>
+   <Link href="/contribute" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Upload a worksheet</Link>
+   <Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet maker</Link>
    <div className="sidebar-section-title">BROWSE BY SUBJECT & GRADE</div>
-   <div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} onClick={()=>setSidebar(false)}>{sub.title}</Link>)}</div>
+   <div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{sub.title}</Link>)}</div>
    <div className="sidebar-section-title">ALL GRADES</div>
-   <div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>setSidebar(false)}>{g.title}</Link>)}</div>
+   <div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{g.title}</Link>)}</div>
  </aside>
  </>;
 }
