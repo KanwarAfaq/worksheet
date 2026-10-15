@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {Sparkles,Download,ArrowLeft,RefreshCw,ShieldCheck} from 'lucide-react';
 import {supabaseBrowser} from '@/lib/supabase-browser';
 import type {AIWorksheet} from '@/lib/ai-worksheet';
-import {coloringChoices,coloringNames,drawColoringObject,suggestedColoringFromText,type ColoringObject} from '@/lib/coloring-worksheet';
+import {coloringChoices,coloringNames,drawColoringObject,suggestedColoringFromText,suggestedColors,type ColoringObject} from '@/lib/coloring-worksheet';
 const subjects=['math','reading','kindergarten','vocabulary','spelling','grammar','writing','colors'];
 function drawPage(canvas:HTMLCanvasElement,sheet:AIWorksheet,answers:boolean,page=0){
  canvas.width=1240;canvas.height=1754;
@@ -22,7 +22,8 @@ function drawPage(canvas:HTMLCanvasElement,sheet:AIWorksheet,answers:boolean,pag
      drawColoringObject(ctx,obj,110+i*520,480,480,490,answers);
      ctx.fillStyle='#173b31';ctx.font='bold 36px Arial';
      ctx.textAlign='center';ctx.fillText(coloringNames[obj],350+i*520,1020);ctx.textAlign='left';
-     if(answers){ctx.font='24px Arial';ctx.fillText(['Suggested colors:','Cat – orange; Apple – red'][i]||'Color as you like',115+i*515,1090);}
+     if(answers){ctx.font='25px Arial';ctx.textAlign='center';
+       ctx.fillText('Suggested: '+suggestedColors[obj],350+i*520,1085);ctx.textAlign='left';}
    });
    ctx.fillStyle='#6a776d';ctx.font='20px Arial';ctx.fillText('Worksheet Studio · Original coloring outlines',92,1690);
    return;
