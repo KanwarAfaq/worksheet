@@ -181,9 +181,9 @@ export default function Contribute(){
  if(!session)return <div className="community-page"><div className="container community-login-grid">
   <div className="community-benefits"><div className="section-kicker">SHARE LEARNING, FREE</div>
    <h1>Your worksheets can help <em>other learners.</em></h1>
-   <p>Make and upload up to five free PDF or Word worksheets per account. Submissions are reviewed before becoming public.</p>
+   <p>Make and upload up to five free PDF or image worksheets per account. Submissions are reviewed before becoming public.</p>
    <div className="community-benefit"><CheckCircle2 size={19}/> 5 free saved worksheets</div>
-   <div className="community-benefit"><CheckCircle2 size={19}/> PDF or Word uploads</div>
+   <div className="community-benefit"><CheckCircle2 size={19}/> PDF and image uploads</div>
    <div className="community-benefit"><ShieldCheck size={19}/> Copyright and file safety review</div>
    <p className="community-future">Private sharing and subscription plans are planned for later, not available yet.</p>
    <Link href="/create" className="text-link">Make a printable anonymously <ArrowRight size={16}/></Link>
@@ -225,7 +225,7 @@ export default function Contribute(){
       </button>)}
    </div>
    <div className="community-start"><div className="dashboard-create-icon"><UploadCloud size={29}/></div>
-    <h2>Share a worksheet</h2><p>Upload an original PDF or Word worksheet, describe it, and send it for automated checks.</p>
+    <h2>Share a worksheet</h2><p>Upload an original PDF or image worksheet, describe it, and send it for automated checks.</p>
     <label htmlFor="new-subject">Subject</label><select id="new-subject" value={subject} onChange={e=>setSubject(e.target.value)}>
      {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
     <label htmlFor="new-grade">Grade</label><select id="new-grade" value={grade} onChange={e=>setGrade(e.target.value)}>
@@ -237,14 +237,15 @@ export default function Contribute(){
    <button type="button" className="community-back" onClick={()=>setActive(null)}><ArrowLeft size={16}/> Back to my worksheets</button>
    <h2>{active.title==='Untitled worksheet'?'New worksheet':active.title}</h2>
    <p>Status: <strong>{active.status==='review'?'Awaiting checks':active.status==='published'?'Public':'Private draft'}</strong></p>
+   <p className="community-upload-note">Accepted: PDF, PNG, JPG, WebP. Each file is privately verified and reviewed before publication.</p>
    <div className="community-steps"><button className={step===0?'active':''} onClick={()=>setStep(0)}>1 Upload</button><button className={step===1?'active':''} onClick={()=>setStep(1)}>2 Metadata</button><button className={step===2?'active':''} onClick={()=>setStep(2)}>3 Review</button></div>
    {step===0&&<div className="community-form-panel">
-    <h3>Upload PDF or Word</h3>
+    <h3>Upload PDF or image</h3>
     <p>Files are private while you prepare your draft. Max 3 MB each, five files per worksheet. Do not submit copyrighted material without permission.</p>
     {attachments.map(f=><div className="community-attachment" key={f.id}><FileText size={18}/><span>{f.original_name}</span>
       <button onClick={()=>download(f,f.variant==='pdf')} type="button">{f.variant==='pdf'?'Preview':'Download'} <Download size={15}/></button></div>)}
-    {active.status==='draft'&&<form onSubmit={upload}><label htmlFor="community-upload">Choose document</label>
-     <input type="file" id="community-upload" accept=".pdf,.docx" required onChange={e=>setFile(e.target.files?.[0]||null)}/>
+    {active.status==='draft'&&<form onSubmit={upload}><label htmlFor="community-upload">Choose PDF or image</label>
+     <input type="file" id="community-upload" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" required onChange={e=>setFile(e.target.files?.[0]||null)}/>
      <label htmlFor="community-rights">Copyright and redistribution rights</label>
     <select id="community-rights" value={rightsBasis} onChange={e=>setRightsBasis(e.target.value as 'original'|'licensed')}>
       <option value="original">I created this worksheet</option>
