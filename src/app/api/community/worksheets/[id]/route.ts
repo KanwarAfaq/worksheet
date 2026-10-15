@@ -6,7 +6,7 @@ type Context={params:Promise<{id:string}>};
 export async function GET(request:Request,{params}:Context){
  const a=await requireContributor(request);if(!a.ok)return json({error:'Sign in required.'},a.status);
  const {id}=await params;if(!uuid.test(id))return json({error:'Invalid worksheet ID.'},400);
- const {data,error}=await a.db.from('worksheets').select('id,title,summary,category_id,grade_id,status,slug')
+ const {data,error}=await a.db.from('worksheets').select('id,title,summary,category_id,grade_id,status,slug,preview_page')
   .eq('id',id).eq('created_by',a.user.id).maybeSingle();
  if(error||!data)return json({error:'Not found.'},404);
  return json({worksheet:data});
@@ -21,12 +21,13 @@ export async function PATCH(request:Request,{params}:Context){
  const summary=typeof body.summary==='string'?body.summary.trim():'';
  const subject=typeof body.category_id==='string'?body.category_id:'';
  const grade=typeof body.grade_id==='string'&&body.grade_id?body.grade_id:null;
- if(title.length<3||title.length>140||summary.length>700||!uuid.test(subject)||(grade&&!uuid.test(grade)))
+ const previewPage=body.preview_page===undefined?1:Number(body.preview_page);
+ if(title.length<3||title.length>140||summary.length>700||!uuid.test(subject)||(grade&&!uuid.test(grade))||!Number.isInteger(previewPage)||previewPage<1||previewPage>200)
    return json({error:'Enter a title, description and valid subject/grade.'},400);
  const {data,error}=await a.db.from('worksheets')
-  .update({title,summary:summary||null,category_id:subject,grade_id:grade,updated_at:new Date().toISOString()})
+  .update({title,summary:summary||null,category_id:subject,grade_id:grade,preview_page:previewPage,updated_at:new Date().toISOString()})
   .eq('id',id).eq('created_by',a.user.id).eq('status','draft')
-  .select('id,title,summary,status,category_id,grade_id').maybeSingle();
+  .select('id,title,summary,status,category_id,grade_id,preview_page').maybeSingle();
  if(error||!data)return json({error:'Draft cannot be changed. It may have already been submitted.'},409);
  return json({worksheet:data});
 }

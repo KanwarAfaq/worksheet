@@ -10,7 +10,7 @@ import AdminFileManager from '@/components/admin-file-manager';
 type Row={
  id:string;title:string;summary:string|null;description:string|null;category_id:string;
  grade_id:string|null;difficulty:string|null;language:string;tags:string[];
- seo_title:string|null;seo_description:string|null;featured:boolean;
+ seo_title:string|null;seo_description:string|null;featured:boolean;preview_page:number;
  status:string;slug:string;updated_at:string
 };
 type Option={id:string;name?:string;display_name?:string};
@@ -142,6 +142,9 @@ export default function WorksheetEditor({id}:{id:string}){
         <textarea id="edit-description" rows={4} maxLength={8000} disabled={!editable} value={row.description||''} onChange={e=>setRow({...row,description:e.target.value})}/>
         <label htmlFor="edit-tags">Tags separated by commas</label>
         <input id="edit-tags" disabled={!editable} value={tags} onChange={e=>setTags(e.target.value)} placeholder="math, practice, subtraction"/>
+        <label htmlFor="cover-preview-page">Preview cover page (PDF)</label>
+        <input id="cover-preview-page" type="number" min={1} max={200} disabled={!editable}
+         value={row.preview_page||1} onChange={e=>setRow({...row,preview_page:Math.min(200,Math.max(1,Number(e.target.value)||1))})}/>
         <label className="check-field"><input type="checkbox" disabled={!editable} checked={row.featured} onChange={e=>setRow({...row,featured:e.target.checked})}/> Featured worksheet</label>
        </div>
        <details className="wizard-more"><summary>Advanced SEO options (optional)</summary><div className="worksheet-editor-panel">

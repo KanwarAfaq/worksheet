@@ -1,5 +1,6 @@
+import type {ColoringObject} from '@/lib/coloring-worksheet';
 export type WorksheetQuestion={question:string;answer:string};
-export type AIWorksheet={title:string;instructions:string;subject:string;grade:number;questions:WorksheetQuestion[];provider:string};
+export type AIWorksheet={title:string;instructions:string;subject:string;grade:number;questions:WorksheetQuestion[];provider:string;coloringObjects?:ColoringObject[]};
 type Provider={name:string;key:string;url:string;model:string};
 const clean=(value:unknown,max:number)=>typeof value==='string'?value.replace(/[\x00-\x1f]/g,' ').trim().slice(0,max):'';
 export function parseWorksheet(raw:string,subject:string,grade:number,provider:string):AIWorksheet{
@@ -45,3 +46,5 @@ export async function generateAIWorksheet(topic:string,subject:string,grade:numb
  }
  throw new Error('All configured AI providers failed: '+last);
 }
+
+export function aiProviderConfigured():boolean{return Boolean(process.env.CGU_API_KEY||process.env.GROQ_API_KEY||process.env.NVIDIA_NIM_API_KEY);}

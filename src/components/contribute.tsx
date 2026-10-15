@@ -5,7 +5,7 @@ import type {Session} from '@supabase/supabase-js';
 import {UploadCloud,LockKeyhole,BookOpen,FileText,Plus,CheckCircle2,AlertCircle,LogOut,ArrowLeft,ArrowRight,Download,FilePenLine,ShieldCheck} from 'lucide-react';
 import {supabaseBrowser} from '@/lib/supabase-browser';
 
-type Item={id:string;slug:string;title:string;summary:string|null;status:string;category_id:string;grade_id:string|null;created_at:string};
+type Item={id:string;slug:string;title:string;summary:string|null;status:string;category_id:string;grade_id:string|null;preview_page?:number;created_at:string};
 type Category={id:string;name:string};type Grade={id:string;display_name:string};
 type Attached={id:string;original_name:string;variant:string;role:string;size_bytes:number};
 const root='/api/community/worksheets';
@@ -29,6 +29,7 @@ export default function Contribute(){
  const [attachments,setAttachments]=useState<Attached[]>([]);
  const [title,setTitle]=useState('');const [summary,setSummary]=useState('');
  const [subject,setSubject]=useState('');const [grade,setGrade]=useState('');
+ const [coverPage,setCoverPage]=useState(1);
  const [signedPolicy,setSignedPolicy]=useState(false);
  const [profileName,setProfileName]=useState('');
  const [profileAvatar,setProfileAvatar]=useState<string|null>(null);
@@ -189,7 +190,7 @@ export default function Contribute(){
  async function open(item:Item){
   setActive(item);setStep(item.status==='draft'?0:2);
   setTitle(item.title==='Untitled worksheet'?'':item.title);
-  setSummary(item.summary||'');setSubject(item.category_id);setGrade(item.grade_id||'');
+  setSummary(item.summary||'');setSubject(item.category_id);setGrade(item.grade_id||'');setCoverPage(item.preview_page||1);
   setError('');setNotice('');setAgree(false);setSignedPolicy(false);
   try{const response=await api(root+'/'+item.id+'/files');setAttachments(response.files||[]);}
   catch(e){setError(e instanceof Error?e.message:'Could not load your files.');}
@@ -211,7 +212,7 @@ export default function Contribute(){
   setBusy(true);setError('');setNotice('');
   try{
    const result=await api(root+'/'+active.id,{method:'PATCH',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({title,summary,category_id:subject,grade_id:grade||null})});
+    body:JSON.stringify({title,summary,category_id:subject,grade_id:grade||null,preview_page:coverPage})});
    setActive({...active,...result.worksheet});setNotice('Draft saved. Review your details and submit.');
    setStep(2);await load();
   }catch(e){setError(e instanceof Error?e.message:'Could not save metadata.');}
@@ -350,6 +351,9 @@ export default function Contribute(){
        {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
      <label htmlFor="community-grade">Grade</label><select id="community-grade" disabled={active.status!=='draft'} value={grade} onChange={e=>setGrade(e.target.value)}>
        <option value="">All grades</option>{grades.map(g=><option key={g.id} value={g.id}>{g.display_name}</option>)}</select>
+     <label htmlFor="community-cover-page">PDF preview page</label>
+     <input id="community-cover-page" type="number" min={1} max={200} disabled={active.status!=='draft'} value={coverPage}
+       onChange={e=>setCoverPage(Math.min(200,Math.max(1,Number(e.target.value)||1)))}/>
      <button className="button button-dark" type="submit" disabled={active.status!=='draft'||busy}><CheckCircle2 size={16}/> Save and review</button>
    </form>}
    {step===2&&<div className="community-form-panel">

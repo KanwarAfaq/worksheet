@@ -20,9 +20,9 @@ export default function FormatHero(){
  return <section className="new-search-hero">
    <div className="container">
     <div className="search-heading">
-      <div className="section-kicker">FREE PRINTABLE LEARNING RESOURCES</div>
-      <h1>Find your next <em>great worksheet.</em></h1>
-      <p>Free printable PDF and image worksheets, organized by subject and grade.</p>
+      <div className="section-kicker">FREE WORKSHEETS · GRADES 1–6</div>
+      <h1>Find a <em>worksheet.</em></h1>
+
     </div>
     <form className="search-mega-form" onSubmit={submit}>
      <label className="search-input-wrap"><Search size={22}/>
@@ -44,7 +44,7 @@ export default function FormatHero(){
      </select></label>
      <button type="button" onClick={()=>{setGrade('');setSubject('');setQuery('');}}>Clear filters</button>
     </div>}
-    <div className="search-underlinks"><span>POPULAR:</span>
+    <div className="search-underlinks"><span>POPULAR</span>
      <Link href="/worksheets?subject=math&grade=grade-1">Grade 1 Math</Link>
      <Link href="/worksheets?subject=reading">Reading</Link>
      <Link href="/create/word-search">Word search maker <ArrowRight size={13}/></Link>

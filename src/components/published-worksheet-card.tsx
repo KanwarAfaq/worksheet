@@ -10,7 +10,7 @@ export default function PublishedWorksheetCard({item}:{item:PublicWorksheet}){
     <div className="resource-preview-inner">
       {cover==='pdf'?
        <iframe loading="lazy" title={'First page preview of '+item.title} aria-hidden="true"
-        src={'/api/worksheets/'+item.id+'/preview?format=pdf#page=1&zoom=page-fit'}
+        src={'/api/worksheets/'+item.id+'/preview?format=pdf#page='+(item.previewPage||1)+'&zoom=page-fit'}
         tabIndex={-1} className="pdf-page-preview"/>:
        cover?<img alt="" loading="lazy" src={'/api/worksheets/'+item.id+'/preview?format='+cover}/>:
        <div className="word-page-preview"><div className="word-preview-line"/><strong>{item.title}</strong>

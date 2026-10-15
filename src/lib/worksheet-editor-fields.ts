@@ -2,7 +2,7 @@ export type EditableWorksheet = {
   title: string; summary: string | null; description: string | null;
   category_id: string; grade_id: string | null; difficulty: string | null;
   language: string; tags: string[]; seo_title: string | null;
-  seo_description: string | null; featured: boolean; status: 'draft' | 'archived';
+  seo_description: string | null; featured: boolean; preview_page:number; status: 'draft' | 'archived';
 };
 
 export function parseEditableWorksheet(body: Record<string, unknown>): EditableWorksheet | null {
@@ -20,6 +20,7 @@ export function parseEditableWorksheet(body: Record<string, unknown>): EditableW
   const seo_title = typeof body.seo_title === 'string' ? body.seo_title.trim() : '';
   const seo_description = typeof body.seo_description === 'string' ? body.seo_description.trim() : '';
   const featured = body.featured === true;
+  const preview_page=body.preview_page===undefined?1:Number(body.preview_page);
   const status = body.status === 'archived' ? 'archived' : body.status === 'draft' || body.status === undefined ? 'draft' : null;
   const cleanedTags = tags.map(item => typeof item === 'string' ? item.trim().toLowerCase() : '').filter(Boolean);
   if (
@@ -29,13 +30,14 @@ export function parseEditableWorksheet(body: Record<string, unknown>): EditableW
     !/^[a-z]{2,3}(?:-[a-z]{2})?$/.test(language) ||
     tags.length > 12 || cleanedTags.some(tag => tag.length > 32 || !/^[\p{L}\p{N} -]+$/u.test(tag)) ||
     seo_title.length > 70 || seo_description.length > 180 || !status ||
-    (body.featured !== undefined && typeof body.featured !== 'boolean')
+    (body.featured !== undefined && typeof body.featured !== 'boolean') ||
+    !Number.isInteger(preview_page) || preview_page<1 || preview_page>200
   ) return null;
   return {
     title, summary: summary || null, description: description || null,
     category_id, grade_id, difficulty: difficulty === null ? null : String(difficulty),
     language, tags: [...new Set(cleanedTags)],
     seo_title: seo_title || null, seo_description: seo_description || null,
-    featured, status
+    featured, preview_page, status
   };
 }

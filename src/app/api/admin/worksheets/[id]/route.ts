@@ -13,7 +13,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   const { id } = await context.params;
   if (!uuid.test(id)) return reply({ error: 'Invalid worksheet ID.' }, 400);
   const { data, error } = await access.db.from('worksheets')
-    .select('id,title,slug,summary,description,status,category_id,grade_id,difficulty,language,tags,seo_title,seo_description,featured,created_at,updated_at,source')
+    .select('id,title,slug,summary,description,status,category_id,grade_id,difficulty,language,tags,seo_title,seo_description,featured,preview_page,created_at,updated_at,source')
     .eq('id', id).maybeSingle();
   if (error) return reply({ error: 'Unable to load worksheet.' }, 500);
   if (!data) return reply({ error: 'Worksheet not found.' }, 404);
@@ -37,7 +37,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const { data, error } = await access.db.from('worksheets')
     .update({ ...valid, updated_at: new Date().toISOString() })
     .eq('id', id).in('status', ['draft', 'archived'])
-    .select('id,title,slug,summary,description,status,category_id,grade_id,difficulty,language,tags,seo_title,seo_description,featured,created_at,updated_at,source')
+    .select('id,title,slug,summary,description,status,category_id,grade_id,difficulty,language,tags,seo_title,seo_description,featured,preview_page,created_at,updated_at,source')
     .maybeSingle();
   if (error) return reply({ error: 'Could not update worksheet. Check grade, permissions and values.' }, 400);
   if (!data) return reply({ error: 'Only unpublished draft/archived worksheets can be edited.' }, 409);
