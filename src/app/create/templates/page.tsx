@@ -1,0 +1,1 @@
+import type {Metadata} from 'next';import TemplateMaker from '@/components/template-maker';export const metadata:Metadata={title:'Worksheet Templates | Worksheet Studio',description:'Customize tracing, word search, scramble and five more free printable worksheet templates.'};export default function Page(){return <TemplateMaker/>;}

@@ -36,9 +36,24 @@ export default function AIWorksheetMaker(){
  const [grade,setGrade]=useState(2);
  const [level,setLevel]=useState('easy');
  const [worksheet,setWorksheet]=useState<AIWorksheet|null>(null);
+ const [providerStatus,setProviderStatus]=useState<{name:string;configured:boolean;model:string;status?:string}[]>([]);
+ const [tracing,setTracing]=useState(false);
  const [busy,setBusy]=useState(false),[error,setError]=useState('');
+ async function checkProviders(){
+  setError('');
+  try{
+   const {data:{session}}=await supabaseBrowser.auth.getSession();
+   if(!session)throw new Error('Sign in first to check providers.');
+   const response=await fetch('/api/ai/providers',{headers:{Authorization:'Bearer '+session.access_token}});
+   const info=await response.json();
+   if(!response.ok)throw new Error(info.error||'Provider configuration unavailable.');
+   setProviderStatus(info.providers||[]);
+  }catch(e){setError(e instanceof Error?e.message:'Unable to check provider configuration.');}
+ }
  async function submit(event:FormEvent){
   event.preventDefault();setBusy(true);setError('');
+  if(/\b(trace|tracing|handwriting|write and trace)\b/i.test(topic)){setTracing(true);setWorksheet(null);setBusy(false);return;}
+  setTracing(false);
   try{
    const {data:{session}}=await supabaseBrowser.auth.getSession();
    if(!session)throw new Error('Sign in first to create AI worksheets.');
@@ -76,11 +91,14 @@ export default function AIWorksheetMaker(){
    <label htmlFor="ai-level" className="field-label">Difficulty</label>
    <select id="ai-level" className="field-select" value={level} onChange={e=>setLevel(e.target.value)}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
    <button className="button button-dark" disabled={busy} type="submit">{busy?<RefreshCw size={18}/>:<Sparkles size={18}/>} {busy?'Creating worksheet…':'Generate worksheet'}</button>
+   <button className="regenerate" type="button" onClick={checkProviders}>Check configured AI providers</button>
+   {providerStatus.length>0&&<div className="provider-status">{providerStatus.map(x=><div key={x.name}><strong>{x.name}</strong><span>{x.status|| (x.configured?'Key present':'Key missing')}</span><small>{x.model}</small></div>)}<p>Model-list checks do not prove text generation succeeds. If the model is not listed, configure a model your provider account permits.</p></div>}
    <p className="generator-setting-help"><ShieldCheck size={14}/> Sign-in required · 5 AI generations daily · Provider keys stay on the server.</p>
    {error&&<p className="error-message" role="alert">{error}</p>}
   </form>
   <section className="preview-panel ai-result">
    <div className="preview-panel-top"><h2>Worksheet preview</h2>{worksheet&&<span>Generated via {worksheet.provider}</span>}</div>
+   {tracing&&<div className="ai-sheet"><h2>Alphabet tracing is a handwriting template</h2><p>For real dashed letter outlines and primary handwriting guide lines, use the tracing template rather than AI text questions.</p><Link href="/create/templates" className="button button-dark">Open editable tracing template</Link><p>Choose the Alphabet sample or replace it with your own letters or words, then download PDF or PNG.</p></div>}
    {worksheet?<div className="ai-sheet">
     <div className="section-kicker">STUDENT WORKSHEET</div><h2>{worksheet.title}</h2>
     <p>Grade {worksheet.grade} · {worksheet.subject}</p><p>{worksheet.instructions}</p>
