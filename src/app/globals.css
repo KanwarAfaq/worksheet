@@ -745,3 +745,10 @@ html[data-theme='dark'] .admin-quick-actions button{background:#284838;color:#ec
 .mega-search-button svg{margin:0!important}
 @media(max-width:900px){.member-two-col{grid-template-columns:1fr}.member-two-col .quick-upload-form{grid-template-columns:1fr}}
 @media(max-width:600px){.member-tabs{display:grid;grid-template-columns:repeat(2,1fr)}.member-tabs button{font-size:12px;padding:10px 7px}.member-workspace{min-height:240px}}
+
+.ai-edit-questions{max-height:530px;overflow:auto;border-bottom:1px solid #d2ded5;padding:20px;display:grid;gap:9px}
+.ai-edit-questions input,.ai-edit-questions textarea{width:100%;background:#fff;color:#17392a;border:1px solid #aebfaf;border-radius:8px;padding:10px;font-size:13px}
+.ai-edit-questions h3{font-size:16px}.ai-edit-item{border-top:1px solid #d4e0d5;padding-top:8px;display:grid;gap:5px}
+.ai-edit-item label{font-weight:800;font-size:11px}
+html[data-theme='dark'] .ai-edit-questions h3,html[data-theme='dark'] .ai-edit-item label{color:#eaf9ee}
+html[data-theme='dark'] .ai-edit-questions input,html[data-theme='dark'] .ai-edit-questions textarea{background:#f8fff9!important;color:#153b26!important}
