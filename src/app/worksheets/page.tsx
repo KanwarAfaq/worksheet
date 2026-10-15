@@ -34,7 +34,7 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
  const matchingLive=live.filter(item=>
   (!subject||item.categorySlug===subject) &&
   (!grade||item.gradeSlug===grade) &&
-  (!format||item.availableFormats.includes(format as 'pdf'|'png'|'jpg'|'webp')) &&
+  (!format||(format==='image'?item.availableFormats.some(f=>['png','jpg','webp'].includes(f)):item.availableFormats.includes(format as 'pdf'))) &&
   (!query||(item.title+' '+(item.summary||'')+' '+item.categoryName).toLowerCase().includes(query)));
  const chosenFormat=formats.find(f=>f.slug===format);
  return <div className="container inner-page">
@@ -56,7 +56,7 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
     </div></div>
   </div>
   {matchingLive.length>0?<div className="worksheet-grid">{matchingLive.map(item=><PublishedWorksheetCard item={item} key={item.id}/>)}</div>:
- chosenFormat?<div className="category-pending"><FileText size={36}/><h3>No published {chosenFormat.title} worksheets yet</h3><p>There are no verified {chosenFormat.extension.toUpperCase()} files for these filters. They appear automatically after uploading and publishing.</p><Link href="/create">Create a printable PDF now <ArrowRight size={16}/></Link></div>:
+ chosenFormat?<div className="category-pending"><FileText size={36}/><h3>No published {chosenFormat.title} worksheets yet</h3><p>There are no verified {chosenFormat.title} files for these filters. They appear automatically after uploading and publishing.</p><Link href="/create">Create a printable PDF now <ArrowRight size={16}/></Link></div>:
  visibleSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div><div className="worksheet-grid">{visibleSamples.map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></>:
  <div className="category-pending"><h3>No worksheets for these filters yet</h3><p>We're preparing original and licensed worksheets for all eight subjects and Grades 1–6.</p><Link href="/create">Make your own printable <ArrowRight size={16}/></Link></div>}
   <p className="sample-disclaimer">Catalog previews are examples only. They do not represent uploaded or publicly downloadable files.</p>
