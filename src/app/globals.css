@@ -682,3 +682,15 @@ html[data-theme='dark'] .template-picker button[aria-pressed='true']{background:
 html[data-theme='dark'] .template-preview{background:#1a2d24}
 @media(max-width:1020px){.template-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.template-picker{grid-template-columns:1fr 1fr;gap:8px}.template-picker button{padding:11px;min-height:100px}.template-preview{padding:8px}}
+
+.template-page-controls{display:flex;gap:12px;align-items:center;justify-content:center;padding:12px;background:#eaf1eb;color:#214533;font-size:12px;font-weight:800}
+.template-page-controls button{border-radius:7px;border:1px solid #9fb9a8;background:#fff;color:#153e29;padding:8px 13px}
+.template-page-controls button:hover:not(:disabled){background:#d2e9d9}
+.provider-status{border:1px solid #96b8a2;border-radius:12px;padding:11px;background:#eff8f0;color:#1c452d;font-size:12px}
+.provider-status>div{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0}
+.provider-status strong{min-width:110px}
+.provider-status span{font-weight:800}
+.provider-status small{color:#4b6855}
+.provider-status p{font-size:11px;line-height:1.5}
+html[data-theme='dark'] .provider-status{background:#254b36;color:#f5fff5;border-color:#78a88a}
+html[data-theme='dark'] .provider-status small{color:#d4e4d7}
