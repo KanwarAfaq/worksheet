@@ -279,7 +279,7 @@ export default function Contribute(){
   {error&&<p className="admin-alert error" role="alert"><AlertCircle size={16}/>{error}</p>}
   {notice&&<p className="admin-alert good" role="status"><CheckCircle2 size={16}/>{notice}</p>}
   {!active?<div className="community-main">
-   <div className="community-list"><h2>My saved and submitted worksheets</h2>
+   <div className="community-list" id="my-uploads"><h2>My saved and submitted worksheets</h2>
     {items.length===0?<p>No worksheets yet. Start with an original learning resource.</p>:
       items.map(item=><button type="button" key={item.id} onClick={()=>open(item)} className="community-item">
        <FileText size={23}/><span><strong>{item.title}</strong><small>{item.status==='review'?'Submitted for review':item.status==='published'?'Published':'Private draft'}</small></span><ArrowRight size={18}/>
