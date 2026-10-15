@@ -765,3 +765,19 @@ html[data-theme='dark'] .worksheet-sidebar{background:#1b3025!important;color:#e
 html[data-theme='dark'] .sidebar-menu-group>summary{color:#ecf6ed!important}
 html[data-theme='dark'] .worksheet-sidebar .sidebar-section-title{color:#adcab5!important}
 html[data-theme='dark'] .sidebar-menu-group>summary:hover{background:#345842}
+
+/* Search-friendly readable FAQ and tutorial content */
+.seo-prose-page h2{font-size:23px;line-height:1.35;margin:34px 0 11px}
+.seo-prose-page p{line-height:1.85}
+.seo-prose-page a:not(.button){text-decoration:underline;text-underline-offset:3px;color:#29714a}
+.seo-faq-list{display:grid;gap:16px;max-width:900px;margin:35px 0 45px}
+.seo-faq-item{padding:23px 25px;background:#f7faf4;border:1px solid #e2ebe1;border-radius:13px}
+.seo-faq-item h2{font-size:19px;margin:0 0 11px}
+.seo-faq-item p{margin:0;color:#5f766b;line-height:1.7}
+.seo-guide-steps{counter-reset:steps;max-width:900px;padding-left:31px}
+.seo-guide-steps li{margin-bottom:28px;padding-left:11px}
+.seo-guide-steps h2{font-size:21px;margin:0 0 9px}
+.seo-guide-steps p{color:#526f5f}
+html[data-theme='dark'] .seo-faq-item{background:#223b2c;color:#f2f7ef;border-color:#375444}
+html[data-theme='dark'] .seo-faq-item p,html[data-theme='dark'] .seo-guide-steps p{color:#c0d5c6}
+html[data-theme='dark'] .seo-prose-page a:not(.button){color:#b2eac2}
