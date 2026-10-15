@@ -90,7 +90,7 @@ export default function Contribute(){
   try{
    const {error}=await supabaseBrowser.auth.signInWithOtp({email:email.trim(),options:{shouldCreateUser:false}});
    if(error)throw error;
-   setOtpPending(true);setNotice('Check your email for a one-time code. The email template must include {{ .Token }}.');
+   setOtpPending(true);setNotice('Check your email for a one-time code. Enter the code from your email below.');
   }catch(e){setError(e instanceof Error?e.message:'Could not send the sign-in code.');}
   finally{setBusy(false);}
  }
@@ -101,6 +101,16 @@ export default function Contribute(){
    if(error)throw error;
    setOtpPending(false);setOtp('');setNotice('Signed in successfully.');
   }catch(e){setError(e instanceof Error?e.message:'Invalid or expired code.');}
+  finally{setBusy(false);}
+ }
+ async function sendPasswordReset(){
+  if(!email.trim()){setError('Enter your account email address first.');return;}
+  setBusy(true);setError('');setNotice('');
+  try{
+   const {error}=await supabaseBrowser.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin+'/account/reset-password'});
+   if(error)throw error;
+   setNotice('If this email has an account, you will receive a password reset link.');
+  }catch(e){setError(e instanceof Error?e.message:'Could not request password reset.');}
   finally{setBusy(false);}
  }
  async function start(){
@@ -192,6 +202,7 @@ export default function Contribute(){
     {notice&&<p className="admin-alert good" role="status"><CheckCircle2 size={17}/>{notice}</p>}
     <button className="button button-dark" disabled={busy} type="submit">{busy?'Please wait…':tab==='signup'?'Create free account':'Sign in'}</button>
    </form>
+   {tab==='signin'&&<button type="button" className="auth-otp-link" disabled={busy} onClick={sendPasswordReset}>Forgot password?</button>}
    <button type="button" className="auth-otp-link" disabled={busy} onClick={sendOtp}>Sign in with email one-time code</button>
    {otpPending&&<form className="auth-otp-form" onSubmit={verifyOtp}><label htmlFor="community-otp">Email verification code</label><input id="community-otp" value={otp} onChange={e=>setOtp(e.target.value)} inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,8}" required/><button type="submit" className="button button-dark" disabled={busy}>Verify code</button></form>}
    <p>For adults, parents and educators. Do not upload student personal information.</p>
