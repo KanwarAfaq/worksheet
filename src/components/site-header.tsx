@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useEffect,useState} from 'react';
-import {BookOpen,Menu,X,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
+import {BookOpen,Menu,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
 import {grades,subjects} from '@/lib/catalog';
 export default function Header(){
  const [sidebar,setSidebar]=useState(false);
@@ -36,7 +36,7 @@ export default function Header(){
   <div className="container nav-inner single-nav">
    <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(v=>!v)}
      aria-label={sidebar?"Collapse navigation":"Expand navigation"} aria-expanded={sidebar} aria-controls="worksheet-sidebar">
-     {sidebar?<X size={23}/>:<Menu size={23}/>}</button>
+     <Menu size={23}/></button>
    <Link href="/" className="brand" aria-label="Worksheet Studio home">
      <span className="brand-icon"><BookOpen size={19}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
    </Link>
