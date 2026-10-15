@@ -43,7 +43,7 @@ function printPage(canvas:HTMLCanvasElement,type:TemplateType,words:string[],tit
   }catch{c.fillText('Use shorter words to make the word search.',90,400);}
  }else{
   use.forEach((x,i)=>{
-   const q=type==='scramble'?shuffleWord(x,seed+i+1):x.split('').map((ch,j)=>j>0&&j%2===1?'_':ch).join(' ';
+   const q=type==='scramble'?shuffleWord(x,seed+i+1):x.split('').map((ch,j)=>j>0&&j%2===1?'_':ch).join(' ');
    row(359,q,i,x);
   });
  }
