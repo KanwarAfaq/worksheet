@@ -531,3 +531,11 @@ html[data-theme='dark'] .community-profile-content p,
 html[data-theme='dark'] .community-collection-card>p{color:#c6d6c9}
 html[data-theme='dark'] .community-collection-item{border-color:#506659;color:#ecf8ed}
 @media(max-width:600px){.community-profile-card{flex-direction:column}.community-profile-form{display:grid;align-items:stretch}.community-profile-form input{width:100%}.community-profile-avatar{width:85px;height:85px}}
+
+.worksheet-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding:12px 16px;border-top:1px solid #e8eee8}
+.worksheet-actions button,.worksheet-action-login{display:inline-flex;gap:6px;align-items:center;justify-content:center;padding:9px 13px;border-radius:9px;border:1px solid #d5e4d8;background:#f5faf5;color:#22583d;font-weight:800;font-size:12px}
+.worksheet-actions button[aria-pressed='true']{background:#e2f4e8;color:#116a3f;border-color:#8dcbab}
+.worksheet-action-error{font-size:12px;color:#a32b2b}
+html[data-theme='dark'] .worksheet-actions{border-color:#4d6657}
+html[data-theme='dark'] .worksheet-actions button{background:#274f3e;color:#ebffef;border-color:#608774}
+html[data-theme='dark'] .worksheet-actions button[aria-pressed='true']{background:#326e50;color:#fff}
