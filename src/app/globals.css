@@ -618,3 +618,18 @@ html[data-theme='dark'] .ai-empty{color:#cfdfd2}
 @media(max-width:1249px){.worksheet-sidebar{top:0!important}.sidebar-scrim{display:block}body:has(.worksheet-sidebar.is-open){overflow:hidden}}
 @media(max-width:780px){.search-mega-form{flex-wrap:wrap!important}.search-input-wrap{flex-basis:100%;min-height:48px}.mega-search-button{flex:1}.ai-maker-grid{grid-template-columns:1fr}.ai-sheet{padding:20px}.ai-download-row .button{flex:1}}
 @media(max-width:480px){.ai-maker h1{font-size:36px}.ai-sheet h2{font-size:22px}.ai-download-row{padding:12px}}
+
+/* Fix unreadable grade filters and sample worksheet titles in dark mode */
+html[data-theme='dark'] .grade-browser{background:#243b2e;border:1px solid #547260}
+html[data-theme='dark'] .grade-browser>span{color:#d3e2d4}
+html[data-theme='dark'] .grade-browser>a{background:#ecf7ed;color:#193f2b!important;border-color:#9dbca6;box-shadow:0 1px 3px #0002}
+html[data-theme='dark'] .grade-browser>a:hover,
+html[data-theme='dark'] .grade-browser>a:focus-visible{background:#ccebd3!important;color:#0f462b!important;border-color:#3c9564}
+html[data-theme='dark'] .sample-page-heading,
+html[data-theme='dark'] .sample-page-lines,
+html[data-theme='dark'] .sheet-paper,
+html[data-theme='dark'] .sheet-title{color:#15382a!important}
+html[data-theme='dark'] .sheet-paper{background:#fff!important}
+html[data-theme='dark'] .category-pending{background:#243b2e;color:#f2fff3;border-color:#567461}
+html[data-theme='dark'] .category-pending h3,html[data-theme='dark'] .category-pending p{color:#f2fff3}
+html[data-theme='dark'] .sample-disclaimer{color:#cedfd3}
