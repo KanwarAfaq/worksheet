@@ -41,7 +41,7 @@ export default function Header(){
      <span className="brand-icon"><BookOpen size={19}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
    </Link>
    <nav className="main-subject-nav" aria-label="Worksheet subjects">
-    {subjects.map(subject=><Link key={subject.slug} href={'/'+subject.slug}>{subject.title}</Link>)}
+    {subjects.map(subject=><Link key={subject.slug} href={'/'+subject.slug} aria-current={pathname==='/'+subject.slug?'page':undefined}>{subject.title}</Link>)}
    </nav>
    <div className="single-nav-actions"><button type="button" className="icon-control header-theme-control" onClick={changeTheme} aria-label={dark?"Switch to light theme":"Switch to dark theme"} title={dark?"Light theme":"Dark theme"}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button><Link className="single-nav-link account-link" href="/contribute"><UserRound size={16}/> Account</Link>
      <Link className="single-nav-link" href="/create"><Plus size={15}/> Create</Link>
@@ -60,7 +60,7 @@ export default function Header(){
    <Link href="/contribute" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Upload a worksheet</Link>
    <Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet maker</Link>
    <div className="sidebar-section-title">BROWSE BY SUBJECT & GRADE</div>
-   <div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{sub.title}</Link>)}</div>
+   <div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} aria-current={pathname==='/'+sub.slug?'page':undefined} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{sub.title}</Link>)}</div>
    <div className="sidebar-section-title">ALL GRADES</div>
    <div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{g.title}</Link>)}</div>
  </aside>
