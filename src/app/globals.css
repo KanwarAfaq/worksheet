@@ -456,7 +456,7 @@ html[data-theme='dark'] .community-auth-box h2,html[data-theme='dark'] .communit
 .main-subject-nav>a{display:inline-flex;align-items:center;padding:10px 9px;font-size:12px;font-weight:800;color:inherit;white-space:nowrap}
 .main-subject-nav>a:hover,.main-subject-nav>a:focus-visible{color:#d78e51}
 .sidebar-grades>a{display:inline-flex;min-height:40px;align-items:center}
-html[data-theme='dark']{--ink:#e8f2e9;--forest:#b9e2c5;--muted:#bfcec4;--stroke:#40564a;color-scheme:dark}
+html[data-theme='dark']{--ink:#e8f2e9;--forest:#2c7351;--muted:#bfcec4;--stroke:#40564a;color-scheme:dark}
 html[data-theme='dark'] body{background:#101e19;color:#e8f2e9}
 html[data-theme='dark'] .site-header{background:#12271f!important;color:#f5f8f4}
 html[data-theme='dark'] .main-subject-nav>a,
@@ -546,3 +546,14 @@ html[data-theme='dark'] .worksheet-actions button[aria-pressed='true']{backgroun
 html[data-theme='dark'] .sidebar-subject-links a{color:#e5f4eb}
 html[data-theme='dark'] .sidebar-subject-links a:hover{background:#2d4c3b}
 @media(max-width:1200px){.main-subject-nav{display:none!important}.single-nav-actions{margin-left:auto}}
+
+html[data-theme='dark'] .button-outline{background:#1d392c;color:#eaf7ee;border-color:#6a9680}
+html[data-theme='dark'] .filter-pill.active,
+html[data-theme='dark'] .filter-pill:hover{background:#397a58;color:#fff}
+html[data-theme='dark'] .auth-otp-link{color:#c2f4d3}
+html[data-theme='dark'] .community-benefits>p,
+html[data-theme='dark'] .community-benefit,
+html[data-theme='dark'] .community-top p,
+html[data-theme='dark'] .community-auth-box p{color:#c8dccd}
+html[data-theme='dark'] .community-auth-tabs{background:#1b3125}
+html[data-theme='dark'] .community-auth-tabs button.active{background:#3a7252;color:#fff}
