@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, type FormEvent } from 'react';
 import {useRouter} from 'next/navigation';
+import Link from 'next/link';
 import type { Session } from '@supabase/supabase-js';
 import {
   BookOpen, LayoutDashboard, LogOut, LockKeyhole, ShieldCheck, FileText,
@@ -161,6 +162,8 @@ export default function AdminConsole() {
     (row.title + ' ' + row.slug).toLowerCase().includes(rowQuery.toLowerCase()));
   const published = rows.filter(row=>row.status==='published').length;
   const drafts = rows.filter(row=>row.status==='draft').length;
+  const reviewCount=rows.filter(row=>row.status==='review').length;
+  const archivedCount=rows.filter(row=>row.status==='archived').length;
   return <div className="admin-area"><div className="container">
     <div className="admin-topbar"><div><div className="section-kicker">WORKSHEET STUDIO / ADMIN</div><h1>Your <em>worksheets.</em></h1><p>Manage drafts and published worksheets · Signed in as {session.user.email}</p></div>
       <button onClick={()=>supabaseBrowser.auth.signOut()} type="button" className="button button-outline"><LogOut size={16}/> Sign out</button></div>
@@ -168,7 +171,15 @@ export default function AdminConsole() {
       <div><LayoutDashboard size={22}/><small>Total worksheets</small><strong>{rows.length}</strong></div>
       <div><Clock3 size={22}/><small>Unpublished drafts</small><strong>{drafts}</strong></div>
       <div><FileText size={22}/><small>Published</small><strong>{published}</strong></div>
-      <div><ShieldCheck size={22}/><small>Account</small><strong className="admin-owner-label">Owner</strong></div>
+      <div><ShieldCheck size={22}/><small>Needs review</small><strong>{reviewCount}</strong></div>
+    </div>
+    <div className="admin-quick-actions" aria-label="Admin quick filters">
+     <button type="button" onClick={()=>setStatusFilter('review')}>Review queue <strong>{reviewCount}</strong></button>
+     <button type="button" onClick={()=>setStatusFilter('draft')}>Drafts <strong>{drafts}</strong></button>
+     <button type="button" onClick={()=>setStatusFilter('published')}>Published <strong>{published}</strong></button>
+     <button type="button" onClick={()=>setStatusFilter('archived')}>Archived <strong>{archivedCount}</strong></button>
+     <button type="button" onClick={()=>setStatusFilter('all')}>All records <strong>{rows.length}</strong></button>
+     <Link href="/create/templates" className="admin-quick-create">Create printable template <ArrowRight size={16}/></Link>
     </div>
     <div className="admin-safety"><ShieldCheck size={22}/><div><strong>One workflow for admin and community</strong><p>Create original worksheets in a draft or review community submissions. Files remain private until the owner publishes them.</p></div></div>
     {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}

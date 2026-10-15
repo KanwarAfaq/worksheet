@@ -696,3 +696,72 @@ html[data-theme='dark'] .provider-status{background:#254b36;color:#f5fff5;border
 html[data-theme='dark'] .provider-status small{color:#d4e4d7}
 
 @media(min-width:1250px){.sidebar-trigger{display:none!important}}
+
+/* Unified accessible neutral/green palette, dark cards retain their designed colors */
+:root{--modern-green:#2c6b54;--modern-green-dark:#164b39;--modern-focus:#ecb55c}
+html[data-theme='dark']{--ink:#edf5ef;--muted:#b6cbbd;--stroke:#456052}
+html[data-theme='dark'] body{background:#121e19;color:#ecf4ed}
+html[data-theme='dark'] .create-card{color:#213b2e!important}
+html[data-theme='dark'] .create-card h2,html[data-theme='dark'] .create-card strong,html[data-theme='dark'] .create-card .create-open{color:#173a29!important}
+html[data-theme='dark'] .create-card p{color:#3d5b48!important}
+html[data-theme='dark'] .create-card .section-kicker{color:#6f5539!important}
+html[data-theme='dark'] .create-card.create-mint{background:#e1f2e6!important}
+html[data-theme='dark'] .create-card.create-blue{background:#dfedf7!important}
+html[data-theme='dark'] .create-card.create-yellow{background:#fbefc6!important}
+html[data-theme='dark'] .create-card.create-lavender{background:#ebe2f6!important}
+html[data-theme='dark'] .create-card.create-pink{background:#f6e3ea!important}
+html[data-theme='dark'] .create-card .create-icon{background:#ffffffcf!important;color:#1b5639!important}
+html[data-theme='dark'] .template-picker button.selected{background:#407859!important;color:#fff!important}
+html[data-theme='dark'] .template-picker button.selected small{color:#e6f7e9!important}
+html[data-theme='dark'] .member-dashboard .community-list,
+html[data-theme='dark'] .member-dashboard .community-start{background:#20362c;color:#f0f7f0;border-color:#577361}
+html[data-theme='dark'] .member-dashboard .community-list p,
+html[data-theme='dark'] .member-dashboard .community-start p{color:#c9decc}
+html[data-theme='dark'] .member-dashboard .community-item{background:#294535;color:#f1f8f1;border-color:#52735c}
+html[data-theme='dark'] .member-dashboard .community-item small{color:#c5ddc9}
+html[data-theme='dark'] .member-dashboard .member-tabs button{color:#d4e7d8}
+html[data-theme='dark'] .member-dashboard .member-tabs button[aria-selected='true']{background:#4bb081;color:#082c1b}
+html[data-theme='dark'] .admin-quick-actions button{background:#284838;color:#ecf7ee;border-color:#597665}
+.member-dashboard{margin-top:20px}
+.member-tabs{display:flex;flex-wrap:wrap;gap:7px;border-bottom:1px solid #cedbd1;padding-bottom:12px;margin-bottom:16px}
+.member-tabs button{border:1px solid transparent;background:transparent;color:#325b43;font-size:14px;font-weight:800;border-radius:10px;padding:11px 17px}
+.member-tabs button:hover{background:#e4f1e8}
+.member-tabs button[aria-selected='true']{background:#2e7452;color:#fff}
+.member-workspace{min-height:350px}
+.member-two-col{display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1.25fr);gap:20px;align-items:start}
+.member-two-col .community-start,.member-two-col .community-list{margin:0;min-width:0}
+.member-two-col .community-start h2{display:flex;gap:8px;align-items:center}
+.member-two-col .quick-upload-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 15px}
+.member-two-col .quick-upload-form label{align-self:end}
+.member-two-col .quick-upload-form textarea,.member-two-col .quick-upload-form input[type='file'],.member-two-col .quick-upload-form .check-field,.member-two-col .quick-upload-form button{grid-column:1/-1}
+.member-section-head{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.member-library{max-width:none!important}
+.member-library .community-collection-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.admin-quick-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.admin-quick-actions button,.admin-quick-create{border:1px solid #aac8b3;border-radius:10px;background:#f3faf4;padding:11px 14px;font-weight:800;font-size:12px;color:#24543c;display:inline-flex;align-items:center;gap:9px}
+.admin-quick-actions button:hover,.admin-quick-create:hover{background:#d5eddd;border-color:#62a87f}
+.admin-quick-actions strong{border-radius:50px;background:#d9eadf;padding:3px 8px}
+.mega-search-button{width:58px!important;min-width:58px!important;padding:10px!important;display:grid!important;place-items:center!important}
+.mega-search-button svg{margin:0!important}
+@media(max-width:900px){.member-two-col{grid-template-columns:1fr}.member-two-col .quick-upload-form{grid-template-columns:1fr}}
+@media(max-width:600px){.member-tabs{display:grid;grid-template-columns:repeat(2,1fr)}.member-tabs button{font-size:12px;padding:10px 7px}.member-workspace{min-height:240px}}
+
+.ai-edit-questions{max-height:530px;overflow:auto;border-bottom:1px solid #d2ded5;padding:20px;display:grid;gap:9px}
+.ai-edit-questions input,.ai-edit-questions textarea{width:100%;background:#fff;color:#17392a;border:1px solid #aebfaf;border-radius:8px;padding:10px;font-size:13px}
+.ai-edit-questions h3{font-size:16px}.ai-edit-item{border-top:1px solid #d4e0d5;padding-top:8px;display:grid;gap:5px}
+.ai-edit-item label{font-weight:800;font-size:11px}
+html[data-theme='dark'] .ai-edit-questions h3,html[data-theme='dark'] .ai-edit-item label{color:#eaf9ee}
+html[data-theme='dark'] .ai-edit-questions input,html[data-theme='dark'] .ai-edit-questions textarea{background:#f8fff9!important;color:#153b26!important}
+
+/* Compact sidebar and stronger desktop navigation */
+.main-subject-nav>a{font-size:13px!important;font-weight:850!important;letter-spacing:.005em}
+.single-nav-link,.single-nav-upload{font-size:13px!important;font-weight:850!important}
+.worksheet-sidebar{background:#f7faf7!important;color:#183a2a}
+.worksheet-sidebar .sidebar-section-title{font-size:10px;letter-spacing:.09em;color:#587a63}
+.worksheet-sidebar .sidebar-subject-links a{font-size:12px;min-height:36px;padding:7px 11px;border-radius:9px}
+.sidebar-menu-group{margin:2px 0;padding-bottom:4px;border-color:#d9e7df}
+.sidebar-menu-group>summary{font-size:13px;padding:11px}
+html[data-theme='dark'] .worksheet-sidebar{background:#1b3025!important;color:#eff9f0}
+html[data-theme='dark'] .sidebar-menu-group>summary{color:#ecf6ed!important}
+html[data-theme='dark'] .worksheet-sidebar .sidebar-section-title{color:#adcab5!important}
+html[data-theme='dark'] .sidebar-menu-group>summary:hover{background:#345842}

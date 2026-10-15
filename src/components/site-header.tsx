@@ -58,9 +58,9 @@ export default function Header(){
    <Link href="/contribute" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Upload a worksheet</Link>
    <Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet maker</Link>
    <div className="sidebar-section-title">BROWSE</div>
-   <details className="sidebar-menu-group" open><summary>Subjects <span>⌄</span></summary><div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} aria-current={pathname==='/'+sub.slug?'page':undefined} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{sub.title}</Link>)}</div></details>
+   <details className="sidebar-menu-group"><summary>Subjects <span>⌄</span></summary><div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} aria-current={pathname==='/'+sub.slug?'page':undefined} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{sub.title}</Link>)}</div></details>
    <details className="sidebar-menu-group"><summary>Grades 1–6 <span>⌄</span></summary><div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{g.title}</Link>)}</div></details>
-   <details className="sidebar-menu-group"><summary>Worksheet templates <span>⌄</span></summary><div className="sidebar-subject-links"><Link href="/create/templates" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>All 8 printable templates</Link><Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet creator</Link></div></details>
+   <details className="sidebar-menu-group"><summary>Worksheet templates <span>⌄</span></summary><div className="sidebar-subject-links"><Link href="/create/templates" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>4 editable templates</Link><Link href="/create/ai" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>AI worksheet creator</Link></div></details>
 
  </aside>
  </>;
