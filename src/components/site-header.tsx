@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import {useEffect,useState} from 'react';
-import {BookOpen,Menu,X,ChevronDown,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
+import {BookOpen,Menu,X,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
 import {grades,subjects} from '@/lib/catalog';
 export default function Header(){
  const [sidebar,setSidebar]=useState(false);
@@ -53,14 +53,8 @@ export default function Header(){
    <Link href="/create" onClick={()=>setSidebar(false)}>Worksheet maker</Link>
    <Link href="/contribute" onClick={()=>setSidebar(false)}>Upload a worksheet</Link>
    <div className="sidebar-section-title">BROWSE BY SUBJECT & GRADE</div>
-   {subjects.map(sub=><details className="sidebar-subject" key={sub.slug}>
-     <summary>{sub.title}<ChevronDown size={16}/></summary>
-     <Link href={'/'+sub.slug} onClick={()=>setSidebar(false)}>All {sub.title}</Link>
-     <div className="sidebar-grades">{grades.map(g=><Link href={'/worksheets?subject='+sub.slug+'&grade='+g.slug}
-      onClick={()=>setSidebar(false)} key={g.slug}>{g.title}</Link>)}</div>
-   </details>)}
-
-    <div className="sidebar-section-title">ALL GRADES</div>
+   <div className="sidebar-subject-links">{subjects.map(sub=><Link href={'/'+sub.slug} key={sub.slug} onClick={()=>setSidebar(false)}>{sub.title}</Link>)}</div>
+   <div className="sidebar-section-title">ALL GRADES</div>
    <div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>setSidebar(false)}>{g.title}</Link>)}</div>
  </aside>
  </>;
