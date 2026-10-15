@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import {useEffect,useState} from 'react';
-import {BookOpen,Menu,X,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
+import {BookOpen,Menu,X,ChevronDown,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
 import {grades,subjects} from '@/lib/catalog';
 export default function Header(){
  const [sidebar,setSidebar]=useState(false);
