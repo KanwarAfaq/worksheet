@@ -54,7 +54,7 @@ export default function AIWorksheetMaker(){
  const [secondObject,setSecondObject]=useState<ColoringObject>('apple');
  const [previewPage,setPreviewPage]=useState(0);
  const previewCanvas=useRef<HTMLCanvasElement>(null);
- const coloringMode=subject==='colors'||/\\b(colou?ring?|paint)\\b/i.test(topic);
+ const coloringMode=subject==='colors'||/\b(colou?r(?:ing)?|paint(?:ing)?)\b/i.test(topic);
  const totalPages=worksheet?.coloringObjects?.length?1:Math.max(1,Math.ceil((worksheet?.questions.length||0)/6));
  useEffect(()=>{if(worksheet&&previewCanvas.current)drawPage(previewCanvas.current,worksheet,false,previewPage);},[worksheet,previewPage]);
  const [providerStatus,setProviderStatus]=useState<{name:string;configured:boolean;model:string;status?:string}[]>([]);
