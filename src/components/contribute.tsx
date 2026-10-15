@@ -43,7 +43,7 @@ export default function Contribute(){
  useEffect(()=>{
   let mounted=true;
   supabaseBrowser.auth.getSession().then(({data})=>{if(mounted){setSession(data.session);setInitializing(false);}});
-  const {data:{subscription}}=supabaseBrowser.auth.onAuthStateChange((_event,next)=>{if(mounted){setSession(next);setInitializing(false);}});
+  const {data:{subscription}}=supabaseBrowser.auth.onAuthStateChange((event,next)=>{if(mounted){setSession(next);setInitializing(false);}if(event==='SIGNED_IN'&&next?.access_token){void fetch('/api/account/signin-notice',{method:'POST',headers:{Authorization:'Bearer '+next.access_token}}).catch(()=>{});}});
   return()=>{mounted=false;subscription.unsubscribe();};
  },[]);
  const api=useCallback(async(path:string,init?:RequestInit)=>{
