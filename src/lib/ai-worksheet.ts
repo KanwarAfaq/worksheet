@@ -35,7 +35,7 @@ export async function generateAIWorksheet(topic:string,subject:string,grade:numb
    const response=await fetch(config.url,{method:'POST',
     headers:{Authorization:'Bearer '+config.key,'Content-Type':'application/json'},
     body:JSON.stringify({model:config.model,messages:[{role:'system',content:instruction},{role:'user',content:prompt}],temperature:0.4,max_tokens:1600,stream:false}),
-    signal:AbortSignal.timeout(18000),cache:'no-store'});
+    signal:AbortSignal.timeout(11000),cache:'no-store'});
    if(!response.ok){last=config.name+' HTTP '+response.status;continue;}
    const json=await response.json() as {choices?:{message?:{content?:string}}[]};
    const raw=json.choices?.[0]?.message?.content;
