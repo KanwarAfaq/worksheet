@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import {useEffect,useState} from 'react';
-import {BookOpen,Menu,X,ChevronDown,Sun,Moon,PanelLeftClose,PanelLeftOpen,Upload,Plus,LogIn,UserRound} from 'lucide-react';
+import {BookOpen,Menu,X,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
 import {grades,subjects} from '@/lib/catalog';
 export default function Header(){
  const [sidebar,setSidebar]=useState(false);
@@ -29,20 +29,13 @@ export default function Header(){
  <header className="site-header single-header">
   <div className="container nav-inner single-nav">
    <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(v=>!v)}
-     aria-label="Open subjects and settings sidebar" aria-expanded={sidebar} aria-controls="worksheet-sidebar">
-     <Menu size={23}/></button>
+     aria-label={sidebar?"Close worksheet sidebar":"Open worksheet sidebar"} aria-expanded={sidebar} aria-controls="worksheet-sidebar">
+     {sidebar?<X size={23}/>:<Menu size={23}/>}</button>
    <Link href="/" className="brand" aria-label="Worksheet Studio home">
      <span className="brand-icon"><BookOpen size={19}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
    </Link>
-   <nav className="main-subject-nav" aria-label="Browse worksheet subjects">
-    {subjects.map(subject=><details className="subject-menu-item" key={subject.slug}>
-       <summary>{subject.title}<ChevronDown size={13} aria-hidden="true"/></summary>
-       <div className="subject-submenu">
-         <Link className="subject-all-link" href={'/'+subject.slug}>All {subject.title}</Link>
-         <div className="subject-submenu-caption">GRADES 1–6</div>
-         {grades.map(grade=><Link key={grade.slug} href={'/worksheets?subject='+subject.slug+'&grade='+grade.slug}>{grade.title}</Link>)}
-       </div>
-    </details>)}
+   <nav className="main-subject-nav" aria-label="Worksheet subjects">
+    {subjects.map(subject=><Link key={subject.slug} href={'/'+subject.slug}>{subject.title}</Link>)}
    </nav>
    <div className="single-nav-actions"><button type="button" className="icon-control header-theme-control" onClick={changeTheme} aria-label={dark?"Switch to light theme":"Switch to dark theme"} title={dark?"Light theme":"Dark theme"}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button><Link className="single-nav-link account-link" href="/contribute"><UserRound size={16}/> Account</Link>
      <Link className="single-nav-link" href="/create"><Plus size={15}/> Create</Link>
@@ -59,7 +52,7 @@ export default function Header(){
    <Link href="/worksheets" onClick={()=>setSidebar(false)}>All worksheets</Link>
    <Link href="/create" onClick={()=>setSidebar(false)}>Worksheet maker</Link>
    <Link href="/contribute" onClick={()=>setSidebar(false)}>Upload a worksheet</Link>
-   <div className="sidebar-section-title">SUBJECTS · GRADES 1–6</div>
+   <div className="sidebar-section-title">BROWSE BY SUBJECT & GRADE</div>
    {subjects.map(sub=><details className="sidebar-subject" key={sub.slug}>
      <summary>{sub.title}<ChevronDown size={16}/></summary>
      <Link href={'/'+sub.slug} onClick={()=>setSidebar(false)}>All {sub.title}</Link>
@@ -67,6 +60,8 @@ export default function Header(){
       onClick={()=>setSidebar(false)} key={g.slug}>{g.title}</Link>)}</div>
    </details>)}
 
+    <div className="sidebar-section-title">ALL GRADES</div>
+   <div className="sidebar-grades">{grades.map(g=><Link key={g.slug} href={"/worksheets?grade="+g.slug} onClick={()=>setSidebar(false)}>{g.title}</Link>)}</div>
  </aside>
  </>;
 }
