@@ -19,9 +19,7 @@ export const grades = [
 ] as const;
 export const formats = [
   {slug:'pdf',title:'PDF',description:'Print-ready documents',extension:'.pdf'},
-  {slug:'png',title:'PNG',description:'Printable PNG images',extension:'.png'},
-  {slug:'jpg',title:'JPG',description:'Printable JPEG images',extension:'.jpg'},
-  {slug:'webp',title:'WebP',description:'Printable WebP images',extension:'.webp'}
+  {slug:'image',title:'Images',description:'Printable PNG, JPG and WebP',extension:'.png/.jpg/.webp'}
 ] as const;
 export type Worksheet = {
  slug:string;title:string;description:string;subject:Subject;grade:string;
