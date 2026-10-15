@@ -5,7 +5,7 @@ import {ArrowLeft,Download,RefreshCw} from 'lucide-react';
 import {worksheetTemplates,worksheetSamples,wordsFromInput,shuffleWord,type TemplateType} from '@/lib/worksheet-templates';
 import {generate} from '@/lib/generators';
 
-function printPage(canvas:HTMLCanvasElement,type:TemplateType,words:string[],title:string,seed:number,answer=false){
+function printPage(canvas:HTMLCanvasElement,type:TemplateType,words:string[],title:string,seed:number,answer=false,pageIndex=0){
  const w=1240,h=1754;canvas.width=w;canvas.height=h;
  const c=canvas.getContext('2d');if(!c)return;
  c.fillStyle='#fff';c.fillRect(0,0,w,h);c.fillStyle='#152c27';
@@ -19,9 +19,9 @@ function printPage(canvas:HTMLCanvasElement,type:TemplateType,words:string[],tit
   const y=start+index*112;c.fillStyle='#18392b';c.font='29px Arial';c.fillText((index+1)+'.  '+(answer?(solution||line):line),95,y);
   if(!answer){c.strokeStyle='#bdc8c0';c.beginPath();c.moveTo(115,y+36);c.lineTo(1120,y+36);c.stroke();}
  };
- const use=words.slice(0,type==='tracing'?20:12);
+ const use=words.slice(pageIndex*12,(pageIndex+1)*12);
  if(type==='tracing'||type==='copy'){
-  const items=type==='tracing'?use.flatMap(x=>x.length>4?[x]:[x,x]):use;
+  const items=use;
   const n=Math.min(items.length,12),step=112;
   for(let i=0;i<n;i++){
    const y=332+i*step;
@@ -65,19 +65,20 @@ export default function TemplateMaker(){
  const [input,setInput]=useState(worksheetSamples.Alphabet.join('\n'));
  const [title,setTitle]=useState('Alphabet tracing practice');
  const [seed,setSeed]=useState(12345);
+ const [pageIndex,setPageIndex]=useState(0);
  const [error,setError]=useState('');
  const canvas=useRef<HTMLCanvasElement>(null);
  const words=(()=>{try{return wordsFromInput(input);}catch{return [] as string[];}})();
- useEffect(()=>{if(canvas.current&&words.length>2)printPage(canvas.current,type,words,title,seed);},[type,input,title,seed]);
- function chooseSample(key:keyof typeof worksheetSamples){setSample(key);setInput(worksheetSamples[key].join('\n'));setError('');}
- function chooseTemplate(next:TemplateType){setType(next);setTitle(worksheetTemplates.find(x=>x.id===next)?.name+' worksheet');setError('');}
+ useEffect(()=>{if(canvas.current&&words.length>2)printPage(canvas.current,type,words,title,seed,false,pageIndex);},[type,input,title,seed,pageIndex]);
+ function chooseSample(key:keyof typeof worksheetSamples){setPageIndex(0);setSample(key);setInput(worksheetSamples[key].join('\n'));setError('');}
+ function chooseTemplate(next:TemplateType){setPageIndex(0);setType(next);setTitle(worksheetTemplates.find(x=>x.id===next)?.name+' worksheet');setError('');}
  async function save(format:'pdf'|'png',answers=false){
   try{
    const values=wordsFromInput(input);setError('');
-   const output=document.createElement('canvas');printPage(output,type,values,title,seed,answers);
+   const output=document.createElement('canvas');printPage(output,type,values,title,seed,answers,pageIndex);
    const safe=type+(answers?'-teacher':'');
    if(format==='png'){const a=document.createElement('a');a.href=output.toDataURL('image/png');a.download=safe+'.png';a.click();}
-   else{const {jsPDF}=await import('jspdf');const pdf=new jsPDF({unit:'mm',format:'a4'});pdf.addImage(output.toDataURL('image/png'),'PNG',0,0,210,297);pdf.save(safe+'.pdf');}
+   else{const {jsPDF}=await import('jspdf');const pdf=new jsPDF({unit:'mm',format:'a4'});const pages=Math.ceil(values.length/12);for(let p=0;p<pages;p++){if(p)pdf.addPage();printPage(output,type,values,title,seed,answers,p);pdf.addImage(output.toDataURL('image/png'),'PNG',0,0,210,297);}pdf.save(safe+'.pdf');}
   }catch(e){setError(e instanceof Error?e.message:'Download failed');}
  }
  return <div className="container workspace template-maker"><Link href="/create" className="back-link"><ArrowLeft size={16}/> Worksheet maker</Link>
@@ -92,7 +93,7 @@ export default function TemplateMaker(){
     {words.length<3&&<p role="alert">Enter at least three items to preview.</p>}{error&&<p role="alert" className="error-message">{error}</p>}
     <p className="generator-setting-help">No AI quota or signup needed for these templates. Review the final worksheet before sharing.</p>
   </div><div className="preview-panel"><div className="preview-panel-top"><h2>Live printable preview</h2><span>A4 · Portrait</span></div>
-    <div className="template-preview"><canvas ref={canvas} aria-label="Printable worksheet preview"/></div>
+    <div className="template-page-controls"><button type="button" disabled={pageIndex===0} onClick={()=>setPageIndex(x=>x-1)}>Previous</button><span>Page {pageIndex+1} of {Math.ceil(words.length/12)||1}</span><button type="button" disabled={pageIndex+1>=Math.ceil(words.length/12)} onClick={()=>setPageIndex(x=>x+1)}>Next</button></div><div className="template-preview"><canvas ref={canvas} aria-label="Printable worksheet preview"/></div>
     <div className="ai-download-row"><button type="button" className="button button-dark" disabled={words.length<3} onClick={()=>save('pdf')}><Download size={15}/> PDF</button><button type="button" className="button button-outline" disabled={words.length<3} onClick={()=>save('png')}><Download size={15}/> PNG</button><button type="button" className="button button-outline" disabled={words.length<3} onClick={()=>save('pdf',true)}>Teacher PDF</button></div>
    </div></div>
  </div>;
