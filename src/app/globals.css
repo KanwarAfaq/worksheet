@@ -752,3 +752,16 @@ html[data-theme='dark'] .admin-quick-actions button{background:#284838;color:#ec
 .ai-edit-item label{font-weight:800;font-size:11px}
 html[data-theme='dark'] .ai-edit-questions h3,html[data-theme='dark'] .ai-edit-item label{color:#eaf9ee}
 html[data-theme='dark'] .ai-edit-questions input,html[data-theme='dark'] .ai-edit-questions textarea{background:#f8fff9!important;color:#153b26!important}
+
+/* Compact sidebar and stronger desktop navigation */
+.main-subject-nav>a{font-size:13px!important;font-weight:850!important;letter-spacing:.005em}
+.single-nav-link,.single-nav-upload{font-size:13px!important;font-weight:850!important}
+.worksheet-sidebar{background:#f7faf7!important;color:#183a2a}
+.worksheet-sidebar .sidebar-section-title{font-size:10px;letter-spacing:.09em;color:#587a63}
+.worksheet-sidebar .sidebar-subject-links a{font-size:12px;min-height:36px;padding:7px 11px;border-radius:9px}
+.sidebar-menu-group{margin:2px 0;padding-bottom:4px;border-color:#d9e7df}
+.sidebar-menu-group>summary{font-size:13px;padding:11px}
+html[data-theme='dark'] .worksheet-sidebar{background:#1b3025!important;color:#eff9f0}
+html[data-theme='dark'] .sidebar-menu-group>summary{color:#ecf6ed!important}
+html[data-theme='dark'] .worksheet-sidebar .sidebar-section-title{color:#adcab5!important}
+html[data-theme='dark'] .sidebar-menu-group>summary:hover{background:#345842}
