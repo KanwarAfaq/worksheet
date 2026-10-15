@@ -441,3 +441,13 @@ html[data-theme='dark'] .community-auth-box,html[data-theme='dark'] .community-l
 html[data-theme='dark'] .community-auth-box h2,html[data-theme='dark'] .community-benefits h1{color:#f0f7ee}
 @media(max-width:800px){.community-login-grid,.community-main{grid-template-columns:1fr;gap:26px}}
 @media(max-width:530px){.community-page{padding:36px 0}.community-auth-box,.community-list,.community-start,.community-form-panel{padding:19px}.community-top{display:block}.community-quota{display:block}.quota-tracks{margin-top:17px}.community-steps{gap:5px}.community-steps button{font-size:10px}}
+
+/* Header-level account and theme controls */
+.header-theme-control{display:inline-flex;align-items:center;justify-content:center;min-width:42px;min-height:42px;border:1px solid var(--stroke);border-radius:12px;background:transparent;color:var(--ink)}
+.header-theme-control:hover{background:var(--mint)}
+.account-link{white-space:nowrap}
+.auth-google{width:100%;margin:12px 0 4px}
+.auth-divider{text-align:center;font-size:12px;opacity:.75;margin:12px 0}
+.auth-otp-link{margin:14px 0;padding:4px 0;border:0;background:transparent;color:var(--forest);font-weight:800;text-decoration:underline}
+.auth-otp-form{display:grid;gap:10px;margin:12px 0}
+@media(max-width:760px){.single-nav-actions{gap:7px}.header-theme-control{min-width:38px;min-height:38px}.account-link{font-size:12px}}
