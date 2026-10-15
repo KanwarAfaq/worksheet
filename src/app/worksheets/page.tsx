@@ -34,7 +34,7 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
  const matchingLive=live.filter(item=>
   (!subject||item.categorySlug===subject) &&
   (!grade||item.gradeSlug===grade) &&
-  (!format||item.availableFormats.includes(format as 'pdf'|'docx')) &&
+  (!format||item.availableFormats.includes(format as 'pdf'|'png'|'jpg'|'webp')) &&
   (!query||(item.title+' '+(item.summary||'')+' '+item.categoryName).toLowerCase().includes(query)));
  const chosenFormat=formats.find(f=>f.slug===format);
  return <div className="container inner-page">
