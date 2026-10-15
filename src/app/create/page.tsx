@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {Search,Shuffle,SpellCheck,ArrowUpRight,CheckCircle2,Sparkles,Layers3} from 'lucide-react';
 export const metadata:Metadata={title:'Free Worksheet Maker'};
 const makers=[
-  {href:'/create/templates',name:'8 Printable Templates',icon:Layers3,description:'Trace dotted letters, make word searches, scramble, match, count and more using editable sample word lists.',accent:'blue',tag:'NO SIGN-IN REQUIRED'},
+  {href:'/create/templates',name:'4 Printable Templates',icon:Layers3,description:'Create tracing sheets, word searches, scrambles and missing-letter worksheets with editable content.',accent:'blue',tag:'NO SIGN-IN REQUIRED'},
   {href:'/create/ai',name:'AI Worksheet Maker',icon:Sparkles,description:'Create original grade-level questions and download student PDFs, PNGs and separate teacher keys.',accent:'mint',tag:'AI-ASSISTED · SIGN-IN'},
   {href:'/create/word-search',name:'Word Search',icon:Search,description:'Make a custom word hunt with a letter grid and teacher answer key.',accent:'yellow',tag:'FIND & DISCOVER'},
   {href:'/create/word-scramble',name:'Word Scramble',icon:Shuffle,description:'Mix up words into a playful spelling challenge with solutions.',accent:'lavender',tag:'MIX & SOLVE'},
