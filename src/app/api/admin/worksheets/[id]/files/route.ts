@@ -4,6 +4,7 @@ import {createHash,randomUUID} from 'node:crypto';
 import {requireOwner} from '@/lib/admin-server';
 import {r2Client,r2Bucket,r2Configured,MAX_UPLOAD_BYTES} from '@/lib/r2-server';
 import {checkWorksheetFile} from '@/lib/file-validation';
+import {notifyWorksheetAdmin} from '@/lib/line-admin';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -93,5 +94,6 @@ export async function POST(request:Request,{params}:Context){
     try{await s3.send(new DeleteObjectCommand({Bucket:bucket,Key:key}));}catch{}
     return reply({error:'File stored but database registration failed. Upload rolled back.'},500);
   }
+  await notifyWorksheetAdmin('worksheet_file_uploaded',{worksheetId:id,actorId:a.user.id,fileName:file.name});
   return reply({file:data,verified:true},201);
 }
