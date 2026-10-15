@@ -11,6 +11,7 @@ export const metadata:Metadata={
  description:siteDescription,
  metadataBase:new URL(siteOrigin()),
  applicationName:siteName,
+ verification:{google:process.env.GOOGLE_SITE_VERIFICATION||undefined},
  category:'education',
  robots:{index:indexingEnabled,follow:indexingEnabled,
   googleBot:{index:indexingEnabled,follow:indexingEnabled,'max-snippet':-1,'max-image-preview':'large','max-video-preview':-1}},
