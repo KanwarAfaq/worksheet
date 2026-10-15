@@ -40,7 +40,7 @@ export default function AIWorksheetMaker(){
  const [busy,setBusy]=useState(false),[error,setError]=useState('');
  async function submit(event:FormEvent){
   event.preventDefault();setBusy(true);setError('');
-  if(/\\b(trace|tracing|handwriting|write and trace)\\b/i.test(topic)){setTracing(true);setWorksheet(null);setBusy(false);return;}
+  if(/\b(trace|tracing|handwriting|write and trace)\b/i.test(topic)){setTracing(true);setWorksheet(null);setBusy(false);return;}
   setTracing(false);
   try{
    const {data:{session}}=await supabaseBrowser.auth.getSession();
