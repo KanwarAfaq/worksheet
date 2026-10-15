@@ -236,7 +236,7 @@ export default function Contribute(){
     {headers:{Authorization:'Bearer '+data.session?.access_token}});
    if(!response.ok)throw new Error('File unavailable.');
    const blob=await response.blob(),url=URL.createObjectURL(blob);
-   if(inline){window.open(url,'_blank','noopener,noreferrer');window.setTimeout(()=>URL.revokeObjectURL(url),120000);}
+   if(inline){window.open(url+(entry.variant==='pdf'?'#page='+Math.max(1,coverPage):''),'_blank','noopener,noreferrer');window.setTimeout(()=>URL.revokeObjectURL(url),120000);}
    else{const anchor=document.createElement('a');anchor.href=url;anchor.download=entry.original_name;anchor.click();window.setTimeout(()=>URL.revokeObjectURL(url),30000);}
   }catch(e){setError(e instanceof Error?e.message:'Unable to open document.');}
   finally{setBusy(false);}
@@ -351,7 +351,7 @@ export default function Contribute(){
        {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
      <label htmlFor="community-grade">Grade</label><select id="community-grade" disabled={active.status!=='draft'} value={grade} onChange={e=>setGrade(e.target.value)}>
        <option value="">All grades</option>{grades.map(g=><option key={g.id} value={g.id}>{g.display_name}</option>)}</select>
-     <label htmlFor="community-cover-page">PDF preview page</label>
+     <label htmlFor="community-cover-page">Public PDF cover page</label>
      <input id="community-cover-page" type="number" min={1} max={200} disabled={active.status!=='draft'} value={coverPage}
        onChange={e=>setCoverPage(Math.min(200,Math.max(1,Number(e.target.value)||1)))}/>
      <button className="button button-dark" type="submit" disabled={active.status!=='draft'||busy}><CheckCircle2 size={16}/> Save and review</button>
@@ -359,7 +359,7 @@ export default function Contribute(){
    {step===2&&<div className="community-form-panel">
     <h3>Check and submit</h3>
     <p><strong>{active.title}</strong></p><p>{active.summary||'Add a description in Step 2.'}</p>
-    <p>Files: {attachments.length}</p>
+    <p>Files: {attachments.length}</p><p>Public PDF cover: Page {coverPage}</p>
     {attachments.map(f=><div className="community-attachment" key={f.id}><FilePenLine size={16}/>{f.original_name}<button type="button" onClick={()=>download(f,f.variant==='pdf')}>Review</button></div>)}
     {active.status==='draft'&&<><label className="check-field"><input type="checkbox" checked={signedPolicy} onChange={e=>setSignedPolicy(e.target.checked)}/> I confirm this file is safe, appropriate for children, and I hold permission to share it publicly.</label>
       <button className="button button-dark" type="button" disabled={!signedPolicy||!attachments.length||!active.summary||busy} onClick={submit}>Submit for automated review <ArrowRight size={16}/></button></>}
