@@ -36,9 +36,12 @@ export default function AIWorksheetMaker(){
  const [grade,setGrade]=useState(2);
  const [level,setLevel]=useState('easy');
  const [worksheet,setWorksheet]=useState<AIWorksheet|null>(null);
+ const [tracing,setTracing]=useState(false);
  const [busy,setBusy]=useState(false),[error,setError]=useState('');
  async function submit(event:FormEvent){
   event.preventDefault();setBusy(true);setError('');
+  if(/\\b(trace|tracing|handwriting|write and trace)\\b/i.test(topic)){setTracing(true);setWorksheet(null);setBusy(false);return;}
+  setTracing(false);
   try{
    const {data:{session}}=await supabaseBrowser.auth.getSession();
    if(!session)throw new Error('Sign in first to create AI worksheets.');
@@ -81,6 +84,7 @@ export default function AIWorksheetMaker(){
   </form>
   <section className="preview-panel ai-result">
    <div className="preview-panel-top"><h2>Worksheet preview</h2>{worksheet&&<span>Generated via {worksheet.provider}</span>}</div>
+   {tracing&&<div className="ai-sheet"><h2>Alphabet tracing is a handwriting template</h2><p>For real dashed letter outlines and primary handwriting guide lines, use the tracing template rather than AI text questions.</p><Link href="/create/templates" className="button button-dark">Open editable tracing template</Link><p>Choose the Alphabet sample or replace it with your own letters or words, then download PDF or PNG.</p></div>}
    {worksheet?<div className="ai-sheet">
     <div className="section-kicker">STUDENT WORKSHEET</div><h2>{worksheet.title}</h2>
     <p>Grade {worksheet.grade} · {worksheet.subject}</p><p>{worksheet.instructions}</p>
