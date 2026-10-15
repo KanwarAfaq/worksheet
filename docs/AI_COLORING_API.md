@@ -1,8 +1,20 @@
-# AI worksheet integration
-- Text models already supported by Worksheet Studio: CGU (local and compatible), Groq, NVIDIA NIM. These use text/chat-completion endpoints. They **do not imply image-model access**.
-- `POST /api/ai/color-ideas`: verified contributor, 20 object-suggestion requests/day in Supabase. Uses configured chat models, safely parses object names; only suggestions, not images.
-- `POST /api/ai/color-image`: verified contributor, existing five-AI-generations/day quota. Uses `https://api.openai.com/v1/images/generations` with server-only `AI_IMAGE_API_KEY`. The default `AI_IMAGE_MODEL` is `gpt-image-2`. Output must be valid bounded-size PNG, never public by default. Failed calls attempt a server-side quota refund.
-- Built-in 12+ original vector drawings remain free with no sign-in or API credits. Arbitrary objects use image generation, not merely text-model classification.
-- Add `AI_IMAGE_API_KEY` (image generation-enabled key with billing) and optionally `AI_IMAGE_MODEL` in Vercel. Redeploy. Never set NEXT_PUBLIC_ keys and never add API secrets to GitHub.
-- Before high-volume use, implement spending alerts, stronger abuse controls, provider usage monitoring, output review, and cost limits. Model availability and pricing vary by provider.
-- AI text models can also help generate worksheet drafts, summaries, grade/topic tags and educational quality checks. Verify results before auto-publication; do not automatically trust rights or content claims.
+# AI worksheet and coloring APIs
+
+Official CGU image documentation: https://air.cgu.edu.tw/workspace4/LLMAPI/api_call_en.html
+
+## Image generation through existing CGU account
+- `CGU_API_KEY`: existing server-only key for CGU gateway (must be set in Vercel production).
+- `CGU_IMAGE_MODEL=chatgpt-image-latest` (optional); alternatives listed by CGU are `gpt-image-2`, `gpt-image-1.5`, `gpt-image-1`, `gpt-image-1-mini`.
+- Backend uses `POST https://air.cgu.edu.tw/cgullmapi/v1/images/generations`, not CGU's text/chat endpoint.
+- CGU's documented model catalogue is not proof of account authorization. Check `GET /v1/models` using your own key and `GET /v1/me/usage` for remaining quotas.
+- CGU school/local models use *local token quota*, whereas image models consume the **OpenAI cost quota (USD)**. Monitor spending and quotas before switching on broadly.
+- The code chooses CGU if `CGU_API_KEY` exists; otherwise it can use optional direct `AI_IMAGE_API_KEY` and `AI_IMAGE_MODEL`. Keys remain on the backend.
+- The image endpoint permits 1–4 distinct objects, verifies authenticated account, enforces five AI generations daily, checks returned PNG bytes and caps response size.
+- Built-in drawing templates continue to work without sign-in or provider credits; arbitrary requests require an image-capable model.
+- The `/api/ai/color-ideas` endpoint uses CGU/Groq/NIM text models to suggest drawable object names, not to generate pixels. Suggestions are limited to 20 per verified user per day.
+- Image results are temporary in browser memory; worksheets are **not automatically published**.
+
+## Important operational checks
+- Test one actual CGU image request using a signed-in test account; compilation alone cannot verify API key permission or remaining balance.
+- Configure billing alerts and spending controls in the CGU portal, plus abuse monitoring on production.
+- For future deployment: content moderation, explicit public-upload consent, provider error rate tracking, image-result format handling, and improved per-request quota accounting under concurrency.

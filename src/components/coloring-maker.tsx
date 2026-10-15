@@ -186,7 +186,7 @@ export default function ColoringMaker({initialGroup}:Props){
     <p className="color-selection-count">{objects.length}/4 selected · Built-in pictures work without AI</p>
     <div className="color-selected-tags">{objects.map(item=>
      <button type="button" key={item} onClick={()=>choose(item)}>{display(item)} ×</button>)}</div>
-    {needsAI&&!imageAvailable&&<p className="color-maker-error" role="status">New objects need an image API key configured in Vercel.</p>}
+    {needsAI&&!imageAvailable&&<p className="color-maker-error" role="status">AI drawing is unavailable.</p>}
     {(needsAI||imageAvailable)&&<button className="button button-dark" type="button"
       disabled={generating||!objects.length||!imageAvailable} onClick={generateAI}>
       <Sparkles size={18}/>{generating?'Drawing…':'Create AI drawing'}</button>}
