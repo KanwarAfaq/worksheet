@@ -1044,3 +1044,26 @@ html[data-theme='dark'] .draft-delete-button{background:#502d29;color:#ffddd5;bo
  justify-content:center;align-items:center;gap:9px;color:#698676;font-size:14px;
  font-weight:750;background:#f1f5ef}
 .pdf-cover-thumbnail canvas.is-ready+.pdf-cover-placeholder{display:none}
+
+/* Owner-only AI draft smoke test: small panel, real previews in draft editor. */
+.admin-agent-test{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+ gap:14px;padding:20px 24px;margin:18px 0;border:1px solid #d1e2d2;
+ border-radius:15px;background:#eef7ee}
+.admin-agent-test h2{font-size:22px;line-height:1.3;margin:0 0 3px;color:#1d4930}
+.admin-agent-test p{font-size:15px;margin:0;color:#466957}
+.admin-agent-test .button{font-size:16px;min-height:53px;white-space:nowrap}
+.admin-agent-results{flex:1 0 100%;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.admin-agent-result{padding:12px;background:#fff;border:1px solid #dae5dc;border-radius:10px;
+ min-width:0;display:flex;flex-direction:column;gap:7px}
+.admin-agent-result strong{font-size:14px;color:#244d34}
+.admin-agent-result a{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:800;color:#276747}
+.admin-agent-result small{font-size:12px;color:#a63e32;overflow-wrap:anywhere}
+.admin-agent-results>p{grid-column:1/-1}
+html[data-theme='dark'] .admin-agent-test{background:#233a2b;border-color:#45664c}
+html[data-theme='dark'] .admin-agent-test h2{color:#e5f6e7}
+html[data-theme='dark'] .admin-agent-test p{color:#bbd6c0}
+html[data-theme='dark'] .admin-agent-result{background:#1e3225;border-color:#496b52}
+html[data-theme='dark'] .admin-agent-result strong{color:#e3f4e5}
+@media(max-width:900px){.admin-agent-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.admin-agent-test{padding:16px}.admin-agent-test .button{width:100%}
+ .admin-agent-results{grid-template-columns:1fr}}

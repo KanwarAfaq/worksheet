@@ -33,7 +33,10 @@ function renderOnePage(title:string,instructions:string,questions:string[]):Buff
  if(pdf.getNumberOfPages()!==1)throw new Error('Page count must equal one');
  return Buffer.from(pdf.output('arraybuffer'));
 }
-export async function runDailyAiDrafts(day:string):Promise<RunResult>{
+/** Optional slot selection supports short, authenticated, one-at-a-time manual tests.
+ * Without slots, scheduled automation still attempts all five.
+ */
+export async function runDailyAiDrafts(day:string,slots:number[]=[0,1,2,3,4]):Promise<RunResult>{
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new Error('Invalid daily date');
  if(!process.env.SUPABASE_SERVICE_ROLE_KEY||!r2Configured())throw new Error('Missing Supabase or private R2 configuration');
  const db=createClient(SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
@@ -41,7 +44,10 @@ export async function runDailyAiDrafts(day:string):Promise<RunResult>{
  if(ownerError||!owner)throw new Error('No enabled owner');
  const result:RunResult={created:0,skipped:0,failed:0,ids:[],errors:[]};
  const client=r2Client(),bucket=r2Bucket();
- for(let i=0;i<5;i++){
+ if(!slots.length||slots.length>5||new Set(slots).size!==slots.length||
+  slots.some(slot=>!Number.isInteger(slot)||slot<0||slot>4))
+  throw new Error('Invalid AI generation slots');
+ for(const i of slots){
   const grade=((Number(day.replace(/-/g,''))+i-1)%6)+1;
   const subject=subjects[i];
   const slug='daily-ai-'+day+'-'+(i+1);

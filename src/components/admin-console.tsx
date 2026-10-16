@@ -48,6 +48,10 @@ export default function AdminConsole() {
   const [metrics,setMetrics] = useState<Record<string,number|null>|null>(null);
   const [diagnostics,setDiagnostics] = useState<Record<string,{ok?:boolean;httpStatus?:number;reason?:string;model?:string}>|null>(null);
   const [testing,setTesting] = useState(false);
+  const [agentRunning,setAgentRunning] = useState(false);
+  const [agentStep,setAgentStep] = useState(0);
+  const [agentReports,setAgentReports] = useState<Array<{slot:number;status:'created'|'existing'|'failed';id?:string;error?:string}>>([]);
+
   const [creating, setCreating] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
   const [draftSummary, setDraftSummary] = useState('');
@@ -128,6 +132,36 @@ export default function AdminConsole() {
       setNotice({info:'AI draft deleted. Audit event recorded.'});
       await loadRows(session);
     }catch(e){setNotice({error:e instanceof Error?e.message:'Rejection failed'});}
+  }
+
+  async function runFiveAiDrafts(){
+    if(!session||agentRunning)return;
+    if(!window.confirm('Create up to 5 private AI worksheet PDFs for review? This uses real AI API quota and R2 storage. Nothing will be published.'))return;
+    setAgentRunning(true);setAgentStep(0);setAgentReports([]);setNotice({});
+    const results:Array<{slot:number;status:'created'|'existing'|'failed';id?:string;error?:string}>=[];
+    try{
+     for(let slot=1;slot<=5;slot++){
+      setAgentStep(slot);
+      try{
+       const response=await fetch('/api/admin/automation/test',{
+        method:'POST',cache:'no-store',
+        headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+        body:JSON.stringify({slot})
+       });
+       const data=await response.json();
+       const report=data.generated as {created?:number;skipped?:number;failed?:number;ids?:string[];errors?:string[]} | undefined;
+       const error=(!response.ok?data.error:report?.errors?.[0]) as string|undefined;
+       results.push({slot,status:report?.created?'created':report?.skipped?'existing':'failed',
+        id:report?.ids?.[0],error:error||undefined});
+      }catch{
+       results.push({slot,status:'failed',error:'Request timed out or could not reach Vercel.'});
+      }
+      setAgentReports([...results]);
+     }
+     await loadRows(session);
+     setStatusFilter('draft');
+     setRowQuery('Practice');
+    }finally{setAgentRunning(false);}
   }
 
   async function testProduction(scope:'all'|'ai'='all'){
@@ -219,6 +253,24 @@ export default function AdminConsole() {
     {metrics&&<div className="admin-stats" aria-label="Live system metrics"><div><BookOpen size={22}/><small>Registered users</small><strong>{metrics.users??"—"}</strong></div><div><FileText size={22}/><small>Verified PDF files</small><strong>{metrics.pdfFiles??"—"}</strong></div><div><LayoutDashboard size={22}/><small>Verified image files</small><strong>{metrics.imageFiles??"—"}</strong></div><div><Clock3 size={22}/><small>All private drafts</small><strong>{metrics.drafts??"—"}</strong></div></div>}
     <section className="admin-safety"><ShieldCheck size={22}/><div><strong>Production integration diagnostics</strong><p>Test CGU, Groq, NVIDIA, private R2 upload/read/delete, and send a test LINE message. Only the signed-in owner can start these checks.</p><button type="button" className="button button-outline" onClick={()=>testProduction('all')} disabled={testing}>{testing?'Testing integrations…':'Run production tests'}</button>
  <button type="button" className="button button-outline" onClick={()=>testProduction('ai')} disabled={testing}>Retest AI only</button>{diagnostics&&<div role="status">{Object.entries(diagnostics).map(([name,value])=><p key={name}><strong>{name}:</strong> {value.ok?'PASS':'FAIL'}{value.httpStatus?' (HTTP '+value.httpStatus+')':''}{value.model?' — '+value.model:''}{value.reason?' — '+value.reason:''}</p>)}</div>}</div></section>
+    <section className="admin-agent-test" aria-label="Five AI worksheet test">
+      <div>
+       <h2>AI worksheet test</h2>
+       <p>Create five private PDF drafts and review them before publishing.</p>
+      </div>
+      <button className="button button-dark" type="button" disabled={agentRunning}
+       onClick={runFiveAiDrafts}>
+       {agentRunning?'Generating '+agentStep+' / 5…':'Run 5 AI worksheet test'}
+      </button>
+      {agentReports.length>0&&<div className="admin-agent-results" role="status">
+       {agentReports.map(report=><div key={report.slot} className="admin-agent-result">
+        <strong>{report.slot}/5 — {report.status==='created'?'Created':report.status==='existing'?'Already exists':'Failed'}</strong>
+        {report.id&&<Link href={'/admin/worksheets/'+report.id+'?review=1'}>Review PDF <ArrowRight size={15}/></Link>}
+        {report.error&&<small>{report.error}</small>}
+       </div>)}
+       {!agentRunning&&<p>Finished. Open a draft below to preview its PDF. Nothing was published.</p>}
+      </div>}
+    </section>
     <div className="admin-quick-actions" aria-label="Admin quick filters">
      <button type="button" onClick={()=>setStatusFilter('review')}>Review queue <strong>{reviewCount}</strong></button>
      <button type="button" onClick={()=>setStatusFilter('draft')}>Drafts <strong>{drafts}</strong></button>
