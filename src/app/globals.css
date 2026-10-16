@@ -1024,3 +1024,10 @@ html[data-theme='dark'] .draft-delete-button{background:#502d29;color:#ffddd5;bo
 .community-draft-entry .community-item small{font-size:13px}
 @media(max-width:520px){.member-worksheet-thumb,.member-preview-empty{width:59px;height:78px}
  .member-worksheet-thumb iframe{transform:scale(.185)}.community-draft-entry .community-item{padding:9px}}
+
+/* Keep private file thumbnail a fixed size beside the title. */
+.community-item .member-worksheet-thumb,.community-item .member-preview-empty{
+ flex:0 0 79px;min-width:79px
+}
+@media(max-width:520px){.community-item .member-worksheet-thumb,.community-item .member-preview-empty{
+ flex-basis:59px;min-width:59px}}

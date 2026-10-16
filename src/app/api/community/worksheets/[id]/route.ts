@@ -29,7 +29,11 @@ export async function PATCH(request:Request,{params}:Context){
   .update({title,summary:summary||null,category_id:subject,grade_id:grade,preview_page:previewPage,updated_at:new Date().toISOString()})
   .eq('id',id).eq('created_by',a.user.id).eq('status','draft')
   .select('id,title,summary,status,category_id,grade_id,preview_page').maybeSingle();
- if(error||!data)return json({error:'Draft cannot be changed. It may have already been submitted.'},409);
+ if(error){
+  console.error('Community worksheet metadata update failed:',error.code);
+  return json({error:'Could not save worksheet details. Please try again.'},500);
+ }
+ if(!data)return json({error:'Draft not found or already submitted. Refresh My worksheets.'},409);
  return json({worksheet:data});
 }
 
