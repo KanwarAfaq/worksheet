@@ -99,6 +99,18 @@ export default function AdminConsole() {
     finally { setLoadingRows(false); }
   }
 
+  async function rejectAiDraft(id:string,title:string){
+    if(!session||!window.confirm('Permanently delete AI draft and its files? '+title))return;
+    setNotice({});
+    try{
+      const res=await fetch('/api/admin/worksheets/'+id+'/reject',{method:'DELETE',headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'});
+      const data=await res.json();
+      if(!res.ok)throw new Error(data.error||'Rejection failed');
+      setNotice({info:'AI draft deleted. Audit event recorded.'});
+      await loadRows(session);
+    }catch(e){setNotice({error:e instanceof Error?e.message:'Rejection failed'});}
+  }
+
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setAuthBusy(true); setNotice({});
     const { error } = await supabaseBrowser.auth.signInWithPassword({ email: email.trim(), password });
@@ -191,7 +203,7 @@ export default function AdminConsole() {
         {loadingRows?<p className="admin-empty">Loading worksheet records…</p>:rows.length===0?<div className="admin-empty"><FileText size={34}/><strong>No worksheets yet</strong><p>Click “New worksheet” to start.</p></div>:
           <div className="admin-rows">{visibleRows.length === 0 ? <p className="admin-empty">No worksheets match your filters.</p> : visibleRows.map(row=><div key={row.id} className="admin-row">
             <div><strong>{row.title}</strong><small>{row.slug} · {new Date(row.created_at).toLocaleDateString()}</small></div>
-            <div className="admin-row-actions"><span className={'admin-status '+row.status}>{row.status}</span><a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Open</a></div>
+            <div className="admin-row-actions"><span className={'admin-status '+row.status}>{row.status}</span><a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Review / Open</a>{row.status==='draft'&&row.slug.startsWith('daily-ai-')&&<button type="button" className="admin-edit-link" onClick={()=>rejectAiDraft(row.id,row.title)}>Reject &amp; delete</button>}</div>
           </div>)}</div>}
       </section>
       <section className="admin-new-draft dashboard-create-card">
