@@ -8,7 +8,6 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
  if(!indexingEnabled)return [];
  const base=siteOrigin();
  const origin=(path:string)=>base+path;
- const today=new Date();
  const live=(await publishedWorksheets()).filter(w=>
   (w.summary||'').trim().length>=25 && w.title.trim().length>=5 &&
   w.availableFormats.length>0);
@@ -26,9 +25,9 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   ...subjects.filter(s=>publicSubjects.has(s.slug)).map(s=>({path:'/'+s.slug,priority:.75}))
  ];
  return [
-  ...routes.map(({path,priority})=>({url:origin(path),lastModified:today,
+  ...routes.map(({path,priority})=>({url:origin(path),
    changeFrequency:'weekly' as const,priority})),
   ...live.map(w=>({url:origin('/worksheets/'+encodeURIComponent(w.slug)),
-   lastModified:w.updatedAt?new Date(w.updatedAt):today,changeFrequency:'monthly' as const,priority:.8}))
+   ...(w.updatedAt && !Number.isNaN(new Date(w.updatedAt).getTime()) ? {lastModified:new Date(w.updatedAt)} : {}),changeFrequency:'monthly' as const,priority:.8}))
  ];
 }
