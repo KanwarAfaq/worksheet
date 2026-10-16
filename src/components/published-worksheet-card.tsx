@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {ArrowUpRight,FileText,Download,FilePenLine} from 'lucide-react';
 import type {PublicWorksheet} from '@/lib/public-catalog';
 import WorksheetActions from '@/components/worksheet-actions';
+import PdfCoverThumbnail from '@/components/pdf-cover-thumbnail';
 const labels:Record<string,string>={pdf:'PDF',png:'PNG',jpg:'JPG',webp:'WebP'};
 export default function PublishedWorksheetCard({item}:{item:PublicWorksheet}){
  const cover=item.availableFormats.includes('pdf')?'pdf':item.availableFormats.find(f=>['png','jpg','webp'].includes(f));
@@ -9,9 +10,7 @@ export default function PublishedWorksheetCard({item}:{item:PublicWorksheet}){
    <Link href={'/worksheets/'+item.slug} className="resource-preview" aria-label={'View '+item.title}>
     <div className="resource-preview-inner">
       {cover==='pdf'?
-       <iframe loading="lazy" title={'First page preview of '+item.title} aria-hidden="true"
-        src={'/api/worksheets/'+item.id+'/preview?format=pdf#page='+(item.previewPage||1)+'&zoom=page-fit'}
-        tabIndex={-1} className="pdf-page-preview"/>:
+       <PdfCoverThumbnail worksheetId={item.id} pageNumber={item.previewPage||1} title={item.title}/>:
        cover?<img alt="" loading="lazy" src={'/api/worksheets/'+item.id+'/preview?format='+cover}/>:
        <div className="word-page-preview"><div className="word-preview-line"/><strong>{item.title}</strong>
         <p>{item.summary||'Worksheet learning activity'}</p><div className="word-preview-lines"/>
