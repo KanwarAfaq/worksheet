@@ -29,6 +29,7 @@ export default function FAQPage(){
   <div className="section-kicker">HELP & ANSWERS</div>
   <h1>Worksheet <em>questions, answered.</em></h1>
   <p className="page-lead">Quick answers for parents, teachers and anyone preparing printable learning activities.</p>
+  <h2>Frequently asked questions about printable worksheets</h2>
   <div className="seo-faq-list">{questions.map(({q,a})=><section className="seo-faq-item" key={q}>
    <h2>{q}</h2><p>{a}</p></section>)}</div>
   <div className="bottom-prompt">Ready to create an activity?<Link href="/create">Try a free maker <ArrowRight size={18}/></Link></div>
