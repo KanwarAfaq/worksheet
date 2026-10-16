@@ -53,6 +53,11 @@ if(published){
   <Link href="/worksheets" className="back-link"><ArrowLeft size={16}/> Back to library</Link>
   <div className="detail-grid">
    {published.availableFormats.includes('pdf')?<PdfPageViewer worksheetId={published.id} initialPage={published.previewPage}/>:
+    published.availableFormats.some(f=>['png','jpg','webp'].includes(f))?
+    <div className="detail-real-preview" aria-label="Actual uploaded worksheet preview">
+      <img src={'/api/worksheets/'+published.id+'/preview?format='+published.availableFormats.find(f=>['png','jpg','webp'].includes(f))}
+        alt={'Preview of '+published.title} loading="eager"/>
+    </div>:
     <div className="detail-preview mint"><div className="detail-paper"><div className="paper-rule short"/><h2>{published.title}</h2><p>{published.summary||'Ready-to-print practice'}</p><div className="detail-symbol"><BookOpen size={76}/></div></div></div>}
    <div className="detail-copy">
     <div className="section-kicker">{published.categoryName.toUpperCase()} · VERIFIED WORKSHEET</div>

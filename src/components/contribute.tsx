@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type {Session} from '@supabase/supabase-js';
 import {UploadCloud,LockKeyhole,BookOpen,FileText,Plus,CheckCircle2,AlertCircle,LogOut,ArrowLeft,ArrowRight,Download,FilePenLine,ShieldCheck,Trash2} from 'lucide-react';
 import {supabaseBrowser} from '@/lib/supabase-browser';
+import MemberWorksheetThumbnail from '@/components/member-worksheet-thumbnail';
 
 type Item={id:string;slug:string;title:string;summary:string|null;status:string;category_id:string;grade_id:string|null;preview_page?:number;file_count?:number;created_at:string};
 type Category={id:string;name:string};type Grade={id:string;display_name:string};
@@ -346,7 +347,9 @@ export default function Contribute(){
       {items.length===0?<p>No uploads yet. Use the form to add your first worksheet.</p>:items.map(item=>
        <div className="community-draft-entry" key={item.id}>
         <button type="button" onClick={()=>open(item)} className="community-item">
-         <FileText size={20}/><span><strong>{item.title}</strong>
+         <MemberWorksheetThumbnail worksheetId={item.id} status={item.status}
+           previewPage={item.preview_page||1} fileCount={item.file_count||0}/>
+         <span><strong>{item.title}</strong>
           <small>{item.status==='review'?'In review':item.status==='published'?'Published':
            (item.file_count||0)===0?'Draft · No file':'Draft · '+item.file_count+' file(s)'}</small>
          </span><ArrowRight size={18}/>
