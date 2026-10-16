@@ -81,7 +81,7 @@ export async function runDailyAiDrafts(day:string):Promise<RunResult>{
     license_basis:'original',license_note:'AI-assisted original exercises; pending owner review',uploaded_by:owner.user_id
    });
    if(fileError)throw new Error('File registration failed');
-   result.created++;result.ids.push(worksheetId);
+   result.created++;result.ids.push(insert.id);
   }catch(e){
    result.failed++;result.errors.push('Slot '+(i+1)+': '+(e instanceof Error?e.message:'failed').slice(0,90));
    if(key)await client.send(new DeleteObjectCommand({Bucket:bucket,Key:key})).catch(()=>{});
