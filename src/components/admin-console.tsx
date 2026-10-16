@@ -44,6 +44,7 @@ export default function AdminConsole() {
   const [categories, setCategories] = useState<Option[]>([]);
   const [grades, setGrades] = useState<Option[]>([]);
   const [loadingRows, setLoadingRows] = useState(false);
+  const [metrics,setMetrics] = useState<Record<string,number|null>|null>(null);
   const [creating, setCreating] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
   const [draftSummary, setDraftSummary] = useState('');
@@ -81,6 +82,7 @@ export default function AdminConsole() {
       setCategories(cats.data || []); setGrades(level.data || []);
       if (cats.data?.length) setCategoryId(old => old || cats.data![0].id);
       await loadRows(session);
+      void fetch('/api/admin/stats',{headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'}).then(x=>x.ok?x.json():null).then(x=>{if(!cancelled&&x?.stats)setMetrics(x.stats);}).catch(()=>{});
     };
     void check();
     return () => { cancelled = true; };
@@ -185,6 +187,7 @@ export default function AdminConsole() {
       <div><FileText size={22}/><small>Published</small><strong>{published}</strong></div>
       <div><ShieldCheck size={22}/><small>Needs review</small><strong>{reviewCount}</strong></div>
     </div>
+    {metrics&&<div className="admin-stats" aria-label="Live system metrics"><div><BookOpen size={22}/><small>Registered users</small><strong>{metrics.users??"—"}</strong></div><div><FileText size={22}/><small>Verified PDF files</small><strong>{metrics.pdfFiles??"—"}</strong></div><div><LayoutDashboard size={22}/><small>Verified image files</small><strong>{metrics.imageFiles??"—"}</strong></div><div><Clock3 size={22}/><small>All private drafts</small><strong>{metrics.drafts??"—"}</strong></div></div>}
     <div className="admin-quick-actions" aria-label="Admin quick filters">
      <button type="button" onClick={()=>setStatusFilter('review')}>Review queue <strong>{reviewCount}</strong></button>
      <button type="button" onClick={()=>setStatusFilter('draft')}>Drafts <strong>{drafts}</strong></button>
