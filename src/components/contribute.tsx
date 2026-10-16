@@ -1,5 +1,5 @@
 'use client';
-import {useCallback,useEffect,useState,type FormEvent} from 'react';
+import {useCallback,useEffect,useState,type FormEvent,type DragEvent} from 'react';
 import Link from 'next/link';
 import type {Session} from '@supabase/supabase-js';
 import {UploadCloud,LockKeyhole,BookOpen,FileText,Plus,CheckCircle2,AlertCircle,LogOut,ArrowLeft,ArrowRight,Download,FilePenLine,ShieldCheck} from 'lucide-react';
@@ -39,9 +39,33 @@ export default function Contribute(){
  const [likedIds,setLikedIds]=useState<string[]>([]);
  const [collectionWorksheets,setCollectionWorksheets]=useState<{id:string;slug:string;title:string;status:string}[]>([]);
  const [quickTitle,setQuickTitle]=useState('');
- const [quickSummary,setQuickSummary]=useState('');
  const [quickFile,setQuickFile]=useState<File|null>(null);
+ const [quickPage,setQuickPage]=useState(1);
+ const [quickPreview,setQuickPreview]=useState<string|null>(null);
+ const [dragActive,setDragActive]=useState(false);
  const [quickAgreed,setQuickAgreed]=useState(false);
+ useEffect(()=>{
+  if(!quickFile){setQuickPreview(null);return;}
+  const url=URL.createObjectURL(quickFile);
+  setQuickPreview(url);
+  return()=>URL.revokeObjectURL(url);
+ },[quickFile]);
+ function chooseQuickFile(next:File|null){
+  setError('');
+  if(!next){setQuickFile(null);setQuickPage(1);return;}
+  if(!/\.(pdf|png|jpe?g|webp)$/i.test(next.name)){
+   setError('Choose a PDF, PNG, JPG or WebP file.');return;
+  }
+  if(next.size>3*1024*1024){setError('Maximum file size is 3 MB.');return;}
+  if(next.size<64){setError('The selected file is too small.');return;}
+  setQuickFile(next);setQuickPage(1);
+  const suggested=next.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
+  setQuickTitle((suggested.length>=3?suggested:'My worksheet').slice(0,140));
+ }
+ function dropQuickFile(event:DragEvent<HTMLDivElement>){
+  event.preventDefault();setDragActive(false);
+  if(event.dataTransfer.files?.[0])chooseQuickFile(event.dataTransfer.files[0]);
+ }
  useEffect(()=>{
   let mounted=true;
   supabaseBrowser.auth.getSession().then(({data})=>{if(mounted){setSession(data.session);setInitializing(false);}});
@@ -159,23 +183,32 @@ export default function Contribute(){
  }
  async function quickUpload(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
-  if(!quickFile||!quickAgreed||busy||!subject||count>=5)return;
+  if(!quickFile||!quickAgreed||busy||!subject||items.length>=5)return;
   setBusy(true);setError('');setNotice('');
   let id='';
   try{
-   if(!/\.(pdf|png|jpe?g|webp)$/i.test(quickFile.name))throw new Error('Choose a PDF, PNG, JPG or WebP worksheet.');
-   if(quickFile.size>3*1024*1024)throw new Error('Maximum 3 MB per worksheet file.');
-   const newRecord=await api(root,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category_id:subject,grade_id:grade||null})});
+   if(!/\.(pdf|png|jpe?g|webp)$/i.test(quickFile.name))throw new Error('Choose PDF or image.');
+   if(quickFile.size>3*1024*1024||quickFile.size<64)throw new Error('Choose a file between 64 bytes and 3 MB.');
+   const name=quickTitle.trim();
+   if(name.length<3||name.length>140)throw new Error('Enter a title of at least 3 characters.');
+   const description='Printable worksheet titled "'+name+'", shared by a community contributor for review.';
+   const newRecord=await api(root,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({category_id:subject,grade_id:grade||null})});
    id=newRecord.id;
-   await api(root+'/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:quickTitle,summary:quickSummary,category_id:subject,grade_id:grade||null})});
-   const data=new FormData();data.set('file',quickFile);data.set('rights_confirmed','yes');data.set('license_basis',rightsBasis);
+   await api(root+'/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({title:name,summary:description,category_id:subject,
+      grade_id:grade||null,preview_page:quickFile.name.toLowerCase().endsWith('.pdf')?quickPage:1})});
+   const data=new FormData();data.set('file',quickFile);data.set('rights_confirmed','yes');
+   data.set('license_basis',rightsBasis);
    await api(root+'/'+id+'/files',{method:'POST',body:data});
    await api(root+'/'+id+'/submit',{method:'POST'});
-   setQuickTitle('');setQuickSummary('');setQuickFile(null);setQuickAgreed(false);
-   setNotice('Worksheet uploaded with metadata and submitted for review.');
+   setQuickTitle('');setQuickFile(null);setQuickPage(1);setQuickAgreed(false);
+   setNotice('Uploaded! Your worksheet is waiting for approval.');
    await load();
-  }catch(e){setError((e instanceof Error?e.message:'Upload failed.')+(id?' Your draft has been saved so you can resume it.':''));await load().catch(()=>{});}
-  finally{setBusy(false);}
+  }catch(e){
+   setError((e instanceof Error?e.message:'Upload failed.')+(id?' Your private draft was saved. Select it from My worksheets to finish.':''));
+   await load().catch(()=>{});
+  }finally{setBusy(false);}
  }
  async function start(){
   if(busy||!subject)return;setBusy(true);setError('');setNotice('');
@@ -290,22 +323,57 @@ export default function Contribute(){
      <section className="community-list" id="my-uploads"><h2>My worksheets <small>{items.length} / 5</small></h2>
       {items.length===0?<p>No uploads yet. Use the form to add your first worksheet.</p>:items.map(item=><button type="button" key={item.id} onClick={()=>open(item)} className="community-item"><FileText size={20}/><span><strong>{item.title}</strong><small>{item.status==='review'?'In review':item.status==='published'?'Published':'Draft'}</small></span><ArrowRight size={18}/></button>)}
      </section>
-     <section className="community-start"><h2><UploadCloud size={22}/> Upload a worksheet</h2><p>PDF or image with title, description, subject and grade.</p>
-    <form className="quick-upload-form" onSubmit={quickUpload}>
-     <label htmlFor="quick-title">Worksheet title</label><input id="quick-title" required minLength={3} maxLength={140} value={quickTitle} onChange={e=>setQuickTitle(e.target.value)}/>
-     <label htmlFor="quick-summary">Description</label><textarea id="quick-summary" required minLength={10} maxLength={700} rows={3} value={quickSummary} onChange={e=>setQuickSummary(e.target.value)}/>
-     <label htmlFor="quick-file">PDF or image</label><input id="quick-file" type="file" required accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" onChange={e=>setQuickFile(e.target.files?.[0]||null)}/>
-     <label htmlFor="quick-license">Rights to redistribute</label><select id="quick-license" value={rightsBasis} onChange={e=>setRightsBasis(e.target.value as 'original'|'licensed')}><option value="original">My original work</option><option value="licensed">Licensed for redistribution</option></select>
-     <label className="check-field"><input type="checkbox" checked={quickAgreed} onChange={e=>setQuickAgreed(e.target.checked)}/> I created this worksheet or have redistribution rights, and agree to moderation before publication.</label>
-
-    <label htmlFor="new-subject">Subject</label><select id="new-subject" value={subject} onChange={e=>setSubject(e.target.value)}>
-     {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
-    <label htmlFor="new-grade">Grade</label><select id="new-grade" value={grade} onChange={e=>setGrade(e.target.value)}>
-     <option value="">All grades</option>{grades.map(g=><option key={g.id} value={g.id}>{g.display_name}</option>)}</select>
-    <button className="button button-dark" type="submit" disabled={busy||count>=5||!subject||!quickAgreed||!quickFile}><UploadCloud size={16}/>{busy?'Uploading…':'Upload & submit worksheet'}</button>
-    </form>
-    <button className="button button-outline" type="button" disabled={busy||count>=5||!subject} onClick={start}><Plus size={16}/> Start a draft instead</button>
-
+     <section className="community-start simple-upload">
+      <h2><UploadCloud size={26}/> Upload a worksheet</h2>
+      <form className="quick-upload-form simple-upload-form" onSubmit={quickUpload}>
+       <div className={'simple-upload-drop '+(dragActive?'dragging':'')+(quickFile?' has-file':'')}
+         onDragEnter={e=>{e.preventDefault();setDragActive(true);}}
+         onDragOver={e=>e.preventDefault()}
+         onDragLeave={e=>{e.preventDefault();setDragActive(false);}}
+         onDrop={dropQuickFile}>
+        <UploadCloud size={35}/>
+        <strong>{quickFile?quickFile.name:'Drop PDF or image here'}</strong>
+        <span>{quickFile?'Choose another file':'or click to choose · PDF, PNG, JPG, WebP · max 3 MB'}</span>
+        <input type="file" id="quick-file" aria-label="Choose a PDF or image" required={!quickFile}
+         accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp"
+         onChange={e=>chooseQuickFile(e.target.files?.[0]||null)} disabled={busy||count>=5}/>
+       </div>
+       {quickFile&&quickPreview&&<div className="simple-upload-preview">
+        {quickFile.name.toLowerCase().endsWith('.pdf')?
+         <iframe title="Selected PDF preview" key={quickPage+quickPreview} src={quickPreview+'#page='+quickPage+'&toolbar=0'}/>:
+         <img src={quickPreview} alt="Selected worksheet preview"/>}
+       </div>}
+       {quickFile&&quickFile.name.toLowerCase().endsWith('.pdf')&&
+        <details className="simple-upload-optional"><summary>Preview page (optional)</summary>
+         <label htmlFor="quick-preview-page">Show this page publicly</label>
+         <input id="quick-preview-page" type="number" min={1} max={200} value={quickPage}
+          onChange={e=>setQuickPage(Math.max(1,Math.min(200,Number(e.target.value)||1)))}/>
+        </details>}
+       <label htmlFor="quick-title">Title</label>
+       <input id="quick-title" required minLength={3} maxLength={140} placeholder="Worksheet title"
+        value={quickTitle} onChange={e=>setQuickTitle(e.target.value)} disabled={busy||count>=5}/>
+       <label htmlFor="new-subject">Subject</label>
+       <select id="new-subject" value={subject} onChange={e=>setSubject(e.target.value)} disabled={busy||count>=5}>
+        {categories.map(cat=><option value={cat.id} key={cat.id}>{cat.name}</option>)}
+       </select>
+       <details className="simple-upload-optional"><summary>More options</summary>
+        <label htmlFor="new-grade">Grade (optional)</label>
+        <select id="new-grade" value={grade} onChange={e=>setGrade(e.target.value)} disabled={busy||count>=5}>
+         <option value="">All grades</option>{grades.map(g=><option key={g.id} value={g.id}>{g.display_name}</option>)}
+        </select>
+        <label htmlFor="quick-license">Copyright</label>
+        <select id="quick-license" value={rightsBasis} onChange={e=>setRightsBasis(e.target.value as 'original'|'licensed')}>
+         <option value="original">My original work</option><option value="licensed">I have a redistribution license</option>
+        </select>
+       </details>
+       <label className="check-field simple-upload-rights"><input type="checkbox" checked={quickAgreed}
+        onChange={e=>setQuickAgreed(e.target.checked)} disabled={busy||count>=5}/>
+        I created this file or have permission to share it publicly.</label>
+       <button className="button button-dark simple-upload-submit" type="submit"
+        disabled={busy||count>=5||!subject||!quickFile||!quickAgreed||quickTitle.trim().length<3}>
+        <UploadCloud size={19}/>{busy?'Uploading & checking…':'Upload worksheet'}
+       </button>
+      </form>
       {count>=5&&<p className="community-limit">All five free slots are in use.</p>}
      </section>
     </div>}
