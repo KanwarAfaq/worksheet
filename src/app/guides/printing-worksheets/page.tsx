@@ -25,7 +25,7 @@ export default function PrintingGuide(){
    step:steps.map((s,i)=>({'@type':'HowToStep',position:i+1,name:s.h,text:s.t,url:absoluteUrl('/guides/printing-worksheets#step-'+(i+1))}))}}/>
   <div className="section-kicker">PRACTICAL PRINTING GUIDE</div>
   <h1>How to print <em>a worksheet.</em></h1>
-  <p className="page-lead">A clear guide to choosing, previewing and printing classroom worksheets on A4 or US Letter paper.</p>
+  <p className="page-lead">Learn how to print a worksheet: choose and preview classroom worksheets, then print on A4 or US Letter paper. For additional printing help, see <a href="https://helpx.adobe.com/acrobat/using/print-pdfs.html" target="_blank" rel="noopener noreferrer">Adobe's PDF printing guide</a>.</p>
   <ol className="seo-guide-steps">{steps.map((step,i)=><li id={'step-'+(i+1)} key={i}>
     <h2>{step.h}</h2><p>{step.t}</p>
    </li>)}</ol>
