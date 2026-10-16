@@ -992,3 +992,17 @@ html[data-theme='dark'] .simple-upload-optional summary{color:#e8f5e9}
 .admin-one-click .simple-upload-submit{margin-top:4px}
 .admin-advanced-draft{margin:12px 0 0;width:100%;display:flex;justify-content:center;gap:8px}
 @media(max-width:950px){.admin-one-click{padding:17px!important}}
+
+/* Explicit draft deletion for owner and uploader; never allow deleting published items. */
+.community-draft-entry{display:flex;align-items:stretch;gap:7px;width:100%;min-width:0}
+.community-draft-entry .community-item{flex:1;min-width:0;text-align:left}
+.draft-delete-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+ min-height:42px;padding:10px 12px;border:1px solid #e2cbc5;border-radius:10px;
+ background:#fff7f5;color:#923d2b;font-size:14px;font-weight:800;cursor:pointer}
+.draft-delete-button:hover{background:#fce7e2;border-color:#c57a69}
+.draft-delete-button:disabled{opacity:.55;cursor:not-allowed}
+.draft-editor-tools{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.admin-row-actions{flex-wrap:wrap}
+html[data-theme='dark'] .draft-delete-button{background:#502d29;color:#ffddd5;border-color:#805147}
+@media(max-width:640px){.admin-row-actions .draft-delete-button{width:100%}
+ .community-draft-entry{align-items:center}.draft-editor-tools{align-items:flex-start}}

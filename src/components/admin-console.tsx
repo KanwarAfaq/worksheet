@@ -5,14 +5,14 @@ import Link from 'next/link';
 import type { Session } from '@supabase/supabase-js';
 import {
   BookOpen, LayoutDashboard, LogOut, LockKeyhole, ShieldCheck, FileText,
-  Plus, Clock3, AlertCircle, CheckCircle2, ArrowRight, RefreshCcw, Pencil, Search
+  Plus, Clock3, AlertCircle, CheckCircle2, ArrowRight, RefreshCcw, Pencil, Search, Trash2
 } from 'lucide-react';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import AdminQuickUpload from '@/components/admin-quick-upload';
 
 type WorksheetRow = {
   id: string; title: string; slug: string; summary: string | null;
-  status: string; created_at: string; category_id: string; grade_id: string | null;
+  status: string; created_at: string; category_id: string; grade_id: string | null; file_count?:number;
 };
 type Option = { id: string; name?: string; display_name?: string };
 type Alert = { error?: string; info?: string };
@@ -102,6 +102,20 @@ export default function AdminConsole() {
       setRows(json.worksheets || []);
     } catch { setNotice({ error: 'Unable to reach the admin API.' }); }
     finally { setLoadingRows(false); }
+  }
+
+  async function deleteDraft(row:WorksheetRow){
+    if(!session||row.status!=='draft')return;
+    if(!window.confirm('Delete draft and all attached private files? '+row.title))return;
+    setNotice({});
+    try{
+     const res=await fetch('/api/admin/worksheets/'+row.id,
+      {method:'DELETE',headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'});
+     const result=await res.json();
+     if(!res.ok)throw new Error(result.error||'Delete failed');
+     setNotice({info:result.cleanupPending?'Draft deleted; private file cleanup queued.':'Draft deleted.'});
+     await loadRows(session);
+    }catch(e){setNotice({error:e instanceof Error?e.message:'Delete failed.'});}
   }
 
   async function rejectAiDraft(id:string,title:string){
@@ -222,8 +236,18 @@ export default function AdminConsole() {
         <div className="admin-filters"><label className="admin-search"><Search size={16}/><input type="search" aria-label="Search worksheet records" value={rowQuery} onChange={e=>setRowQuery(e.target.value)} placeholder="Search by title…"/></label><select aria-label="Filter worksheet status" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="draft">Draft</option><option value="archived">Archived</option><option value="published">Published</option><option value="review">Needs review</option></select></div>
         {loadingRows?<p className="admin-empty">Loading worksheet records…</p>:rows.length===0?<div className="admin-empty"><FileText size={34}/><strong>No worksheets yet</strong><p>Click “New worksheet” to start.</p></div>:
           <div className="admin-rows">{visibleRows.length === 0 ? <p className="admin-empty">No worksheets match your filters.</p> : visibleRows.map(row=><div key={row.id} className="admin-row">
-            <div><strong>{row.title}</strong><small>{row.slug} · {new Date(row.created_at).toLocaleDateString()}</small></div>
-            <div className="admin-row-actions"><span className={'admin-status '+row.status}>{row.status}</span><a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Review / Open</a>{row.status==='draft'&&row.slug.startsWith('daily-ai-')&&<button type="button" className="admin-edit-link" onClick={()=>rejectAiDraft(row.id,row.title)}>Reject &amp; delete</button>}</div>
+            <div><strong>{row.title}</strong><small>{new Date(row.created_at).toLocaleDateString()} ·
+             {row.file_count||0} file(s){row.status==='draft'&&(row.file_count||0)===0?' · Upload incomplete':''}</small></div>
+            <div className="admin-row-actions">
+             <span className={'admin-status '+row.status}>{row.status}</span>
+             <a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Review / Open</a>
+             {row.status==='draft'&&
+               (row.slug.startsWith('daily-ai-')?
+                <button type="button" className="draft-delete-button" onClick={()=>rejectAiDraft(row.id,row.title)}>
+                 <Trash2 size={16}/> Reject &amp; delete</button>:
+                <button type="button" className="draft-delete-button" onClick={()=>deleteDraft(row)}>
+                 <Trash2 size={16}/> Delete draft</button>)}
+            </div>
           </div>)}</div>}
       </section>
       <div>

@@ -2,10 +2,11 @@ import {requireContributor,json} from '@/lib/community-server';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 export async function GET(request:Request){
  const a=await requireContributor(request);if(!a.ok)return json({error:'Please sign in and confirm your email.'},a.status);
- const {data,error}=await a.db.from('worksheets').select('id,title,summary,slug,status,created_at,category_id,grade_id')
+ const {data,error}=await a.db.from('worksheets').select('id,title,summary,slug,status,created_at,category_id,grade_id,preview_page,worksheet_files(id)')
   .eq('created_by',a.user.id).order('created_at',{ascending:false}).limit(50);
  if(error)return json({error:'Unable to load your worksheets.'},500);
- return json({items:data||[],used:(data||[]).length,limit:5});
+ return json({items:(data||[]).map(({worksheet_files,...row})=>({...row,file_count:worksheet_files?.length||0})),
+  used:(data||[]).length,limit:5});
 }
 export async function POST(request:Request){
  const a=await requireContributor(request);if(!a.ok)return json({error:'Confirm your email and sign in first.'},a.status);

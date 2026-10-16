@@ -2,10 +2,10 @@
 import {useCallback,useEffect,useState,type FormEvent,type DragEvent} from 'react';
 import Link from 'next/link';
 import type {Session} from '@supabase/supabase-js';
-import {UploadCloud,LockKeyhole,BookOpen,FileText,Plus,CheckCircle2,AlertCircle,LogOut,ArrowLeft,ArrowRight,Download,FilePenLine,ShieldCheck} from 'lucide-react';
+import {UploadCloud,LockKeyhole,BookOpen,FileText,Plus,CheckCircle2,AlertCircle,LogOut,ArrowLeft,ArrowRight,Download,FilePenLine,ShieldCheck,Trash2} from 'lucide-react';
 import {supabaseBrowser} from '@/lib/supabase-browser';
 
-type Item={id:string;slug:string;title:string;summary:string|null;status:string;category_id:string;grade_id:string|null;preview_page?:number;created_at:string};
+type Item={id:string;slug:string;title:string;summary:string|null;status:string;category_id:string;grade_id:string|null;preview_page?:number;file_count?:number;created_at:string};
 type Category={id:string;name:string};type Grade={id:string;display_name:string};
 type Attached={id:string;original_name:string;variant:string;role:string;size_bytes:number};
 const root='/api/community/worksheets';
@@ -186,6 +186,7 @@ export default function Contribute(){
   if(!quickFile||!quickAgreed||busy||!subject||items.length>=5)return;
   setBusy(true);setError('');setNotice('');
   let id='';
+  let fileVerified=false;
   try{
    if(!/\.(pdf|png|jpe?g|webp)$/i.test(quickFile.name))throw new Error('Choose PDF or image.');
    if(quickFile.size>3*1024*1024||quickFile.size<64)throw new Error('Choose a file between 64 bytes and 3 MB.');
@@ -201,14 +202,35 @@ export default function Contribute(){
    const data=new FormData();data.set('file',quickFile);data.set('rights_confirmed','yes');
    data.set('license_basis',rightsBasis);
    await api(root+'/'+id+'/files',{method:'POST',body:data});
+   fileVerified=true;
    await api(root+'/'+id+'/submit',{method:'POST'});
    setQuickTitle('');setQuickFile(null);setQuickPage(1);setQuickAgreed(false);
    setNotice('Uploaded! Your worksheet is waiting for approval.');
    await load();
   }catch(e){
-   setError((e instanceof Error?e.message:'Upload failed.')+(id?' Your private draft was saved. Select it from My worksheets to finish.':''));
+   let retained=fileVerified;
+   if(id&&!fileVerified){
+    try{await api(root+'/'+id,{method:'DELETE'});retained=false;}
+    catch{retained=true;}
+   }
+   setError((e instanceof Error?e.message:'Upload failed.')+
+    (retained?' File saved as a draft; open it to finish.':' Please try uploading again.'));
    await load().catch(()=>{});
   }finally{setBusy(false);}
+ }
+ async function deleteDraft(item:Item){
+  if(item.status!=='draft'||busy)return;
+  if(!window.confirm('Delete this draft and its attached files permanently?'))return;
+  setBusy(true);setError('');setNotice('');
+  try{
+   const result=await api(root+'/'+item.id,{method:'DELETE'});
+   if(active?.id===item.id){setActive(null);setAttachments([]);}
+   await load();
+   setNotice(result.cleanupPending
+    ?'Draft deleted. Private file cleanup has been queued.'
+    :'Draft and its private files deleted.');
+  }catch(e){setError(e instanceof Error?e.message:'Unable to delete draft.');}
+  finally{setBusy(false);}
  }
  async function start(){
   if(busy||!subject)return;setBusy(true);setError('');setNotice('');
@@ -321,7 +343,18 @@ export default function Contribute(){
    <div className="member-workspace">
     {dashboardTab==='uploads'&&<div className="member-two-col">
      <section className="community-list" id="my-uploads"><h2>My worksheets <small>{items.length} / 5</small></h2>
-      {items.length===0?<p>No uploads yet. Use the form to add your first worksheet.</p>:items.map(item=><button type="button" key={item.id} onClick={()=>open(item)} className="community-item"><FileText size={20}/><span><strong>{item.title}</strong><small>{item.status==='review'?'In review':item.status==='published'?'Published':'Draft'}</small></span><ArrowRight size={18}/></button>)}
+      {items.length===0?<p>No uploads yet. Use the form to add your first worksheet.</p>:items.map(item=>
+       <div className="community-draft-entry" key={item.id}>
+        <button type="button" onClick={()=>open(item)} className="community-item">
+         <FileText size={20}/><span><strong>{item.title}</strong>
+          <small>{item.status==='review'?'In review':item.status==='published'?'Published':
+           (item.file_count||0)===0?'Draft · No file':'Draft · '+item.file_count+' file(s)'}</small>
+         </span><ArrowRight size={18}/>
+        </button>
+        {item.status==='draft'&&<button className="draft-delete-button" type="button"
+         onClick={()=>deleteDraft(item)} disabled={busy} aria-label={'Delete draft '+item.title}
+         title="Delete private draft"><Trash2 size={19}/></button>}
+       </div>)}
      </section>
      <section className="community-start simple-upload">
       <h2><UploadCloud size={26}/> Upload a worksheet</h2>
@@ -391,7 +424,11 @@ export default function Contribute(){
     </section>}
    </div>
   </div>:<div className="community-editor">
-   <button type="button" className="community-back" onClick={()=>setActive(null)}><ArrowLeft size={16}/> Back to my worksheets</button>
+   <div className="draft-editor-tools">
+    <button type="button" className="community-back" onClick={()=>setActive(null)}><ArrowLeft size={16}/> Back to my worksheets</button>
+    {active.status==='draft'&&<button type="button" className="draft-delete-button" disabled={busy}
+      onClick={()=>deleteDraft(active)}><Trash2 size={17}/> Delete draft</button>}
+   </div>
    <h2>{active.title==='Untitled worksheet'?'New worksheet':active.title}</h2>
    <p>Status: <strong>{active.status==='review'?'Awaiting checks':active.status==='published'?'Public':'Private draft'}</strong></p>
    <p className="community-upload-note">Accepted: PDF, PNG, JPG, WebP. Each file is privately verified and reviewed before publication.</p>

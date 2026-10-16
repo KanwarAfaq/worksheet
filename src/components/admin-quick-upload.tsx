@@ -42,6 +42,7 @@ export default function AdminQuickUpload({session,categories,grades}:{session:Se
   if(busy||!file||!subject||!rights||title.trim().length<3)return;
   setBusy(true);setError('');
   let id='';
+  let fileVerified=false;
   try{
    const headers={Authorization:'Bearer '+session.access_token};
    const description='Printable worksheet titled "'+title.trim()+'", submitted for editorial review.';
@@ -58,9 +59,19 @@ export default function AdminQuickUpload({session,categories,grades}:{session:Se
     headers,body:form});
    const response=await stored.json();
    if(!stored.ok)throw new Error(response.error||'File verification failed');
+   fileVerified=true;
    router.push('/admin/worksheets/'+id+'?review=1');
   }catch(err){
-   setError((err instanceof Error?err.message:'Upload failed')+(id?' Draft saved; open it from the list to retry.':''));
+   let retained=fileVerified;
+   if(id&&!fileVerified){
+    try{
+     const res=await fetch('/api/admin/worksheets/'+id,{method:'DELETE',cache:'no-store',
+      headers:{Authorization:'Bearer '+session.access_token}});
+     if(!res.ok)retained=true;
+    }catch{retained=true;}
+   }
+   setError((err instanceof Error?err.message:'Upload failed')+
+    (retained?' Draft saved; open it to finish.':' Please try again.'));
   }finally{setBusy(false);}
  }
  return <section className="admin-new-draft dashboard-create-card admin-one-click">

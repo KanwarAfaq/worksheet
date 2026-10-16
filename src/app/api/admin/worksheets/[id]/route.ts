@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireOwner } from '@/lib/admin-server';
 import { parseEditableWorksheet } from '@/lib/worksheet-editor-fields';
+import {deletePrivateDraft} from '@/lib/delete-private-draft';
 
 export const dynamic = 'force-dynamic';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -42,4 +43,18 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   if (error) return reply({ error: 'Could not update worksheet. Check grade, permissions and values.' }, 400);
   if (!data) return reply({ error: 'Only unpublished draft/archived worksheets can be edited.' }, 409);
   return reply({ worksheet: data }, 200);
+}
+
+export async function DELETE(request:Request,context:{params:Promise<{id:string}>}){
+ const owner=await requireOwner(request);
+ if(!owner.ok)return reply({error:'Owner access required.'},owner.status);
+ const {id}=await context.params;
+ if(!uuid.test(id))return reply({error:'Invalid draft ID.'},400);
+ try{
+  const result=await deletePrivateDraft(owner.db,id);
+  return reply(result,200);
+ }catch(e){
+  console.error('Owner draft removal failed:',e instanceof Error?e.message:'unknown');
+  return reply({error:'Unable to delete. Only private drafts can be deleted.'},409);
+ }
 }
