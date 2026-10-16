@@ -1,19 +1,24 @@
-import {runOriginalAgent,reviewCommunityQueue} from '@/lib/original-worksheet-agent';
+import {runDailyAiDrafts} from '@/lib/daily-ai-draft-agent';
+import {reviewCommunityQueue} from '@/lib/original-worksheet-agent';
+import {dailyAdminReport,pushDailyAdminReport} from '@/lib/daily-admin-report';
 export const runtime='nodejs';export const dynamic='force-dynamic';export const maxDuration=60;
 export async function GET(request:Request){
  const expected=process.env.CRON_SECRET;
- const actual=request.headers.get('authorization')||'';
- if(!expected||actual!=='Bearer '+expected)
+ if(!expected||request.headers.get('authorization')!=='Bearer '+expected)
   return Response.json({error:'Unauthorized'},{status:401});
- const day=new Date().toISOString().slice(0,10);
+ // Vercel cron uses UTC; 01:00 UTC = 09:00 Asia/Taipei year round.
+ const day=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
+ if(process.env.AUTO_GENERATION_ENABLED!=='true')
+  return Response.json({enabled:false,message:'AI draft generation is disabled. Enable only after database, LINE and R2 verification.'});
  try{
-  // The review queue can be checked even while original auto-generation is disabled.
-  const reviews=process.env.SUPABASE_SERVICE_ROLE_KEY?await reviewCommunityQueue():{checked:0,requiresHumanReview:0};
-  if(process.env.AUTO_GENERATION_ENABLED!=='true')
-   return Response.json({enabled:false,message:'Original worksheet generation is disabled until launch verification.',reviews});
-  const generated=await runOriginalAgent(day);
-  return Response.json({enabled:true,generated,reviews});
- }catch{
-  return Response.json({error:'Automated validation failed; no unchecked community files were published.'},{status:500});
+  const reviews=await reviewCommunityQueue();
+  const generated=await runDailyAiDrafts(day);
+  const summary=await dailyAdminReport(day,generated);
+  const lineSent=await pushDailyAdminReport(day,summary);
+  // All generated records remain drafts: the agent never calls the publication RPC.
+  return Response.json({enabled:true,day,generated,reviews,lineSent,summary});
+ }catch(e){
+  console.error('Daily agent failure',e instanceof Error?e.message:'unknown');
+  return Response.json({error:'Daily generation or reporting failed'},{status:500});
  }
 }
