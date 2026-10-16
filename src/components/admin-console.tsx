@@ -45,7 +45,7 @@ export default function AdminConsole() {
   const [grades, setGrades] = useState<Option[]>([]);
   const [loadingRows, setLoadingRows] = useState(false);
   const [metrics,setMetrics] = useState<Record<string,number|null>|null>(null);
-  const [diagnostics,setDiagnostics] = useState<Record<string,{ok?:boolean;httpStatus?:number;reason?:string}>|null>(null);
+  const [diagnostics,setDiagnostics] = useState<Record<string,{ok?:boolean;httpStatus?:number;reason?:string;model?:string}>|null>(null);
   const [testing,setTesting] = useState(false);
   const [creating, setCreating] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
@@ -115,11 +115,11 @@ export default function AdminConsole() {
     }catch(e){setNotice({error:e instanceof Error?e.message:'Rejection failed'});}
   }
 
-  async function testProduction(){
+  async function testProduction(scope:'all'|'ai'='all'){
     if(!session||testing)return;
     setTesting(true);setNotice({});
     try{
-      const response=await fetch('/api/admin/diagnostics',{method:'POST',headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'});
+      const response=await fetch('/api/admin/diagnostics'+(scope==='ai'?'?scope=ai':''),{method:'POST',headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'});
       const data=await response.json();
       if(!response.ok)throw new Error(data.error||'Diagnostics failed');
       setDiagnostics(data.checks);
@@ -202,7 +202,8 @@ export default function AdminConsole() {
       <div><ShieldCheck size={22}/><small>Needs review</small><strong>{reviewCount}</strong></div>
     </div>
     {metrics&&<div className="admin-stats" aria-label="Live system metrics"><div><BookOpen size={22}/><small>Registered users</small><strong>{metrics.users??"—"}</strong></div><div><FileText size={22}/><small>Verified PDF files</small><strong>{metrics.pdfFiles??"—"}</strong></div><div><LayoutDashboard size={22}/><small>Verified image files</small><strong>{metrics.imageFiles??"—"}</strong></div><div><Clock3 size={22}/><small>All private drafts</small><strong>{metrics.drafts??"—"}</strong></div></div>}
-    <section className="admin-safety"><ShieldCheck size={22}/><div><strong>Production integration diagnostics</strong><p>Test CGU, Groq, NVIDIA, private R2 upload/read/delete, and send a test LINE message. Only the signed-in owner can start these checks.</p><button type="button" className="button button-outline" onClick={testProduction} disabled={testing}>{testing?'Testing integrations…':'Run production tests'}</button>{diagnostics&&<div role="status">{Object.entries(diagnostics).map(([name,value])=><p key={name}><strong>{name}:</strong> {value.ok?'PASS':'FAIL'}{value.httpStatus?' (HTTP '+value.httpStatus+')':''}{value.reason?' — '+value.reason:''}</p>)}</div>}</div></section>
+    <section className="admin-safety"><ShieldCheck size={22}/><div><strong>Production integration diagnostics</strong><p>Test CGU, Groq, NVIDIA, private R2 upload/read/delete, and send a test LINE message. Only the signed-in owner can start these checks.</p><button type="button" className="button button-outline" onClick={()=>testProduction('all')} disabled={testing}>{testing?'Testing integrations…':'Run production tests'}</button>
+ <button type="button" className="button button-outline" onClick={()=>testProduction('ai')} disabled={testing}>Retest AI only</button>{diagnostics&&<div role="status">{Object.entries(diagnostics).map(([name,value])=><p key={name}><strong>{name}:</strong> {value.ok?'PASS':'FAIL'}{value.httpStatus?' (HTTP '+value.httpStatus+')':''}{value.model?' — '+value.model:''}{value.reason?' — '+value.reason:''}</p>)}</div>}</div></section>
     <div className="admin-quick-actions" aria-label="Admin quick filters">
      <button type="button" onClick={()=>setStatusFilter('review')}>Review queue <strong>{reviewCount}</strong></button>
      <button type="button" onClick={()=>setStatusFilter('draft')}>Drafts <strong>{drafts}</strong></button>

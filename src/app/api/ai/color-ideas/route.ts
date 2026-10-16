@@ -1,15 +1,6 @@
 import {requireContributor,json} from '@/lib/community-server';
 export const runtime='nodejs';export const dynamic='force-dynamic';export const maxDuration=30;
-type Model={url:string;key:string;model:string};
-function availableModels():Model[]{
- const cgu=process.env.CGU_API_KEY||'';
- return [
-  {url:'https://air.cgu.edu.tw/cgullmapi/v1/chat/completions',key:cgu,model:process.env.CGU_LOCAL_MODEL||'gpt-oss:20b'},
-  {url:'https://air.cgu.edu.tw/cgullmapi/v1/chat/completions',key:cgu,model:process.env.CGU_COMPAT_MODEL||'gpt-oss-120b'},
-  {url:'https://api.groq.com/openai/v1/chat/completions',key:process.env.GROQ_API_KEY||'',model:process.env.GROQ_MODEL||'llama-3.3-70b-versatile'},
-  {url:'https://integrate.api.nvidia.com/v1/chat/completions',key:process.env.NVIDIA_NIM_API_KEY||'',model:process.env.NVIDIA_NIM_MODEL||'meta/llama-3.3-70b-instruct'}
- ].filter(p=>p.key);
-}
+import {textProviders,providerReply} from '@/lib/ai-provider-config';
 function safeObjects(input:unknown):string[]{
  if(!Array.isArray(input))return[];
  return [...new Set(input.filter(x=>typeof x==='string')
@@ -19,7 +10,7 @@ function safeObjects(input:unknown):string[]{
 export async function POST(request:Request){
  const a=await requireContributor(request);
  if(!a.ok)return json({error:'Sign in to get AI object suggestions.'},a.status);
- const models=availableModels();
+ const models=textProviders().filter(x=>x.key);
  if(!models.length)return json({error:'AI text models are not configured. You can still enter object names yourself.'},503);
  let prompt='';
  try{const data=await request.json();prompt=typeof data.prompt==='string'?data.prompt.trim():'';}catch{}
@@ -30,11 +21,11 @@ export async function POST(request:Request){
  for(const model of models){
   try{
    const res=await fetch(model.url,{method:'POST',headers:{Authorization:'Bearer '+model.key,'Content-Type':'application/json'},
-    body:JSON.stringify({model:model.model,messages:[{role:'system',content:instruction},{role:'user',content:prompt}],temperature:0.2,max_tokens:200,stream:false}),
+    body:JSON.stringify({model:model.model,messages:[{role:'system',content:instruction},{role:'user',content:prompt}],max_completion_tokens:700,stream:false}),
     signal:AbortSignal.timeout(10000),cache:'no-store',redirect:'error'});
    if(!res.ok)continue;
-   const response=await res.json() as {choices?:{message?:{content?:string}}[]};
-   const raw=response.choices?.[0]?.message?.content||'';
+   const response=await res.json();
+   const raw=providerReply(response);
    const first=raw.indexOf('{'),last=raw.lastIndexOf('}');
    if(first<0||last<=first)continue;
    const data=JSON.parse(raw.slice(first,last+1)) as {objects?:unknown};
