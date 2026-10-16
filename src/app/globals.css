@@ -984,3 +984,11 @@ html[data-theme='dark'] .simple-upload-optional{border-color:#496952}
 html[data-theme='dark'] .simple-upload-optional summary{color:#e8f5e9}
 @media(max-width:560px){.simple-upload{max-width:100%}.simple-upload-drop{min-height:155px}
  .simple-upload-preview iframe{height:250px}.simple-upload-form>input,.simple-upload-form>select{font-size:17px}}
+
+/* Direct owner upload: same minimal form as community. */
+.admin-one-click{width:100%;padding:24px!important}
+.admin-one-click h2{display:flex;align-items:center;gap:10px;font-size:clamp(24px,2.4vw,30px)!important;margin:0 0 18px!important}
+.admin-one-click .simple-upload-form>label:not(.check-field){font-size:17px}
+.admin-one-click .simple-upload-submit{margin-top:4px}
+.admin-advanced-draft{margin:12px 0 0;width:100%;display:flex;justify-content:center;gap:8px}
+@media(max-width:950px){.admin-one-click{padding:17px!important}}

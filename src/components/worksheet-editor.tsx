@@ -48,7 +48,7 @@ export default function WorksheetEditor({id}:{id:string}){
        setTags((result.worksheet.tags||[]).join(', '));
        setCategories(cats.data||[]);
        setGrades(levels.data||[]);
-       if(['published','review'].includes(result.worksheet.status))setStep(2);
+       if(['published','review'].includes(result.worksheet.status)||new URLSearchParams(window.location.search).get('review')==='1')setStep(2);
      }catch(e){if(alive)setError(e instanceof Error?e.message:'Worksheet unavailable.');}
      finally{if(alive)setLoading(false);}
    });

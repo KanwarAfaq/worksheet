@@ -8,6 +8,7 @@ import {
   Plus, Clock3, AlertCircle, CheckCircle2, ArrowRight, RefreshCcw, Pencil, Search
 } from 'lucide-react';
 import { supabaseBrowser } from '@/lib/supabase-browser';
+import AdminQuickUpload from '@/components/admin-quick-upload';
 
 type WorksheetRow = {
   id: string; title: string; slug: string; summary: string | null;
@@ -225,16 +226,13 @@ export default function AdminConsole() {
             <div className="admin-row-actions"><span className={'admin-status '+row.status}>{row.status}</span><a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Review / Open</a>{row.status==='draft'&&row.slug.startsWith('daily-ai-')&&<button type="button" className="admin-edit-link" onClick={()=>rejectAiDraft(row.id,row.title)}>Reject &amp; delete</button>}</div>
           </div>)}</div>}
       </section>
-      <section className="admin-new-draft dashboard-create-card">
-        <div className="dashboard-create-icon"><Plus size={31}/></div>
-        <h2>Create a worksheet</h2>
-        <p>Start with a private draft and finish it on one guided page.</p>
-        <div className="dashboard-flow-mini"><span>1. Upload</span><span>2. Metadata</span><span>3. Preview & publish</span></div>
-        <button type="button" className="button button-dark admin-submit" onClick={createDraft} disabled={creating||!categories.length}>
-          <Plus size={17}/>{creating?'Creating…':'New worksheet'}
-        </button>
-        <small>Your draft is saved even if you leave before publishing.</small>
-      </section>
+      <div>
+       <AdminQuickUpload session={session} categories={categories} grades={grades}/>
+       <button type="button" className="button button-outline admin-advanced-draft"
+        onClick={createDraft} disabled={creating||!categories.length}>
+        <Plus size={16}/> {creating?'Creating…':'Start an empty draft'}
+       </button>
+      </div>
     </div>
   </div></div>;
 }
