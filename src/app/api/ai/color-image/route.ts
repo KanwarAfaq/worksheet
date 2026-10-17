@@ -46,7 +46,7 @@ export async function POST(request:Request){
   return json({error:'Choose 1 to 4 unique, simple object names.'},400);
  }
  const {error:quota}=await a.db.rpc('reserve_worksheet_ai_generation');
- if(quota)return json({error:'Five AI generations per day are allowed for each verified account.'},429);
+ if(quota)return json({error:'Three AI generations per day are allowed for each verified account.'},429);
  try{
   const prompt='Make a clean, print-ready CHILDREN\'S COLORING PAGE, resembling professionally drawn VECTOR OUTLINE ART, not a sketch or photograph. '+
    'EXACTLY '+names.length+' isolated object'+(names.length===1?'':'s')+' in separate spacious panels: '+

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {BookOpen,Menu,X,ChevronDown,Sun,Moon,Upload,Plus,UserRound} from 'lucide-react';
 import {grades} from '@/lib/catalog';
 import {mainMenus} from '@/lib/navigation';
@@ -9,12 +9,25 @@ export default function Header(){
  const pathname=usePathname();
  const [sidebar,setSidebar]=useState(false);
  const [dark,setDark]=useState(false);
+ const [openMenu,setOpenMenu]=useState<string|null>(null);
+ const navRef=useRef<HTMLElement|null>(null);
  useEffect(()=>{
   setDark(window.localStorage.getItem('worksheet-theme')==='dark');
   document.documentElement.dataset.theme=window.localStorage.getItem('worksheet-theme')==='dark'?'dark':'light';
  },[]);
  useEffect(()=>{setSidebar(window.matchMedia('(min-width: 1250px)').matches);},[]);
- useEffect(()=>{if(window.innerWidth<1250)setSidebar(false);},[pathname]);
+ useEffect(()=>{if(window.innerWidth<1250)setSidebar(false);setOpenMenu(null);},[pathname]);
+ useEffect(()=>{
+  const close=(event:PointerEvent)=>{
+   if(navRef.current&&!navRef.current.contains(event.target as Node))setOpenMenu(null);
+  };
+  const keyboard=(event:KeyboardEvent)=>{
+   if(event.key==='Escape')setOpenMenu(null);
+  };
+  document.addEventListener('pointerdown',close);
+  document.addEventListener('keydown',keyboard);
+  return()=>{document.removeEventListener('pointerdown',close);document.removeEventListener('keydown',keyboard);};
+ },[]);
  useEffect(()=>{
   const close=(e:KeyboardEvent)=>{if(e.key==='Escape'&&window.innerWidth<1250)setSidebar(false);};
   const resize=()=>{if(window.innerWidth<1250)setSidebar(false);};
@@ -34,24 +47,30 @@ export default function Header(){
     <Link href="/" className="brand" aria-label="Worksheet Studio home">
      <span className="brand-icon"><BookOpen size={20}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
     </Link>
-    <nav className="main-subject-nav simplified-main-menu" aria-label="Main subjects">
-     {mainMenus.map(menu=><details className="top-subject-dropdown" key={pathname+menu.key}>
-      <summary aria-label={menu.name+' menu'}>{menu.name}<ChevronDown size={18}/></summary>
-      <div className="top-subject-panel">
-       <Link className="top-subject-all" href={menu.href}>All {menu.name} worksheets</Link>
-       <div className="top-subject-links">
-        {menu.items.map(item=><Link key={item.name} href={item.href}>{item.name}</Link>)}
-       </div>
+    <nav className="main-subject-nav simplified-main-menu" aria-label="Main subjects" ref={navRef}
+      onMouseLeave={()=>setOpenMenu(null)}>
+     {mainMenus.map(menu=><div className={'top-subject-dropdown '+(openMenu===menu.key?'is-active':'')}
+       key={menu.key} onMouseEnter={()=>{if(window.matchMedia('(hover:hover)').matches)setOpenMenu(menu.key);}}>
+      <button type="button" className="top-menu-trigger" aria-expanded={openMenu===menu.key}
+       aria-controls={'menu-'+menu.key} onClick={()=>setOpenMenu(current=>current===menu.key?null:menu.key)}>
+       {menu.name}<ChevronDown size={17}/></button>
+      {openMenu===menu.key&&<div className="top-subject-panel" id={'menu-'+menu.key}
+        onClick={()=>setOpenMenu(null)}>
+       <Link className="top-subject-all" href={menu.href}>All {menu.name}</Link>
+       <div className="top-subject-links">{menu.items.map(item=>
+        <Link key={item.name} href={item.href}>{item.name}</Link>)}</div>
        <div className="top-subject-grade-title">GRADES 1–6</div>
-       <div className="top-subject-grade-links">
-        {grades.map(grade=><Link href={'/worksheets?subject='+menu.gradeSubject+'&grade='+grade.slug}
-          key={grade.slug}>{grade.title.replace('Grade ','')}</Link>)}
-       </div>
-      </div>
-     </details>)}
+       <div className="top-subject-grade-links">{grades.map(grade=>
+        <Link href={'/worksheets?subject='+menu.gradeSubject+'&grade='+grade.slug}
+        key={grade.slug}>{grade.title.replace('Grade ','')}</Link>)}</div>
+      </div>}
+     </div>)}
     </nav>
     <div className="single-nav-actions">
-      <Link className="single-nav-link account-link" href="/contribute"><UserRound size={19}/> Account</Link>
+      <button className="icon-control header-theme" type="button" onClick={changeTheme}
+        aria-label={dark?'Switch to light mode':'Switch to dark mode'} title={dark?'Light mode':'Dark mode'}>
+        {dark?<Sun size={21}/>:<Moon size={21}/>}</button>
+      <Link className="icon-control header-profile" href="/contribute" aria-label="Profile and account" title="Profile"><UserRound size={21}/></Link>
       <Link className="single-nav-link" href="/create"><Plus size={18}/> Create</Link>
       <Link className="single-nav-upload" href="/contribute"><Upload size={18}/> Upload</Link>
     </div>
@@ -72,13 +91,7 @@ export default function Header(){
     <div>{grades.map(grade=><Link key={grade.slug} href={'/worksheets?grade='+grade.slug}
       onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{grade.title}</Link>)}</div>
    </details>
-   <div className="sidebar-theme">
-    <span>Theme</span>
-    <button className="theme-toggle" type="button" onClick={changeTheme}
-      aria-label={dark?'Switch to light mode':'Switch to dark mode'} aria-pressed={dark}>
-     {dark?<Moon size={19}/>:<Sun size={19}/>} {dark?'Dark':'Light'}
-    </button>
-   </div>
+ 
   </aside>
  </>;
 }

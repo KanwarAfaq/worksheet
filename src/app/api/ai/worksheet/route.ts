@@ -20,7 +20,7 @@ export async function POST(request:Request){
   error:'AI provider keys are missing from Vercel. Configure CGU_API_KEY, GROQ_API_KEY or NVIDIA_NIM_API_KEY, then redeploy.'
  },503);
  const {error}=await a.db.rpc('reserve_worksheet_ai_generation');
- if(error)return json({error:'Daily AI worksheet limit reached (5 per day), or quota could not be checked.'},429);
+ if(error)return json({error:'Daily AI generation limit reached (3 per day), or quota could not be checked.'},429);
  try{
   const result=await generateAIWorksheet(topic,subject,grade,level);
   await notifyWorksheetAdmin('ai_worksheet_generated',{worksheetId:'AI draft',actorId:a.user.id});
