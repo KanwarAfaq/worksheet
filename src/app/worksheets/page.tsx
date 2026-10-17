@@ -69,11 +69,21 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
     </div></div>
   </div>
   {livePage.total>0&&matchingLive.length===0?<div className="category-pending">No worksheets on this page. <Link href={href({})}>Go to results</Link></div>:
-  matchingLive.length>0?<><div className="worksheet-grid">{matchingLive.map(item=><PublishedWorksheetCard item={item} key={item.id}/>)}</div>
-  <WorksheetPagination base="/worksheets" page={livePage.page} pages={livePage.pages} total={livePage.total}
-  filters={{subject,grade,format,q:query}}/></>:
+  matchingLive.length>0?<>
+  <WorksheetPagination base="/worksheets" position="top" page={livePage.page} pages={livePage.pages} total={livePage.total}
+   filters={{subject,grade,format,q:query}}/>
+  <div className="worksheet-grid">{matchingLive.map(item=><PublishedWorksheetCard item={item} key={item.id}/>)}</div>
+  <WorksheetPagination base="/worksheets" position="bottom" page={livePage.page} pages={livePage.pages} total={livePage.total}
+   filters={{subject,grade,format,q:query}}/></>:
  chosenFormat?<div className="category-pending"><FileText size={36}/><h3>No published {chosenFormat.title} worksheets yet</h3><p>There are no verified {chosenFormat.title} files for these filters. They appear automatically after uploading and publishing.</p><Link href="/create">Create a printable PDF now <ArrowRight size={16}/></Link></div>:
- visibleSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div><div className="worksheet-grid">{visibleSamples.slice((currentPage-1)*WORKSHEETS_PER_PAGE,currentPage*WORKSHEETS_PER_PAGE).map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></>:
+ visibleSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div>
+  <WorksheetPagination base="/worksheets" page={currentPage}
+   pages={Math.ceil(visibleSamples.length/WORKSHEETS_PER_PAGE)} total={visibleSamples.length}
+   position="top" filters={{subject,grade,format,q:query}}/>
+  <div className="worksheet-grid">{visibleSamples.slice((currentPage-1)*WORKSHEETS_PER_PAGE,currentPage*WORKSHEETS_PER_PAGE).map(w=><WorksheetCard item={w} key={w.slug}/>)}</div>
+  <WorksheetPagination base="/worksheets" page={currentPage}
+   pages={Math.ceil(visibleSamples.length/WORKSHEETS_PER_PAGE)} total={visibleSamples.length}
+   position="bottom" filters={{subject,grade,format,q:query}}/></>:
  <div className="category-pending"><h3>No worksheets for these filters yet</h3><p>New worksheets will appear here after publication.</p><Link href="/create">Make your own printable <ArrowRight size={16}/></Link></div>}
 
   

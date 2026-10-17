@@ -46,9 +46,14 @@ export default async function Category({params,searchParams}:{params:Promise<{ca
   {grades.map(g=><Link href={'/worksheets?subject='+sub.slug+'&grade='+g.slug} key={g.slug}>{g.title}<ArrowRight size={14}/></Link>)}
  </div>
  <div className="section-heading"><div><div className="section-kicker">{published.length?'PUBLISHED WORKSHEETS':'EXAMPLE WORKSHEETS'}</div><h2>{published.length?'Explore published':'Get inspired by'} <em>worksheets.</em></h2></div></div>
- {published.length>0?<> <div className="worksheet-grid">{published.map(w=><PublishedWorksheetCard item={w} key={w.id}/>)}</div>
- <WorksheetPagination base={'/'+category} page={result.page} pages={result.pages} total={result.total}/></>:
- examples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div><div className="worksheet-grid">{examples.slice((page-1)*12,page*12).map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></>:
+ {published.length>0?<>
+ <WorksheetPagination base={'/'+category} position="top" page={result.page} pages={result.pages} total={result.total}/>
+ <div className="worksheet-grid">{published.map(w=><PublishedWorksheetCard item={w} key={w.id}/>)}</div>
+ <WorksheetPagination base={'/'+category} position="bottom" page={result.page} pages={result.pages} total={result.total}/></>:
+ examples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div>
+ <WorksheetPagination base={'/'+category} position="top" page={page} pages={Math.ceil(examples.length/12)} total={examples.length}/>
+ <div className="worksheet-grid">{examples.slice((page-1)*12,page*12).map(w=><WorksheetCard item={w} key={w.slug}/>)}</div>
+ <WorksheetPagination base={'/'+category} position="bottom" page={page} pages={Math.ceil(examples.length/12)} total={examples.length}/></>:
  <div className="category-pending"><h3>{sub.title} worksheets are on the way</h3><p>We are preparing and reviewing original or licensed worksheets. No downloadable files are published in this category yet.</p><Link href="/create">Make a worksheet instead <ArrowRight size={16}/></Link></div>}
 
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { Session } from '@supabase/supabase-js';
 import {
   BookOpen, LayoutDashboard, LogOut, LockKeyhole, ShieldCheck, FileText,
-  Plus, Clock3, AlertCircle, CheckCircle2, ArrowRight, RefreshCcw, Pencil, Search, Trash2
+  Plus, Clock3, AlertCircle, CheckCircle2, ArrowRight, RefreshCcw, Pencil, Search, Trash2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import AdminQuickUpload from '@/components/admin-quick-upload';
@@ -44,6 +44,7 @@ export default function AdminConsole() {
   const [activeTab,setActiveTab]=useState<'overview'|'worksheets'|'agent'|'system'>('overview');
   const [selected,setSelected]=useState<string[]>([]);
   const [rowQuery, setRowQuery] = useState('');
+  const [listPage,setListPage]=useState(1);
   const [statusFilter, setStatusFilter] = useState('all');
   const [categories, setCategories] = useState<Option[]>([]);
   const [grades, setGrades] = useState<Option[]>([]);
@@ -261,6 +262,24 @@ export default function AdminConsole() {
     (statusFilter==='review'&&row.status==='draft'&&
      (row.slug.startsWith('daily-ai-')||row.slug.startsWith('manual-ai-')))) &&
     (row.title + ' ' + row.slug).toLowerCase().includes(rowQuery.toLowerCase()));
+  const listPages=Math.max(1,Math.ceil(visibleRows.length/12));
+  const activeListPage=Math.min(listPage,listPages);
+  const currentRows=visibleRows.slice((activeListPage-1)*12,activeListPage*12);
+  const pagination=<nav className="admin-list-pagination" aria-label="Admin worksheet pages">
+    <span>{visibleRows.length?((activeListPage-1)*12+1)+'–'+Math.min(activeListPage*12,visibleRows.length):'0'} of {visibleRows.length}</span>
+    <div className="admin-list-pagination-pages">
+      <button type="button" disabled={activeListPage<=1} aria-label="Previous page"
+       onClick={()=>setListPage(activeListPage-1)}><ChevronLeft size={18}/></button>
+      {Array.from({length:listPages},(_,i)=>i+1).filter(p=>listPages<=7||p===1||p===listPages||Math.abs(p-activeListPage)<=1)
+       .map((p,i,arr)=><span key={p}>
+        {i>0&&p>arr[i-1]+1&&<span className="admin-page-ellipsis">…</span>}
+        <button type="button" onClick={()=>setListPage(p)} aria-current={activeListPage===p?'page':undefined}
+         className={activeListPage===p?'current':''}>{p}</button>
+       </span>)}
+      <button type="button" disabled={activeListPage>=listPages} aria-label="Next page"
+       onClick={()=>setListPage(activeListPage+1)}><ChevronRight size={18}/></button>
+    </div>
+  </nav>;
   const published = rows.filter(row=>row.status==='published').length;
   const drafts = rows.filter(row=>row.status==='draft').length;
   const reviewCount=rows.filter(row=>row.status==='review'||(row.status==='draft'&&row.slug.startsWith('daily-ai-'))||
@@ -356,13 +375,14 @@ export default function AdminConsole() {
     <div className="admin-content">
       <section className="admin-list">
         <div className="admin-panel-heading"><div><h2>Worksheet manager</h2></div><button type="button" className="admin-icon-button" onClick={()=>loadRows(session)} disabled={loadingRows} aria-label="Refresh worksheets"><RefreshCcw size={18}/></button></div>
-        <div className="admin-filters"><label className="admin-search"><Search size={16}/><input type="search" aria-label="Search worksheet records" value={rowQuery} onChange={e=>setRowQuery(e.target.value)} placeholder="Search by title…"/></label><select aria-label="Filter worksheet status" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="draft">Draft</option><option value="archived">Archived</option><option value="published">Published</option><option value="review">Needs review</option></select></div>
-        <div className="admin-select-all"><label><input type="checkbox" checked={visibleRows.length>0&&visibleRows.every(x=>selected.includes(x.id))}
-         onChange={e=>setSelected(e.target.checked?[...new Set([...selected,...visibleRows.map(x=>x.id)])]:
-          selected.filter(id=>!visibleRows.some(row=>row.id===id)))}/> Select visible</label>
-         <small>{visibleRows.length} results</small></div>
+        <div className="admin-filters"><label className="admin-search"><Search size={16}/><input type="search" aria-label="Search worksheet records" value={rowQuery} onChange={e=>{setRowQuery(e.target.value);setListPage(1);}} placeholder="Search by title…"/></label><select aria-label="Filter worksheet status" value={statusFilter} onChange={e=>{setStatusFilter(e.target.value);setListPage(1);}}><option value="all">All statuses</option><option value="draft">Draft</option><option value="archived">Archived</option><option value="published">Published</option><option value="review">Needs review</option></select></div>
+        <div className="admin-select-all"><label><input type="checkbox" checked={currentRows.length>0&&currentRows.every(x=>selected.includes(x.id))}
+         onChange={e=>setSelected(e.target.checked?[...new Set([...selected,...currentRows.map(x=>x.id)])]:
+          selected.filter(id=>!currentRows.some(row=>row.id===id)))}/> Select visible</label>
+         <small>{visibleRows.length} results · 12 per page</small></div>
+        {visibleRows.length>12&&pagination}
         {loadingRows?<p className="admin-empty">Loading worksheet records…</p>:rows.length===0?<div className="admin-empty"><FileText size={34}/><strong>No worksheets yet</strong><p>Click “New worksheet” to start.</p></div>:
-          <div className="admin-rows">{visibleRows.length === 0 ? <p className="admin-empty">No worksheets match your filters.</p> : visibleRows.map(row=><div key={row.id} className="admin-row">
+          <div className="admin-rows">{visibleRows.length === 0 ? <p className="admin-empty">No worksheets match your filters.</p> : currentRows.map(row=><div key={row.id} className="admin-row">
             <input type="checkbox" className="admin-row-check" aria-label={'Select '+row.title}
              checked={selected.includes(row.id)}
              onChange={e=>setSelected(previous=>e.target.checked?[...new Set([...previous,row.id])]:previous.filter(id=>id!==row.id))}/>
@@ -375,6 +395,7 @@ export default function AdminConsole() {
               aria-label={'Remove '+row.title}><Trash2 size={16}/> Delete</button>
             </div>
           </div>)}</div>}
+        {visibleRows.length>12&&pagination}
       </section>
       <div>
        <AdminQuickUpload session={session} categories={categories} grades={grades}/>
