@@ -10,7 +10,7 @@ type Context={params:Promise<{id:string}>};
 export async function GET(request:Request,{params}:Context){
  const a=await requireContributor(request);if(!a.ok)return json({error:'Sign in required.'},a.status);
  const {id}=await params;if(!uuid.test(id))return json({error:'Invalid ID'},400);
- const {data:owner}=await a.db.from('worksheets').select('id').eq('id',id).eq('created_by',a.user.id).maybeSingle();
+ const {data:owner}=await a.db.from('worksheets').select('id').eq('id',id).eq('created_by',a.user.id).not('tags','cs','{removed-by-author}').maybeSingle();
  if(!owner)return json({error:'Not found.'},404);
  const {data,error}=await a.db.from('worksheet_files').select('id,role,variant,original_name,size_bytes,upload_status')
  .eq('worksheet_id',id).order('created_at',{ascending:false}).limit(10);
@@ -21,7 +21,7 @@ export async function POST(request:Request,{params}:Context){
  const a=await requireContributor(request);if(!a.ok)return json({error:'Sign in and verify your email.'},a.status);
  if(!r2Configured())return json({error:'Uploads are not configured yet.'},503);
  const {id}=await params;if(!uuid.test(id))return json({error:'Invalid ID.'},400);
- const {data:w}=await a.db.from('worksheets').select('id,status').eq('id',id).eq('created_by',a.user.id).maybeSingle();
+ const {data:w}=await a.db.from('worksheets').select('id,status').eq('id',id).eq('created_by',a.user.id).not('tags','cs','{removed-by-author}').maybeSingle();
  if(!w||w.status!=='draft')return json({error:'Only your own saved drafts accept files.'},403);
  const requested=Number(request.headers.get('content-length'));
  if(Number.isFinite(requested)&&requested>MAX_UPLOAD_BYTES+200_000)return json({error:'Max 3 MB per file.'},413);

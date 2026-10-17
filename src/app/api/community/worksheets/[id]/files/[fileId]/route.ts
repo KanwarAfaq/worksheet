@@ -7,7 +7,7 @@ export async function GET(request:Request,{params}:{params:Promise<{id:string;fi
  const a=await requireContributor(request);if(!a.ok)return new Response('Access denied',{status:a.status});
  const {id,fileId}=await params;
  if(!uuid.test(id)||!uuid.test(fileId)||!r2Configured())return new Response('Not found',{status:404});
- const {data:w}=await a.db.from('worksheets').select('id').eq('id',id).eq('created_by',a.user.id).maybeSingle();
+ const {data:w}=await a.db.from('worksheets').select('id').eq('id',id).eq('created_by',a.user.id).not('tags','cs','{removed-by-author}').maybeSingle();
  if(!w)return new Response('Not found',{status:404});
  const {data:file}=await a.db.from('worksheet_files').select('id,object_key,r2_bucket,mime_type,variant')
  .eq('id',fileId).eq('worksheet_id',id).eq('upload_status','verified').maybeSingle();

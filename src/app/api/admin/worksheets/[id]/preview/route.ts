@@ -7,6 +7,9 @@ export async function GET(request:Request,{params}:{params:Promise<{id:string}>}
  if(!a.ok)return Response.json({error:'Owner only'},{status:a.status});
  const {id}=await params;
  if(!uuid.test(id))return new Response('Not found',{status:404});
+ const {data:worksheet}=await a.db.from('worksheets').select('id')
+  .eq('id',id).not('tags','cs','{removed-by-author}').maybeSingle();
+ if(!worksheet)return new Response('Not found',{status:404});
  const {data,error}=await a.db.from('worksheet_files')
   .select('id,object_key,r2_bucket,mime_type,variant')
   .eq('worksheet_id',id).eq('role','student').eq('upload_status','verified')
