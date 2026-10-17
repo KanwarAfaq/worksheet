@@ -240,14 +240,16 @@ function robot(p:jsPDF,cx:number,top:number){
  box(p,cx-27,top+121,23,8,WHITE,2,INK);
  box(p,cx+4,top+121,23,8,WHITE,2,INK);
  // Extra circles/triangles make the shape-coloring activity concrete.
- for(let i=0;i<3;i++)circle(p,cx-16+i*16,top+64,5,WHITE,INK,.65);
- poly(p,[[cx-7,top+86],[cx+7,top+86],[cx,top+73]],WHITE,INK,.65);
+ for(let i=0;i<3;i++)circle(p,cx-16+i*16,top+59,5,WHITE,INK,.65);
+ box(p,cx-22,top+72,13,13,WHITE,0,INK);
+ poly(p,[[cx+5,top+85],[cx+23,top+85],[cx+14,top+72]],WHITE,INK,.65);
 }
 function rocket(p:jsPDF,cx:number,top:number){
  stroke(p,INK,.85);
  box(p,cx-20,top+27,40,88,WHITE,13,INK);
  poly(p,[[cx-20,top+29],[cx,top],[cx+20,top+29]],WHITE,INK,.85);
  circle(p,cx,top+53,12,WHITE,INK,.85);
+ box(p,cx-6,top+81,12,12,WHITE,0,INK);
  box(p,cx-45,top+74,25,41,WHITE,3,INK);
  box(p,cx+20,top+74,25,41,WHITE,3,INK);
  poly(p,[[cx-20,top+114],[cx-11,top+140],[cx,top+114]],WHITE,INK,.85);
@@ -280,7 +282,7 @@ function makeColoring(p:jsPDF,plan:VisualPlan):{answers:string[];count:number}{
  text(p,'Squares:',72,274,10,INK);line(p,96,274,113,274,INK,.6);
  text(p,'Triangles:',122,274,10,INK);line(p,150,274,179,274,INK,.6);
  return{answers:['Color key: blue circles, green rectangles, red triangles, yellow squares',
-  what==='ROBOT'?'Robot: count the outlined components':'Rocket: count the outlined components'],count:4};
+  what==='ROBOT'?'Robot: 12 circles, 1 square, 1 triangle':'Rocket: 1 circle, 1 square, 3 triangles'],count:4};
 }
 type Found={word:string;row:number;col:number;dir:'H'|'V'};
 function puzzleWords(plan:VisualPlan):string[]{
@@ -336,9 +338,9 @@ function makeWordSearch(p:jsPDF,plan:VisualPlan):{answers:string[];count:number}
  }
  return{answers:found.map(f=>f.word+' — row '+f.row+', column '+f.col+', '+(f.dir==='H'?'across':'down')),count:words.length};
 }
-function teacherSheet(title:string,answers:string[]):Buffer{
+function teacherSheet(title:string,answers:string[],grade:number):Buffer{
  const p=new jsPDF({unit:'mm',format:'a4'});
- base(p,'TEACHER ANSWER KEY','Private answer key: not part of the student download.',1,BLUE);
+ base(p,'TEACHER ANSWER KEY','Private answer key: not part of the student download.',grade,BLUE);
  text(p,title,20,63,14,INK,true);
  for(let i=0;i<answers.length;i++){
   const y=78+i*20;
@@ -377,6 +379,6 @@ export function renderVisualWorksheet(plan:VisualPlan):VisualResult{
   throw new Error('Invalid student PDF layout');
  const summary='Original illustrated Grade '+plan.grade+' '+title.toLowerCase()+' worksheet with '+rendered.count+' activities, designed for print and educator review.';
  return{title: title+' — Grade '+plan.grade,summary,instructions,
-  student:bytes,teacher:teacherSheet(title+' — Grade '+plan.grade,rendered.answers),
+  student:bytes,teacher:teacherSheet(title+' — Grade '+plan.grade,rendered.answers,plan.grade),
   exerciseCount:rendered.count,layout};
 }
