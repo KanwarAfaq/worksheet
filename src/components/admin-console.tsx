@@ -119,15 +119,17 @@ export default function AdminConsole() {
   }
 
   async function deleteDraft(row:WorksheetRow){
-    if(!session||row.status!=='draft')return;
-    if(!window.confirm('Delete draft and all attached private files? '+row.title))return;
+    if(!session)return;
+    if(!window.confirm('Remove "'+row.title+'"? '+
+      (row.status==='published'?'This removes it from the PUBLIC library. ':'')+
+      'Private file deletion will be queued. This cannot be undone.'))return;
     setNotice({});
     try{
      const res=await fetch('/api/admin/worksheets/'+row.id,
       {method:'DELETE',headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'});
      const result=await res.json();
      if(!res.ok)throw new Error(result.error||'Delete failed');
-     setNotice({info:result.cleanupPending?'Draft deleted; private file cleanup queued.':'Draft deleted.'});
+     setNotice({info:result.cleanupPending?'Worksheet removed; R2 cleanup queued.':'Worksheet removed.'});
      await loadRows(session);
     }catch(e){setNotice({error:e instanceof Error?e.message:'Delete failed.'});}
   }
@@ -369,12 +371,8 @@ export default function AdminConsole() {
             <div className="admin-row-actions">
              <span className={'admin-status '+row.status}>{row.status}</span>
              <a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Review / Open</a>
-             {row.status==='draft'&&
-               ((row.slug.startsWith('daily-ai-')||row.slug.startsWith('manual-ai-'))?
-                <button type="button" className="draft-delete-button" onClick={()=>rejectAiDraft(row.id,row.title)}>
-                 <Trash2 size={16}/> Reject &amp; delete</button>:
-                <button type="button" className="draft-delete-button" onClick={()=>deleteDraft(row)}>
-                 <Trash2 size={16}/> Delete draft</button>)}
+             <button type="button" className="draft-delete-button" onClick={()=>deleteDraft(row)}
+              aria-label={'Remove '+row.title}><Trash2 size={16}/> Delete</button>
             </div>
           </div>)}</div>}
       </section>

@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useState,type DragEvent} from 'react';
 import type {Session} from '@supabase/supabase-js';
-import {UploadCloud,CheckCheck,Eye,ChevronLeft,ChevronRight,X,FileText} from 'lucide-react';
+import {UploadCloud,CheckCheck,Eye,ChevronLeft,ChevronRight,X,FileText,Trash2} from 'lucide-react';
 type Row={id:string;title:string;status:string;file_count?:number};
 type Option={id:string;name?:string;display_name?:string};
 type Props={session:Session;categories:Option[];grades:Option[];rows:Row[];
@@ -85,6 +85,27 @@ export default function AdminBulkTools({session,categories,grades,rows,selected,
   }catch(e){setStatus(e instanceof Error?e.message:'Bulk publish failed');}
   finally{setUploading(false);}
  }
+ async function deleteSelected(){
+  const targets=selected.filter(id=>rows.some(row=>row.id===id));
+  if(uploading||!targets.length)return;
+  const published=rows.filter(row=>targets.includes(row.id)&&row.status==='published').length;
+  if(!window.confirm('Delete '+targets.length+' selected worksheets? '+
+   (published?published+' PUBLIC worksheet(s) will be removed from search and downloads. ':'')+
+   'Files will be queued for deletion. This cannot be undone.'))return;
+  setUploading(true);setStatus('Removing selected worksheets…');setReport([]);
+  try{
+   const response=await fetch('/api/admin/worksheets/bulk',{method:'POST',
+    headers:{...headers,'Content-Type':'application/json'},
+    body:JSON.stringify({ids:targets,action:'delete'})});
+   const result=await response.json();
+   if(!response.ok)throw new Error(result.error||'Bulk deletion failed');
+   setReport((result.results||[]).map((r:{id:string;ok:boolean;error?:string})=>
+    (r.ok?'✓ ':'× ')+(rows.find(x=>x.id===r.id)?.title||r.id)+(r.error?' — '+r.error:'')));
+   setStatus('Removed '+result.deleted+' / '+targets.length);
+   onClear();onChange();
+  }catch(e){setStatus(e instanceof Error?e.message:'Removal failed');}
+  finally{setUploading(false);}
+ }
  const targets=selected.map(id=>rows.find(row=>row.id===id)).filter((r):r is Row=>!!r);
  const active=reviewIndex>=0?targets[reviewIndex]:null;
  useEffect(()=>{
@@ -112,6 +133,8 @@ export default function AdminBulkTools({session,categories,grades,rows,selected,
      <button type="button" onClick={()=>setReviewIndex(0)} disabled={!selected.length||uploading}><Eye size={17}/> Preview</button>
      <button type="button" className="bulk-approve" onClick={approve} disabled={!eligible.length||uploading}>
       <CheckCheck size={17}/> Approve {eligible.length}</button>
+     <button type="button" className="admin-bulk-delete" disabled={!selected.length||uploading}
+      onClick={deleteSelected}><Trash2 size={17}/> Delete {selected.length}</button>
      <button type="button" disabled={!selected.length||uploading} onClick={onClear}>Clear</button>
     </div>
    </div>

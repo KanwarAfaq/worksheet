@@ -20,6 +20,7 @@ export default function Contribute(){
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState('');const [error,setError]=useState('');
  const [items,setItems]=useState<Item[]>([]);
+ const [selectedWorksheets,setSelectedWorksheets]=useState<string[]>([]);
  const [categories,setCategories]=useState<Category[]>([]);
  const [grades,setGrades]=useState<Grade[]>([]);
  const [active,setActive]=useState<Item|null>(null);
@@ -220,17 +221,41 @@ export default function Contribute(){
   }finally{setBusy(false);}
  }
  async function deleteDraft(item:Item){
-  if(item.status!=='draft'||busy)return;
-  if(!window.confirm('Delete this draft and its attached files permanently?'))return;
+  if(busy)return;
+  if(!window.confirm('Remove "'+item.title+'"?'+
+    (item.status==='published'?' It will immediately disappear from the public library.':'')+
+    ' Its file will be queued for deletion. This cannot be undone.'))return;
   setBusy(true);setError('');setNotice('');
   try{
    const result=await api(root+'/'+item.id,{method:'DELETE'});
    if(active?.id===item.id){setActive(null);setAttachments([]);}
+   setSelectedWorksheets(old=>old.filter(id=>id!==item.id));
    await load();
    setNotice(result.cleanupPending
-    ?'Draft deleted. Private file cleanup has been queued.'
-    :'Draft and its private files deleted.');
+    ?'Worksheet removed. File cleanup is queued.'
+    :'Worksheet removed.');
   }catch(e){setError(e instanceof Error?e.message:'Unable to delete draft.');}
+  finally{setBusy(false);}
+ }
+ async function deleteSelectedWorksheets(){
+  const ids=selectedWorksheets.filter(id=>items.some(item=>item.id===id));
+  if(busy||!ids.length)return;
+  const publicCount=items.filter(item=>ids.includes(item.id)&&item.status==='published').length;
+  if(!window.confirm('Remove '+ids.length+' of your worksheets? '+
+    (publicCount?publicCount+' published item(s) will disappear from the public library. ':'')+
+    'Private files will be queued for deletion. This cannot be undone.'))return;
+  setBusy(true);setError('');setNotice('');
+  try{
+   const result=await api(root+'/bulk',{method:'DELETE',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})}) as {
+    deleted:number;results:Array<{id:string;ok:boolean;error?:string}>};
+   const removed=new Set(result.results.filter(x=>x.ok).map(x=>x.id));
+   setSelectedWorksheets(old=>old.filter(id=>!removed.has(id)));
+   if(active&&removed.has(active.id)){setActive(null);setAttachments([]);}
+   await load();
+   setNotice(result.deleted+' worksheet(s) removed.'+
+    (result.deleted<ids.length?' Some items could not be removed.':''));
+  }catch(e){setError(e instanceof Error?e.message:'Unable to remove selected worksheets.');}
   finally{setBusy(false);}
  }
  async function start(){
@@ -344,8 +369,20 @@ export default function Contribute(){
    <div className="member-workspace">
     {dashboardTab==='uploads'&&<div className="member-two-col">
      <section className="community-list" id="my-uploads"><h2>My worksheets <small>{items.length} / 5</small></h2>
+      {items.length>0&&<div className="member-bulk-actions">
+       <label className="member-select-row"><input type="checkbox" aria-label="Select all my worksheets"
+         checked={items.length>0&&items.every(item=>selectedWorksheets.includes(item.id))}
+         onChange={e=>setSelectedWorksheets(e.target.checked?items.map(item=>item.id):[])}/>
+        Select all</label>
+       {selectedWorksheets.length>0&&<button type="button" disabled={busy}
+        onClick={deleteSelectedWorksheets}><Trash2 size={15}/> Delete selected ({selectedWorksheets.length})</button>}
+      </div>}
       {items.length===0?<p>No uploads yet. Use the form to add your first worksheet.</p>:items.map(item=>
        <div className="community-draft-entry" key={item.id}>
+        <input type="checkbox" className="member-row-select" aria-label={'Select '+item.title}
+         checked={selectedWorksheets.includes(item.id)}
+         onChange={e=>setSelectedWorksheets(old=>e.target.checked?
+          [...new Set([...old,item.id])]:old.filter(id=>id!==item.id))}/>
         <button type="button" onClick={()=>open(item)} className="community-item">
          <MemberWorksheetThumbnail worksheetId={item.id} status={item.status}
            previewPage={item.preview_page||1} fileCount={item.file_count||0}/>
@@ -354,9 +391,9 @@ export default function Contribute(){
            (item.file_count||0)===0?'Draft · No file':'Draft · '+item.file_count+' file(s)'}</small>
          </span><ArrowRight size={18}/>
         </button>
-        {item.status==='draft'&&<button className="draft-delete-button" type="button"
-         onClick={()=>deleteDraft(item)} disabled={busy} aria-label={'Delete draft '+item.title}
-         title="Delete private draft"><Trash2 size={19}/></button>}
+        <button className="draft-delete-button" type="button"
+         onClick={()=>deleteDraft(item)} disabled={busy} aria-label={'Delete worksheet '+item.title}
+         title="Remove my worksheet"><Trash2 size={19}/></button>
        </div>)}
      </section>
      <section className="community-start simple-upload">
@@ -429,8 +466,8 @@ export default function Contribute(){
   </div>:<div className="community-editor">
    <div className="draft-editor-tools">
     <button type="button" className="community-back" onClick={()=>setActive(null)}><ArrowLeft size={16}/> Back to my worksheets</button>
-    {active.status==='draft'&&<button type="button" className="draft-delete-button" disabled={busy}
-      onClick={()=>deleteDraft(active)}><Trash2 size={17}/> Delete draft</button>}
+    <button type="button" className="draft-delete-button" disabled={busy}
+      onClick={()=>deleteDraft(active)}><Trash2 size={17}/> Delete worksheet</button>
    </div>
    <h2>{active.title==='Untitled worksheet'?'New worksheet':active.title}</h2>
    <p>Status: <strong>{active.status==='review'?'Awaiting checks':active.status==='published'?'Public':'Private draft'}</strong></p>
