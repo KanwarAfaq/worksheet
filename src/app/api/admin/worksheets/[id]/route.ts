@@ -55,6 +55,6 @@ export async function DELETE(request:Request,context:{params:Promise<{id:string}
   return reply(result,200);
  }catch(e){
   console.error('Owner draft removal failed:',e instanceof Error?e.message:'unknown');
-  return reply({error:'Unable to delete. Only private drafts can be deleted.'},409);
+  return reply({error:'Unable to remove worksheet. Check owner access and try again.'},409);
  }
 }

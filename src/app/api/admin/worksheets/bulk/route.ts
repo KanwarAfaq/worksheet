@@ -1,6 +1,7 @@
 import {requireOwner} from '@/lib/admin-server';
 import {r2Configured} from '@/lib/r2-server';
 import {notifyWorksheetAdmin} from '@/lib/line-admin';
+import {deletePrivateDraft} from '@/lib/delete-private-draft';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -12,9 +13,18 @@ export async function POST(request:Request){
  let ids:unknown,action:unknown;
  try{const payload=await request.json();ids=payload.ids;action=payload.action;}
  catch{return Response.json({error:'Invalid request'},{status:400});}
- if(action!=='publish'||!Array.isArray(ids)||ids.length<1||ids.length>20||
+ if(!['publish','delete'].includes(String(action))||!Array.isArray(ids)||ids.length<1||ids.length>20||
   new Set(ids).size!==ids.length||!ids.every(x=>typeof x==='string'&&uuid.test(x)))
   return Response.json({error:'Select 1–20 distinct valid worksheets for approval'},{status:400});
+ if(action==='delete'){
+  const results:Array<{id:string;ok:boolean;error?:string}>=[];
+  for(const id of ids as string[]){
+   try{await deletePrivateDraft(a.db,id);results.push({id,ok:true});}
+   catch{results.push({id,ok:false,error:'Could not remove record'});}
+  }
+  return Response.json({deleted:results.filter(x=>x.ok).length,results},
+    {headers:{'Cache-Control':'private, no-store'}});
+ }
  const results:Array<{id:string;ok:boolean;error?:string}>=[];
  for(const id of ids as string[]){
   const {data:row,error:lookup}=await a.db.from('worksheets')

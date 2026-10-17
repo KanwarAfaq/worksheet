@@ -12,7 +12,7 @@ type CleanupFile={id:string;bucket:string;key:string};
  * never return the keys to clients or delete other accounts' drafts.
  */
 export async function deletePrivateDraft(db:SupabaseClient,id:string){
- const {data,error}=await db.rpc('delete_worksheet_draft',{p_worksheet_id:id});
+ const {data,error}=await db.rpc('remove_owned_worksheet',{p_worksheet_id:id});
  if(error)throw new Error(error.message);
  const files=Array.isArray(data?.files)?data.files as CleanupFile[]:[];
  if(!files.length)return{deleted:true,cleanupPending:0};

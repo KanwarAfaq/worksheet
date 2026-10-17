@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   if (!access.ok) return reply({ error: 'Access denied.' }, access.status);
   const { data, error } = await access.db.from('worksheets')
     .select('id,title,slug,summary,status,category_id,grade_id,created_at,updated_at,worksheet_files(id)')
-    .order('created_at', { ascending: false }).limit(100);
+    .not('tags','cs','{removed-by-author}').order('created_at', { ascending: false }).limit(100);
   if (error) return reply({ error: 'Could not load worksheets.' }, 500);
   return reply({ worksheets: (data||[]).map(({worksheet_files,...row})=>({
   ...row,file_count:worksheet_files?.length||0

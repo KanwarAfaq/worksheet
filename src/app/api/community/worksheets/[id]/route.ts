@@ -8,7 +8,7 @@ export async function GET(request:Request,{params}:Context){
  const a=await requireContributor(request);if(!a.ok)return json({error:'Sign in required.'},a.status);
  const {id}=await params;if(!uuid.test(id))return json({error:'Invalid worksheet ID.'},400);
  const {data,error}=await a.db.from('worksheets').select('id,title,summary,category_id,grade_id,status,slug,preview_page')
-  .eq('id',id).eq('created_by',a.user.id).maybeSingle();
+  .eq('id',id).eq('created_by',a.user.id).not('tags','cs','{removed-by-author}').maybeSingle();
  if(error||!data)return json({error:'Not found.'},404);
  return json({worksheet:data});
 }
@@ -47,6 +47,6 @@ export async function DELETE(request:Request,{params}:Context){
   return json(result);
  }catch(e){
   console.error('Contributor draft removal failed:',e instanceof Error?e.message:'unknown');
-  return json({error:'Could not delete draft. Confirm it is your unpublished worksheet.'},403);
+  return json({error:'Could not remove worksheet. Only its uploader may remove it.'},403);
  }
 }

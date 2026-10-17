@@ -1,0 +1,8 @@
+-- Applied to production 2026-10-17.
+-- SECURITY DEFINER remove_owned_worksheet(uuid) archives authenticated user's
+-- own worksheets or any worksheet by enabled owner, revokes publication,
+-- queues R2 objects, retains download/audit foreign keys and excludes removed
+-- records from the five free slots. The function and replacement
+-- create_free_worksheet(uuid,uuid) are installed with restricted EXECUTE.
+-- Source implementation retained in the Supabase migration history under
+-- authenticated_owner_contributor_remove_published_drafts_and_queue_r2_20261017.
