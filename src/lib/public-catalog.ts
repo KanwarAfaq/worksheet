@@ -50,8 +50,18 @@ export async function publishedWorksheetPage(filters:CatalogQuery={}):Promise<Wo
  if(filters.format==='image')query=query.overlaps('available_formats',['png','jpg','webp']);
  else if(filters.format)query=query.contains('available_formats',[filters.format]);
  if(filters.q){
-  const clean=filters.q.trim().slice(0,90).replace(/[%,().]/g,' ').trim();
-  if(clean)query=query.or('title.ilike.%'+clean+'%,summary.ilike.%'+clean+'%');
+  const clean=filters.q.trim().toLowerCase().slice(0,64).replace(/[^a-z0-9 -]/g,' ').replace(/ +/g,' ').trim();
+  const synonyms:Record<string,string[]>={
+   addition:['addition','add','sum'],subtraction:['subtraction','subtract','minus'],
+   counting:['counting','count','number'],multiplication:['multiplication','multiply','times'],
+   division:['division','divide'],spelling:['spelling','spell'],
+   vocabulary:['vocabulary','words'],grammar:['grammar','sentences'],
+   shapes:['shapes','shape'],animals:['animals','animal'],coloring:['color','colour','coloring']
+  };
+  const terms=(synonyms[clean]||[clean]).slice(0,3);
+  const predicates=terms.flatMap(term=>
+   ['title','summary','description'].map(field=>field+'.ilike.%'+term+'%'));
+  if(clean)query=query.or(predicates.join(','));
  }
  const {data,error,count}=await query.range((page-1)*WORKSHEETS_PER_PAGE,page*WORKSHEETS_PER_PAGE-1);
  if(error){console.error('Public catalog query failed',error.code);return{items:[],page,total:0,pages:0};}

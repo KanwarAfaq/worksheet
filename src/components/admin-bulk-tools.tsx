@@ -11,6 +11,7 @@ export default function AdminBulkTools({session,categories,grades,rows,selected,
  const [subject,setSubject]=useState('');
  const [grade,setGrade]=useState('');
  const [rights,setRights]=useState(false);
+ const [license,setLicense]=useState<'original'|'licensed'>('original');
  const [uploading,setUploading]=useState(false);
  const [status,setStatus]=useState('');
  const [report,setReport]=useState<string[]>([]);
@@ -40,7 +41,7 @@ export default function AdminBulkTools({session,categories,grades,rows,selected,
     const data=await meta.json();if(!meta.ok)throw new Error(data.error||'Could not create draft');
     id=data.worksheet.id;
     const uploadData=new FormData();uploadData.set('file',file);uploadData.set('role','student');
-    uploadData.set('rights_confirmed','yes');uploadData.set('license_basis','original');
+    uploadData.set('rights_confirmed','yes');uploadData.set('license_basis',license);
     const stored=await fetch('/api/admin/worksheets/'+id+'/files',{method:'POST',headers,body:uploadData});
     const saved=await stored.json();if(!stored.ok)throw new Error(saved.error||'File upload failed');
     messages.push('✓ '+file.name);
@@ -81,17 +82,13 @@ export default function AdminBulkTools({session,categories,grades,rows,selected,
   setPreviewError('');setFilePreview(null);
   async function fetchFile(){
    try{
-    const response=await fetch('/api/admin/worksheets/'+active!.id+'/files',{
-     headers:{Authorization:'Bearer '+session.access_token},cache:'no-store',signal:controller.signal});
-    if(!response.ok)throw new Error('Could not load files');
-    const payload=await response.json();
-    const file=(payload.files||[]).find((x:{role:string;upload_status:string})=>x.role==='student'&&x.upload_status==='verified');
-    if(!file)throw new Error('No verified student file');
-    const binary=await fetch('/api/admin/worksheets/'+active!.id+'/files/'+file.id+'?preview=1',{
+    const binary=await fetch('/api/admin/worksheets/'+active!.id+'/preview',{
      headers:{Authorization:'Bearer '+session.access_token},cache:'no-store',signal:controller.signal});
     if(!binary.ok)throw new Error('Private preview unavailable');
     const blob=await binary.blob();if(!live)return;
-    objectUrl=URL.createObjectURL(blob);setFilePreview({url:objectUrl,variant:file.variant});
+    const mime=binary.headers.get('content-type')||blob.type;
+    objectUrl=URL.createObjectURL(blob);
+    setFilePreview({url:objectUrl,variant:mime.includes('pdf')?'pdf':'image'});
    }catch(e){if(live)setPreviewError(e instanceof Error?e.message:'Preview failed');}
   }
   void fetchFile();
@@ -116,6 +113,9 @@ export default function AdminBulkTools({session,categories,grades,rows,selected,
       {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
      <label>Grade<select value={grade} onChange={e=>setGrade(e.target.value)}>
       <option value="">All grades</option>{grades.map(g=><option key={g.id} value={g.id}>{g.display_name}</option>)}</select></label>
+     <label>File rights<select value={license} onChange={e=>setLicense(e.target.value as 'original'|'licensed')}>
+      <option value="original">Original work</option><option value="licensed">Redistribution license</option>
+     </select></label>
      <label className="bulk-rights"><input type="checkbox" checked={rights}
       onChange={e=>setRights(e.target.checked)}/> I own or have redistribution rights for all selected files.</label>
      <button type="button" className="button button-dark" disabled={!files.length||!rights||uploading}

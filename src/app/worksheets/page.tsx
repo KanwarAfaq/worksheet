@@ -44,9 +44,16 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
  const matchingLive=livePage.items;
  const chosenFormat=formats.find(f=>f.slug===format);
  return <div className="container inner-page">
-  <div className="section-kicker">THE WORKSHEET LIBRARY</div><h1>Find a little <em>inspiration.</em></h1>
+  <h1>Printable <em>worksheets.</em></h1>
  {query&&<div className="library-query-note">Search results for <strong>{query}</strong><Link href="/worksheets">Clear search</Link></div>}
-  <p className="page-lead">Browse by subject, grade, or file type. </p>
+  <form action="/worksheets" className="library-search-form" role="search">
+    <input type="search" name="q" defaultValue={query} placeholder="Search worksheets…"
+     aria-label="Search worksheets by topic or title"/>
+    {subject&&<input type="hidden" name="subject" value={subject}/>}
+    {grade&&<input type="hidden" name="grade" value={grade}/>}
+    {format&&<input type="hidden" name="format" value={format}/>}
+    <button type="submit">Search</button>
+  </form>
   <div className="library-filters">
     <div className="library-filter-group"><span>SUBJECT</span><div className="filter-bar">
       <Link href={href({subject:''})} className={'filter-pill '+(!subject?'active':'')}>All</Link>
@@ -69,6 +76,6 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
  visibleSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div><div className="worksheet-grid">{visibleSamples.slice((currentPage-1)*WORKSHEETS_PER_PAGE,currentPage*WORKSHEETS_PER_PAGE).map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></>:
  <div className="category-pending"><h3>No worksheets for these filters yet</h3><p>New worksheets will appear here after publication.</p><Link href="/create">Make your own printable <ArrowRight size={16}/></Link></div>}
 
-  <div className="bottom-prompt">Need a custom activity? <Link href="/create">Open the free worksheet maker <ArrowRight size={17}/></Link></div>
+  
  </div>;
 }
