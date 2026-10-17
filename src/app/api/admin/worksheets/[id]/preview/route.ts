@@ -8,7 +8,7 @@ export async function GET(request:Request,{params}:{params:Promise<{id:string}>}
  const {id}=await params;
  if(!uuid.test(id))return new Response('Not found',{status:404});
  const {data,error}=await a.db.from('worksheet_files')
-  .select('object_key,r2_bucket,mime_type,variant')
+  .select('id,object_key,r2_bucket,mime_type,variant')
   .eq('worksheet_id',id).eq('role','student').eq('upload_status','verified')
   .order('is_primary',{ascending:false}).limit(1).maybeSingle();
  if(error||!data)return new Response('No verified student file',{status:404});
