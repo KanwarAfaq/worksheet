@@ -136,7 +136,7 @@ export default function AdminConsole() {
 
   async function runFiveAiDrafts(){
     if(!session||agentRunning)return;
-    if(!window.confirm('Create up to 5 private AI worksheet PDFs for review? This uses real AI API quota and R2 storage. Nothing will be published.'))return;
+    if(!window.confirm('Generate five NEW illustrated worksheet PDFs and private teacher keys? Uses AI quota and R2 storage. Older text-only drafts stay unchanged. Nothing is published.'))return;
     setAgentRunning(true);setAgentStep(0);setAgentReports([]);setNotice({});
     const results:Array<{slot:number;status:'created'|'existing'|'failed';id?:string;error?:string}>=[];
     try{
@@ -160,7 +160,7 @@ export default function AdminConsole() {
      }
      await loadRows(session);
      setStatusFilter('draft');
-     setRowQuery('Practice');
+     setRowQuery('');
     }finally{setAgentRunning(false);}
   }
 
@@ -256,7 +256,7 @@ export default function AdminConsole() {
     <section className="admin-agent-test" aria-label="Five AI worksheet test">
       <div>
        <h2>AI worksheet test</h2>
-       <p>Create five private PDF drafts and review them before publishing.</p>
+       <p>Create five illustrated worksheets (picture puzzles, matching, shapes and word search). Review every PDF before publishing.</p>
       </div>
       <button className="button button-dark" type="button" disabled={agentRunning}
        onClick={runFiveAiDrafts}>
