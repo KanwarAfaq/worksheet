@@ -68,8 +68,10 @@ function star(p:jsPDF,x:number,y:number,r=5,bg=YELLOW){
  for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2;const d=i%2===0?r:r*.46;pts.push([x+Math.cos(a)*d,y+Math.sin(a)*d]);}
  // Draw polygon outline without intersecting internal spokes.
  stroke(p,INK,.45);fill(p,bg);
- const path=pts.map(v=>[v[0],v[1]]) as [number,number][];
- for(let i=1;i<path.length-1;i++)p.triangle(path[0][0],path[0][1],path[i][0],path[i][1],i===1?'F':'F');
+ for(let i=0;i<pts.length;i++){
+  const a=pts[i],b=pts[(i+1)%pts.length];
+  p.triangle(x,y,a[0],a[1],b[0],b[1],'F');
+ }
  for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];line(p,a[0],a[1],b[0],b[1],INK,.45);}
 }
 function pear(p:jsPDF,x:number,y:number,s=1){
