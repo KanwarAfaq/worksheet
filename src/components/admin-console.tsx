@@ -240,8 +240,7 @@ export default function AdminConsole() {
       <input id="admin-email" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" required />
       <label htmlFor="admin-password">Password</label>
       <input id="admin-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required />
-      </>}
-    {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}
+      {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}
       {notice.info&&<p role="status" className="admin-alert good"><CheckCircle2 size={17}/>{notice.info}</p>}
       <button className="button button-dark admin-submit" type="submit" disabled={authBusy}>{authBusy?'Signing in…':'Sign in'} <ArrowRight size={16}/></button>
     </form>
@@ -346,7 +345,7 @@ export default function AdminConsole() {
      <button type="button" onClick={()=>{setStatusFilter('all');setActiveTab('worksheets');}}>All records <strong>{rows.length}</strong></button>
      <Link href="/create/templates" className="admin-quick-create">Create printable template <ArrowRight size={16}/></Link>
     </div>
-    
+    </>}
     {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}
     {notice.info&&<p role="status" className="admin-alert good"><CheckCircle2 size={17}/>{notice.info}</p>}
     {activeTab==='worksheets'&&<>
