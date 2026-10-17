@@ -79,7 +79,7 @@ export async function runDailyAiDrafts(day:string,slots:number[]=[0,1,2,3,4]):Pr
     });
     if(fileError)throw new Error('Could not register '+file.role+' PDF');
    }
-   result.created++;result.ids.push(id);
+   result.created++;result.ids.push(created.id);
   }catch(error){
    result.failed++;
    result.errors.push('Slot '+(slot+1)+': '+(error instanceof Error?error.message:'failed').slice(0,160));
