@@ -41,6 +41,7 @@ export default function AdminConsole() {
   const [notice, setNotice] = useState<Alert>({});
   const [authBusy, setAuthBusy] = useState(false);
   const [rows, setRows] = useState<WorksheetRow[]>([]);
+  const [activeTab,setActiveTab]=useState<'overview'|'worksheets'|'agent'|'system'>('overview');
   const [selected,setSelected]=useState<string[]>([]);
   const [rowQuery, setRowQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -239,7 +240,8 @@ export default function AdminConsole() {
       <input id="admin-email" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" required />
       <label htmlFor="admin-password">Password</label>
       <input id="admin-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required />
-      {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}
+      </>}
+    {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}
       {notice.info&&<p role="status" className="admin-alert good"><CheckCircle2 size={17}/>{notice.info}</p>}
       <button className="button button-dark admin-submit" type="submit" disabled={authBusy}>{authBusy?'Signing in…':'Sign in'} <ArrowRight size={16}/></button>
     </form>
@@ -266,6 +268,18 @@ export default function AdminConsole() {
   return <div className="admin-area"><div className="container">
     <div className="admin-topbar"><div><div className="section-kicker">WORKSHEET STUDIO / ADMIN</div><h1>Your <em>worksheets.</em></h1><p>{session.user.email}</p></div>
       <button onClick={()=>supabaseBrowser.auth.signOut()} type="button" className="button button-outline"><LogOut size={16}/> Sign out</button></div>
+    <nav className="admin-dashboard-tabs" aria-label="Admin sections">
+     {([
+      ['overview','Overview',LayoutDashboard],
+      ['worksheets','Worksheets',FileText],
+      ['agent','AI Agent',BookOpen],
+      ['system','System',ShieldCheck]
+     ] as const).map(([key,label,Icon])=>
+      <button type="button" key={key} className={activeTab===key?'active':''}
+       aria-current={activeTab===key?'page':undefined}
+       onClick={()=>setActiveTab(key)}><Icon size={18}/>{label}</button>)}
+    </nav>
+    {activeTab==='overview'&&<>
     <div className="admin-stats">
       <div><LayoutDashboard size={22}/><small>Total worksheets</small><strong>{rows.length}</strong></div>
       <div><Clock3 size={22}/><small>Unpublished drafts</small><strong>{drafts}</strong></div>
@@ -273,6 +287,8 @@ export default function AdminConsole() {
       <div><ShieldCheck size={22}/><small>Needs review</small><strong>{reviewCount}</strong></div>
     </div>
     {metrics&&<div className="admin-stats" aria-label="Live system metrics"><div><BookOpen size={22}/><small>Registered users</small><strong>{metrics.users??"—"}</strong></div><div><FileText size={22}/><small>Verified PDF files</small><strong>{metrics.pdfFiles??"—"}</strong></div><div><LayoutDashboard size={22}/><small>Verified image files</small><strong>{metrics.imageFiles??"—"}</strong></div><div><Clock3 size={22}/><small>All private drafts</small><strong>{metrics.drafts??"—"}</strong></div></div>}
+    </>}
+    {activeTab==='system'&&<>
     <section className="admin-seo-panel" aria-label="Search and SEO configuration">
      <div><strong>SEO & search</strong><span>{seo?.indexable?'Indexing ready':'Indexing needs attention'}</span></div>
      <div><a href="/sitemap.xml" target="_blank" rel="noopener noreferrer">Sitemap</a>
@@ -283,6 +299,8 @@ export default function AdminConsole() {
     </section>
     <section className="admin-safety"><ShieldCheck size={22}/><div><strong>Production integration diagnostics</strong><p>Test CGU, Groq, NVIDIA, private R2 upload/read/delete, and send a test LINE message. Only the signed-in owner can start these checks.</p><button type="button" className="button button-outline" onClick={()=>testProduction('all')} disabled={testing}>{testing?'Testing integrations…':'Run production tests'}</button>
  <button type="button" className="button button-outline" onClick={()=>testProduction('ai')} disabled={testing}>Retest AI only</button>{diagnostics&&<div role="status">{Object.entries(diagnostics).map(([name,value])=><p key={name}><strong>{name}:</strong> {value.ok?'PASS':'FAIL'}{value.httpStatus?' (HTTP '+value.httpStatus+')':''}{value.model?' — '+value.model:''}{value.reason?' — '+value.reason:''}</p>)}</div>}</div></section>
+    </>}
+    {activeTab==='agent'&&<>
     <section className="admin-agent-test" aria-label="AI worksheet generator">
       <div className="admin-agent-intro"><h2>AI worksheet agent</h2>
        <p>Create illustrated PDF drafts. Review before publishing.</p></div>
@@ -318,17 +336,20 @@ export default function AdminConsole() {
        </div>)}
       </div>}
     </section>
+    </>}
+    {activeTab==='overview'&&<>
     <div className="admin-quick-actions" aria-label="Admin quick filters">
-     <button type="button" onClick={()=>setStatusFilter('review')}>Review queue <strong>{reviewCount}</strong></button>
-     <button type="button" onClick={()=>setStatusFilter('draft')}>Drafts <strong>{drafts}</strong></button>
-     <button type="button" onClick={()=>setStatusFilter('published')}>Published <strong>{published}</strong></button>
-     <button type="button" onClick={()=>setStatusFilter('archived')}>Archived <strong>{archivedCount}</strong></button>
-     <button type="button" onClick={()=>setStatusFilter('all')}>All records <strong>{rows.length}</strong></button>
+     <button type="button" onClick={()=>{setStatusFilter('review');setActiveTab('worksheets');}}>Review queue <strong>{reviewCount}</strong></button>
+     <button type="button" onClick={()=>{setStatusFilter('draft');setActiveTab('worksheets');}}>Drafts <strong>{drafts}</strong></button>
+     <button type="button" onClick={()=>{setStatusFilter('published');setActiveTab('worksheets');}}>Published <strong>{published}</strong></button>
+     <button type="button" onClick={()=>{setStatusFilter('archived');setActiveTab('worksheets');}}>Archived <strong>{archivedCount}</strong></button>
+     <button type="button" onClick={()=>{setStatusFilter('all');setActiveTab('worksheets');}}>All records <strong>{rows.length}</strong></button>
      <Link href="/create/templates" className="admin-quick-create">Create printable template <ArrowRight size={16}/></Link>
     </div>
     
     {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}
     {notice.info&&<p role="status" className="admin-alert good"><CheckCircle2 size={17}/>{notice.info}</p>}
+    {activeTab==='worksheets'&&<>
     <AdminBulkTools session={session} categories={categories} grades={grades}
      rows={rows} selected={selected} onClear={()=>setSelected([])} onChange={()=>void loadRows(session)}/>
     <div className="admin-content">
@@ -366,5 +387,6 @@ export default function AdminConsole() {
        </button>
       </div>
     </div>
+    </>}
   </div></div>;
 }

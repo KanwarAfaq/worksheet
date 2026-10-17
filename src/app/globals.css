@@ -1166,3 +1166,18 @@ html[data-theme='dark'] .admin-agent-result strong{color:#e3f4e5}
 .admin-seo-panel span{font-size:13px;font-weight:750;color:#37694c}
 .admin-seo-panel a{font-size:13px;font-weight:800;color:#216345;text-decoration:underline}
 .admin-seo-panel small{font-size:12px;color:#718478;flex:1 0 100%}
+
+/* Four clear workspaces replace one overcrowded administrative page. */
+.admin-dashboard-tabs{display:flex;gap:8px;align-items:center;margin:3px 0 24px;
+ padding:6px;background:#eaf1e9;border:1px solid #dce9df;border-radius:14px;
+ width:max-content;max-width:100%;overflow-x:auto}
+.admin-dashboard-tabs button{display:flex;align-items:center;justify-content:center;gap:8px;
+ min-width:128px;padding:13px 20px;border-radius:10px;border:0;background:transparent;
+ color:#54715e;font-size:15px;font-weight:850;cursor:pointer}
+.admin-dashboard-tabs button.active{background:#205840;color:#fff;box-shadow:0 5px 15px #163d2a22}
+.admin-dashboard-tabs button:not(.active):hover{background:#d8e8d9;color:#234d35}
+.admin-area>.container{max-width:1480px}
+.admin-quick-actions{margin-top:12px}
+@media(max-width:650px){.admin-dashboard-tabs{width:100%;gap:3px}
+ .admin-dashboard-tabs button{min-width:96px;padding:12px;font-size:13px;gap:5px}
+ .admin-dashboard-tabs button svg{width:15px}}
