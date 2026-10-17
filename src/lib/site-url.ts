@@ -11,9 +11,10 @@ export function siteOrigin(): string {
       if (url.protocol === 'https:' || url.hostname === 'localhost') return url.origin;
     } catch { /* Invalid URL: use the deployment hostname instead. */ }
   }
-  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
-  if (vercel) return 'https://' + vercel.replace(/^https?:\/\//, '').replace(/\/$/, '');
-  return 'https://worksheet-tau-six.vercel.app';
+  // Canonical public domain: all Vercel preview hosts point back to this.
+  return 'https://worksheet.live';
 }
 
-export const indexingEnabled = process.env.ENABLE_SEARCH_INDEXING === 'true';
+const explicitFlag=process.env.ENABLE_SEARCH_INDEXING;
+export const indexingEnabled=explicitFlag==='true'||
+ (explicitFlag!== 'false'&&process.env.VERCEL_ENV==='production');

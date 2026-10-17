@@ -50,6 +50,7 @@ export default function AdminConsole() {
   const [metrics,setMetrics] = useState<Record<string,number|null>|null>(null);
   const [diagnostics,setDiagnostics] = useState<Record<string,{ok?:boolean;httpStatus?:number;reason?:string;model?:string}>|null>(null);
   const [testing,setTesting] = useState(false);
+  const [seo,setSeo]=useState<{origin:string;indexable:boolean;published:number;sitemap:string;robots:string;warnings:string[]}|null>(null);
   const [agentRunning,setAgentRunning] = useState(false);
   const [agentStep,setAgentStep] = useState(0);
   const [agentTotal,setAgentTotal] = useState(5);
@@ -94,6 +95,9 @@ export default function AdminConsole() {
       setCategories(cats.data || []); setGrades(level.data || []);
       if (cats.data?.length) setCategoryId(old => old || cats.data![0].id);
       await loadRows(session);
+      void fetch('/api/admin/seo-status',{headers:{Authorization:'Bearer '+session.access_token},
+       cache:'no-store'}).then(response=>response.ok?response.json():null)
+       .then(value=>{if(!cancelled&&value)setSeo(value);}).catch(()=>{});
       void fetch('/api/admin/stats',{headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'}).then(x=>x.ok?x.json():null).then(x=>{if(!cancelled&&x?.stats)setMetrics(x.stats);}).catch(()=>{});
     };
     void check();
@@ -269,6 +273,14 @@ export default function AdminConsole() {
       <div><ShieldCheck size={22}/><small>Needs review</small><strong>{reviewCount}</strong></div>
     </div>
     {metrics&&<div className="admin-stats" aria-label="Live system metrics"><div><BookOpen size={22}/><small>Registered users</small><strong>{metrics.users??"—"}</strong></div><div><FileText size={22}/><small>Verified PDF files</small><strong>{metrics.pdfFiles??"—"}</strong></div><div><LayoutDashboard size={22}/><small>Verified image files</small><strong>{metrics.imageFiles??"—"}</strong></div><div><Clock3 size={22}/><small>All private drafts</small><strong>{metrics.drafts??"—"}</strong></div></div>}
+    <section className="admin-seo-panel" aria-label="Search and SEO configuration">
+     <div><strong>SEO & search</strong><span>{seo?.indexable?'Indexing ready':'Indexing needs attention'}</span></div>
+     <div><a href="/sitemap.xml" target="_blank" rel="noopener noreferrer">Sitemap</a>
+      <a href="/robots.txt" target="_blank" rel="noopener noreferrer">Robots</a>
+      <a href="/worksheets" target="_blank" rel="noopener noreferrer">Test search</a></div>
+     {seo?.warnings?.length?<small>{seo.warnings.join(' ')}</small>:
+      <small>{seo?seo.published+' published worksheets · '+seo.origin:'Checking indexing…'}</small>}
+    </section>
     <section className="admin-safety"><ShieldCheck size={22}/><div><strong>Production integration diagnostics</strong><p>Test CGU, Groq, NVIDIA, private R2 upload/read/delete, and send a test LINE message. Only the signed-in owner can start these checks.</p><button type="button" className="button button-outline" onClick={()=>testProduction('all')} disabled={testing}>{testing?'Testing integrations…':'Run production tests'}</button>
  <button type="button" className="button button-outline" onClick={()=>testProduction('ai')} disabled={testing}>Retest AI only</button>{diagnostics&&<div role="status">{Object.entries(diagnostics).map(([name,value])=><p key={name}><strong>{name}:</strong> {value.ok?'PASS':'FAIL'}{value.httpStatus?' (HTTP '+value.httpStatus+')':''}{value.model?' — '+value.model:''}{value.reason?' — '+value.reason:''}</p>)}</div>}</div></section>
     <section className="admin-agent-test" aria-label="AI worksheet generator">

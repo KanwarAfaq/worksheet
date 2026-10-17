@@ -23,7 +23,7 @@ export default async function Home(){
  const published=await publishedWorksheets();
  return <>
    <FormatHero/>
-   <section className="container simple-home-section" aria-label="Free printable worksheets introduction"><p>Explore free printable worksheets for Grades 1–6 in math, reading and spelling, or create your own classroom activities with our worksheet makers.</p><h2>Free printable worksheets and learning activities</h2><p>Browse our <Link href="/worksheets">worksheet library</Link>, try the <Link href="/create">free worksheet maker</Link>, or read the <Link href="/guides/printing-worksheets">worksheet printing guide</Link>.</p></section>
+
    <section className="simple-home-section container">
     <div className="simple-section-heading"><h2>Choose a subject</h2><Link href="/worksheets">View all <ArrowRight size={18}/></Link></div>
     <div className="simple-subjects three-main-subjects">{subjects.filter(subject=>['math','reading','colors'].includes(subject.slug)).map(subject=>

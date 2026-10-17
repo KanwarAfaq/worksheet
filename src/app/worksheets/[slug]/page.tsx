@@ -69,7 +69,7 @@ if(published){
      {published.availableFormats.some(f=>['pdf','png','jpg','webp'].includes(f))&&<a className="button button-outline" href={'/api/worksheets/'+published.id+'/preview?format='+(published.availableFormats.find(f=>['pdf','png','jpg','webp'].includes(f))||'pdf')} target="_blank" rel="noopener noreferrer"><Eye size={17}/> Preview file</a>}
      {published.availableFormats.some(f=>['pdf','png','jpg','webp'].includes(f))&&<a className="button button-outline" href={'/api/worksheets/'+published.id+'/print?format='+(published.availableFormats.find(f=>['pdf','png','jpg','webp'].includes(f))||'pdf')} target="_blank" rel="noopener noreferrer"><Printer size={17}/> Print/Save</a>}
     </div>
-    <p className="sample-disclaimer">Files are delivered securely through Worksheet Studio, not a public storage bucket.</p>
+    
    </div>
   </div>
  </div>;
