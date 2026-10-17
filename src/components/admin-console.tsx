@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import AdminQuickUpload from '@/components/admin-quick-upload';
+import AdminBulkTools from '@/components/admin-bulk-tools';
 
 type WorksheetRow = {
   id: string; title: string; slug: string; summary: string | null;
@@ -40,6 +41,7 @@ export default function AdminConsole() {
   const [notice, setNotice] = useState<Alert>({});
   const [authBusy, setAuthBusy] = useState(false);
   const [rows, setRows] = useState<WorksheetRow[]>([]);
+  const [selected,setSelected]=useState<string[]>([]);
   const [rowQuery, setRowQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categories, setCategories] = useState<Option[]>([]);
@@ -242,7 +244,7 @@ export default function AdminConsole() {
   const reviewCount=rows.filter(row=>row.status==='review').length;
   const archivedCount=rows.filter(row=>row.status==='archived').length;
   return <div className="admin-area"><div className="container">
-    <div className="admin-topbar"><div><div className="section-kicker">WORKSHEET STUDIO / ADMIN</div><h1>Your <em>worksheets.</em></h1><p>Manage drafts and published worksheets · Signed in as {session.user.email}</p></div>
+    <div className="admin-topbar"><div><div className="section-kicker">WORKSHEET STUDIO / ADMIN</div><h1>Your <em>worksheets.</em></h1><p>{session.user.email}</p></div>
       <button onClick={()=>supabaseBrowser.auth.signOut()} type="button" className="button button-outline"><LogOut size={16}/> Sign out</button></div>
     <div className="admin-stats">
       <div><LayoutDashboard size={22}/><small>Total worksheets</small><strong>{rows.length}</strong></div>
@@ -279,16 +281,25 @@ export default function AdminConsole() {
      <button type="button" onClick={()=>setStatusFilter('all')}>All records <strong>{rows.length}</strong></button>
      <Link href="/create/templates" className="admin-quick-create">Create printable template <ArrowRight size={16}/></Link>
     </div>
-    <div className="admin-safety"><ShieldCheck size={22}/><div><strong>One workflow for admin and community</strong><p>Create original worksheets in a draft or review community submissions. Files remain private until the owner publishes them.</p></div></div>
+    
     {notice.error&&<p role="alert" className="admin-alert error"><AlertCircle size={17}/>{notice.error}</p>}
     {notice.info&&<p role="status" className="admin-alert good"><CheckCircle2 size={17}/>{notice.info}</p>}
+    <AdminBulkTools session={session} categories={categories} grades={grades}
+     rows={rows} selected={selected} onClear={()=>setSelected([])} onChange={()=>void loadRows(session)}/>
     <div className="admin-content">
       <section className="admin-list">
-        <div className="admin-panel-heading"><div><h2>Worksheet manager</h2><p>Manage drafts, published work and community review submissions</p></div><button type="button" className="admin-icon-button" onClick={()=>loadRows(session)} disabled={loadingRows} aria-label="Refresh worksheets"><RefreshCcw size={18}/></button></div>
+        <div className="admin-panel-heading"><div><h2>Worksheet manager</h2></div><button type="button" className="admin-icon-button" onClick={()=>loadRows(session)} disabled={loadingRows} aria-label="Refresh worksheets"><RefreshCcw size={18}/></button></div>
         <div className="admin-filters"><label className="admin-search"><Search size={16}/><input type="search" aria-label="Search worksheet records" value={rowQuery} onChange={e=>setRowQuery(e.target.value)} placeholder="Search by title…"/></label><select aria-label="Filter worksheet status" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="draft">Draft</option><option value="archived">Archived</option><option value="published">Published</option><option value="review">Needs review</option></select></div>
+        <div className="admin-select-all"><label><input type="checkbox" checked={visibleRows.length>0&&visibleRows.every(x=>selected.includes(x.id))}
+         onChange={e=>setSelected(e.target.checked?[...new Set([...selected,...visibleRows.map(x=>x.id)])]:
+          selected.filter(id=>!visibleRows.some(row=>row.id===id)))}/> Select visible</label>
+         <small>{visibleRows.length} results</small></div>
         {loadingRows?<p className="admin-empty">Loading worksheet records…</p>:rows.length===0?<div className="admin-empty"><FileText size={34}/><strong>No worksheets yet</strong><p>Click “New worksheet” to start.</p></div>:
           <div className="admin-rows">{visibleRows.length === 0 ? <p className="admin-empty">No worksheets match your filters.</p> : visibleRows.map(row=><div key={row.id} className="admin-row">
-            <div><strong>{row.title}</strong><small>{new Date(row.created_at).toLocaleDateString()} ·
+            <input type="checkbox" className="admin-row-check" aria-label={'Select '+row.title}
+             checked={selected.includes(row.id)}
+             onChange={e=>setSelected(previous=>e.target.checked?[...new Set([...previous,row.id])]:previous.filter(id=>id!==row.id))}/>
+            <div className="admin-row-info"><strong>{row.title}</strong><small>{new Date(row.created_at).toLocaleDateString()} ·
              {row.file_count||0} file(s){row.status==='draft'&&(row.file_count||0)===0?' · Upload incomplete':''}</small></div>
             <div className="admin-row-actions">
              <span className={'admin-status '+row.status}>{row.status}</span>
