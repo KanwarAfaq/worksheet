@@ -52,6 +52,9 @@ export default function AdminConsole() {
   const [testing,setTesting] = useState(false);
   const [agentRunning,setAgentRunning] = useState(false);
   const [agentStep,setAgentStep] = useState(0);
+  const [agentTotal,setAgentTotal] = useState(5);
+  const [agentSubjects,setAgentSubjects] = useState({math:2,reading:2,colors:1});
+  const [agentGrade,setAgentGrade] = useState(2);
   const [agentReports,setAgentReports] = useState<Array<{slot:number;status:'created'|'existing'|'failed';id?:string;error?:string}>>([]);
 
   const [creating, setCreating] = useState(false);
@@ -136,32 +139,42 @@ export default function AdminConsole() {
     }catch(e){setNotice({error:e instanceof Error?e.message:'Rejection failed'});}
   }
 
-  async function runFiveAiDrafts(){
+  async function runFiveAiDrafts(manual=false){
     if(!session||agentRunning)return;
-    if(!window.confirm('Generate five NEW illustrated worksheet PDFs and private teacher keys? Uses AI quota and R2 storage. Older text-only drafts stay unchanged. Nothing is published.'))return;
-    setAgentRunning(true);setAgentStep(0);setAgentReports([]);setNotice({});
+    const total=manual?agentSubjects.math+agentSubjects.reading+agentSubjects.colors:5;
+    if(total<1||total>10){setNotice({error:'Choose 1–10 worksheets in total.'});return;}
+    if(!window.confirm('Create '+total+' PRIVATE illustrated worksheets and teacher keys? They require owner review before publishing.'))return;
+    const jobs=manual?([
+      ...Array.from({length:agentSubjects.reading},()=> 'reading' as const),
+      ...Array.from({length:agentSubjects.colors},()=> 'colors' as const),
+      ...Array.from({length:agentSubjects.math},()=> 'math' as const)
+    ]):(['math','reading','colors','math','reading'] as const);
+    setAgentRunning(true);setAgentStep(0);setAgentTotal(total);setAgentReports([]);setNotice({});
     const results:Array<{slot:number;status:'created'|'existing'|'failed';id?:string;error?:string}>=[];
     try{
-     for(let slot=1;slot<=5;slot++){
-      setAgentStep(slot);
+     for(const [index,subject] of jobs.entries()){
+      const slot=index%5+1;
+      setAgentStep(index+1);
       try{
        const response=await fetch('/api/admin/automation/test',{
         method:'POST',cache:'no-store',
         headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
-        body:JSON.stringify({slot})
+        body:JSON.stringify({slot,...(manual?{
+          subject,grade:agentGrade,requestId:crypto.randomUUID()
+         }:{})})
        });
        const data=await response.json();
        const report=data.generated as {created?:number;skipped?:number;failed?:number;ids?:string[];errors?:string[]} | undefined;
        const error=(!response.ok?data.error:report?.errors?.[0]) as string|undefined;
-       results.push({slot,status:report?.created?'created':report?.skipped?'existing':'failed',
-        id:report?.ids?.[0],error:error||undefined});
+       results.push({slot:index+1,status:report?.created?'created':report?.skipped?'existing':'failed',
+        id:report?.ids?.[0],error:(manual?subject+': ':'')+(error||'')});
       }catch{
-       results.push({slot,status:'failed',error:'Request timed out or could not reach Vercel.'});
+       results.push({slot:index+1,status:'failed',error:subject+': request timed out'});
       }
       setAgentReports([...results]);
      }
      await loadRows(session);
-     setStatusFilter('draft');
+     setStatusFilter('review');
      setRowQuery('');
     }finally{setAgentRunning(false);}
   }
@@ -237,11 +250,14 @@ export default function AdminConsole() {
     <button className="button button-outline" onClick={()=>supabaseBrowser.auth.signOut()}>Sign out</button>
   </div>;
 
-  const visibleRows = rows.filter(row => (statusFilter === 'all' || row.status === statusFilter) &&
+  const visibleRows = rows.filter(row => (statusFilter === 'all' || row.status === statusFilter ||
+    (statusFilter==='review'&&row.status==='draft'&&
+     (row.slug.startsWith('daily-ai-')||row.slug.startsWith('manual-ai-')))) &&
     (row.title + ' ' + row.slug).toLowerCase().includes(rowQuery.toLowerCase()));
   const published = rows.filter(row=>row.status==='published').length;
   const drafts = rows.filter(row=>row.status==='draft').length;
-  const reviewCount=rows.filter(row=>row.status==='review').length;
+  const reviewCount=rows.filter(row=>row.status==='review'||(row.status==='draft'&&row.slug.startsWith('daily-ai-'))||
+    (row.status==='draft'&&row.slug.startsWith('manual-ai-'))).length;
   const archivedCount=rows.filter(row=>row.status==='archived').length;
   return <div className="admin-area"><div className="container">
     <div className="admin-topbar"><div><div className="section-kicker">WORKSHEET STUDIO / ADMIN</div><h1>Your <em>worksheets.</em></h1><p>{session.user.email}</p></div>
@@ -255,22 +271,39 @@ export default function AdminConsole() {
     {metrics&&<div className="admin-stats" aria-label="Live system metrics"><div><BookOpen size={22}/><small>Registered users</small><strong>{metrics.users??"—"}</strong></div><div><FileText size={22}/><small>Verified PDF files</small><strong>{metrics.pdfFiles??"—"}</strong></div><div><LayoutDashboard size={22}/><small>Verified image files</small><strong>{metrics.imageFiles??"—"}</strong></div><div><Clock3 size={22}/><small>All private drafts</small><strong>{metrics.drafts??"—"}</strong></div></div>}
     <section className="admin-safety"><ShieldCheck size={22}/><div><strong>Production integration diagnostics</strong><p>Test CGU, Groq, NVIDIA, private R2 upload/read/delete, and send a test LINE message. Only the signed-in owner can start these checks.</p><button type="button" className="button button-outline" onClick={()=>testProduction('all')} disabled={testing}>{testing?'Testing integrations…':'Run production tests'}</button>
  <button type="button" className="button button-outline" onClick={()=>testProduction('ai')} disabled={testing}>Retest AI only</button>{diagnostics&&<div role="status">{Object.entries(diagnostics).map(([name,value])=><p key={name}><strong>{name}:</strong> {value.ok?'PASS':'FAIL'}{value.httpStatus?' (HTTP '+value.httpStatus+')':''}{value.model?' — '+value.model:''}{value.reason?' — '+value.reason:''}</p>)}</div>}</div></section>
-    <section className="admin-agent-test" aria-label="Five AI worksheet test">
-      <div>
-       <h2>AI worksheet test</h2>
-       <p>Create five illustrated worksheets (picture puzzles, matching, shapes and word search). Review every PDF before publishing.</p>
+    <section className="admin-agent-test" aria-label="AI worksheet generator">
+      <div className="admin-agent-intro"><h2>AI worksheet agent</h2>
+       <p>Create illustrated PDF drafts. Review before publishing.</p></div>
+      <div className="agent-count-selector" aria-label="Choose subject counts">
+       {([
+        {name:'Math',key:'math' as const},
+        {name:'English',key:'reading' as const},
+        {name:'Color',key:'colors' as const}
+       ]).map(subject=><label key={subject.key}>{subject.name}
+        <input type="number" min="0" max="10" value={agentSubjects[subject.key]}
+         onChange={e=>setAgentSubjects(old=>({...old,[subject.key]:Math.min(10,Math.max(0,Number(e.target.value)||0))}))}
+         disabled={agentRunning}/></label>)}
+       <label>Grade<select value={agentGrade} disabled={agentRunning}
+         onChange={e=>setAgentGrade(Number(e.target.value))}>
+         {[1,2,3,4,5,6].map(n=><option key={n} value={n}>Grade {n}</option>)}
+       </select></label>
+       <button className="button button-dark" type="button"
+        disabled={agentRunning||!Object.values(agentSubjects).some(n=>n>0)||
+          Object.values(agentSubjects).reduce((sum,n)=>sum+n,0)>10}
+        onClick={()=>runFiveAiDrafts(true)}>{agentRunning?
+          'Generating '+agentStep+'/'+agentTotal+'…':'Generate '+Object.values(agentSubjects).reduce((s,n)=>s+n,0)+' drafts'}
+       </button>
       </div>
-      <button className="button button-dark" type="button" disabled={agentRunning}
-       onClick={runFiveAiDrafts}>
-       {agentRunning?'Generating '+agentStep+' / 5…':'Run 5 AI worksheet test'}
-      </button>
+      <details className="agent-default-test"><summary>Daily default: 5 worksheets</summary>
+       <button className="button button-outline" type="button" disabled={agentRunning}
+        onClick={()=>runFiveAiDrafts(false)}>Test standard 5 worksheets</button>
+      </details>
       {agentReports.length>0&&<div className="admin-agent-results" role="status">
        {agentReports.map(report=><div key={report.slot} className="admin-agent-result">
-        <strong>{report.slot}/5 — {report.status==='created'?'Created':report.status==='existing'?'Already exists':'Failed'}</strong>
-        {report.id&&<Link href={'/admin/worksheets/'+report.id+'?review=1'}>Review PDF <ArrowRight size={15}/></Link>}
+        <strong>{report.slot}/{agentTotal} — {report.status==='created'?'Created':report.status==='existing'?'Existing':'Failed'}</strong>
+        {report.id&&<Link href={'/admin/worksheets/'+report.id+'?review=1'}>Preview PDF <ArrowRight size={15}/></Link>}
         {report.error&&<small>{report.error}</small>}
        </div>)}
-       {!agentRunning&&<p>Finished. Open a draft below to preview its PDF. Nothing was published.</p>}
       </div>}
     </section>
     <div className="admin-quick-actions" aria-label="Admin quick filters">
@@ -305,7 +338,7 @@ export default function AdminConsole() {
              <span className={'admin-status '+row.status}>{row.status}</span>
              <a href={'/admin/worksheets/'+row.id} className="admin-edit-link"><Pencil size={14}/> Review / Open</a>
              {row.status==='draft'&&
-               (row.slug.startsWith('daily-ai-')?
+               ((row.slug.startsWith('daily-ai-')||row.slug.startsWith('manual-ai-'))?
                 <button type="button" className="draft-delete-button" onClick={()=>rejectAiDraft(row.id,row.title)}>
                  <Trash2 size={16}/> Reject &amp; delete</button>:
                 <button type="button" className="draft-delete-button" onClick={()=>deleteDraft(row)}>
