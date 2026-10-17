@@ -11,12 +11,16 @@ export async function GET(request:Request){
  const today=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
  const checks=await Promise.all([
   db.from('user_profiles').select('*',{head:true,count:'exact'}),
-  db.from('worksheets').select('*',{head:true,count:'exact'}),
-  db.from('worksheets').select('*',{head:true,count:'exact'}).eq('status','published'),
-  db.from('worksheets').select('*',{head:true,count:'exact'}).eq('status','draft'),
+  db.from('worksheets').select('*',{head:true,count:'exact'}).not('tags','cs','{removed-by-author}'),
+  db.from('worksheets').select('*',{head:true,count:'exact'}).eq('status','published').not('tags','cs','{removed-by-author}'),
+  db.from('worksheets').select('*',{head:true,count:'exact'}).eq('status','draft').not('tags','cs','{removed-by-author}'),
   db.from('worksheets').select('*',{head:true,count:'exact'}).eq('slug','daily-ai-'+today+'-1'),
-  db.from('worksheet_files').select('*',{head:true,count:'exact'}).eq('role','student').eq('variant','pdf').eq('upload_status','verified'),
-  db.from('worksheet_files').select('*',{head:true,count:'exact'}).eq('role','student').in('variant',['png','jpg','webp']).eq('upload_status','verified')
+  db.from('worksheet_files').select('id,worksheets!inner(tags)',{head:true,count:'exact'})
+   .eq('role','student').eq('variant','pdf').eq('upload_status','verified')
+   .not('worksheets.tags','cs','{removed-by-author}'),
+  db.from('worksheet_files').select('id,worksheets!inner(tags)',{head:true,count:'exact'})
+   .eq('role','student').in('variant',['png','jpg','webp']).eq('upload_status','verified')
+   .not('worksheets.tags','cs','{removed-by-author}')
  ]);
  const names=['users','worksheets','published','drafts','dailyAgentStarted','pdfFiles','imageFiles'];
  const stats:Record<string,number|null>={};
