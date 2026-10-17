@@ -30,9 +30,11 @@ export default function AdminBulkTools({session,categories,grades,rows,selected,
   if(uploading||!rights||!files.length||!subject)return;
   if(!window.confirm('Upload '+files.length+' original or licensed worksheets as PRIVATE drafts?'))return;
   setUploading(true);setReport([]);setStatus('');
-  const messages:string[]=[];
-  for(const [index,file] of files.entries()){
-   setStatus('Uploading '+(index+1)+' of '+files.length+'…');
+  const messages:string[]=Array(files.length).fill('');
+  let completed=0;
+  let cursor=0;
+  async function uploadOne(index:number){
+   const file=files[index];
    let id='';
    try{
     const title=file.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ').trim().slice(0,140)||'Worksheet';
@@ -44,13 +46,22 @@ export default function AdminBulkTools({session,categories,grades,rows,selected,
     uploadData.set('rights_confirmed','yes');uploadData.set('license_basis',license);
     const stored=await fetch('/api/admin/worksheets/'+id+'/files',{method:'POST',headers,body:uploadData});
     const saved=await stored.json();if(!stored.ok)throw new Error(saved.error||'File upload failed');
-    messages.push('✓ '+file.name);
+    messages[index]='✓ '+file.name;
    }catch(e){
-    messages.push('× '+file.name+': '+(e instanceof Error?e.message:'Failed')+
-      (id?' (private draft '+id.slice(0,8)+')':''));
+    messages[index]='× '+file.name+': '+(e instanceof Error?e.message:'Failed')+
+      (id?' (private draft '+id.slice(0,8)+')':'');
    }
-   setReport([...messages]);
+   completed++;setStatus('Uploaded '+completed+' / '+files.length+' files');
+   setReport(messages.filter(Boolean));
   }
+  // Two uploads in parallel balance speed with Vercel/R2 request pressure.
+  const workers=Array.from({length:Math.min(2,files.length)},async()=>{
+   while(cursor<files.length){
+    const index=cursor++;
+    await uploadOne(index);
+   }
+  });
+  await Promise.all(workers);
   setUploading(false);setFiles([]);setStatus('Upload finished — open drafts to review.');
   onChange();
  }

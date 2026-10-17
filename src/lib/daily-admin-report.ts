@@ -16,10 +16,11 @@ export async function dailyAdminReport(day:string,generated:{created:number;skip
   db.from('worksheet_files').select('*',{count:'exact',head:true}).eq('role','student').eq('variant','pdf').eq('upload_status','verified'),
   db.from('worksheet_files').select('*',{count:'exact',head:true}).eq('role','student').in('variant',['png','jpg','webp']).eq('upload_status','verified'),
   db.from('user_profiles').select('*',{count:'exact',head:true}).gte('created_at',startUtc).lt('created_at',endDate),
+  db.from('worksheets').select('*',{count:'exact',head:true}).like('slug','daily-ai-visual2-'+day+'-%'),
  ]);
- const keys=['Users','Worksheets','Published','Drafts awaiting review','PDF files','Image files','New users today'];
+ const keys=['Users','Worksheets','Published','Drafts awaiting review','PDF files','Image files','New users today','AI generated today'];
  return keys.map((k,i)=>k+': '+(counts[i].error?'unavailable':counts[i].count??0)).join('\n')+
- '\nAI drafts today: '+generated.created+' | Existing: '+generated.skipped+' | Errors: '+generated.failed;
+ '\nLatest generation attempt: '+generated.created+' new, '+generated.skipped+' reused, '+generated.failed+' failed';
 }
 export async function pushDailyAdminReport(day:string,summary:string){
  const token=process.env.LINE_CHANNEL_ACCESS_TOKEN,recipient=process.env.LINE_ADMIN_USER_ID;
