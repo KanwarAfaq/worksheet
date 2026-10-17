@@ -11,19 +11,28 @@ export const maxDuration=60;
 export async function POST(request:Request){
  const owner=await requireOwner(request);
  if(!owner.ok)return Response.json({error:'Owner sign-in required'},{status:owner.status});
- let slot:unknown;
+ let slot:unknown,subject:unknown,requestId:unknown,grade:unknown;
  try{
   const payload:unknown=await request.json();
-  slot=payload&&typeof payload==='object'&&!Array.isArray(payload)&&'slot' in payload
-    ?(payload as {slot:unknown}).slot:null;
+  const body=payload&&typeof payload==='object'&&!Array.isArray(payload)
+    ?payload as Record<string,unknown>:{};
+  slot=body.slot;subject=body.subject;requestId=body.requestId;grade=body.grade;
  }catch{return Response.json({error:'Invalid request'},{status:400});}
  if(typeof slot!=='number'||!Number.isInteger(slot)||slot<1||slot>5)
   return Response.json({error:'Test slot must be 1–5'},{status:400});
+ const custom=subject!==undefined||requestId!==undefined;
+ if(custom&&(!['math','reading','colors'].includes(String(subject))||
+  typeof requestId!=='string'||!/^[a-z0-9-]{8,45}$/i.test(requestId)||
+  (grade!==undefined&&(!Number.isInteger(grade)||Number(grade)<1||Number(grade)>6))))
+  return Response.json({error:'Select a valid subject, grade and request ID'},{status:400});
 
  // Consistent with the existing daily agent's Taiwan-local schedule.
  const day=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
  try{
-  const result=await runDailyAiDrafts(day,[slot-1]);
+  const result=await runDailyAiDrafts(day,[slot-1],custom?{
+    subject:subject as 'math'|'reading'|'colors',requestId:requestId as string,
+    ...(grade!==undefined?{grade:grade as number}:{})
+   }:undefined);
   return Response.json({day,slot,generated:result,privateDrafts:true,autoScheduleUnchanged:true},
    {headers:{'Cache-Control':'private, no-store'}});
  }catch(error){

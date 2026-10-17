@@ -14,7 +14,8 @@ const VERSION='visual2';
 /** One owner-triggered slot per request, or all five for a scheduled run.
  * The visual-v2 slug intentionally leaves the older text-heavy drafts untouched.
  */
-export async function runDailyAiDrafts(day:string,slots:number[]=[0,1,2,3,4]):Promise<RunResult>{
+export async function runDailyAiDrafts(day:string,slots:number[]=[0,1,2,3,4],
+ custom?:{subject:VisualSubject;requestId:string;grade?:number}):Promise<RunResult>{
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new Error('Invalid daily date');
  if(!process.env.SUPABASE_SERVICE_ROLE_KEY||!r2Configured())
   throw new Error('Missing Supabase or private R2 configuration');
@@ -28,11 +29,15 @@ export async function runDailyAiDrafts(day:string,slots:number[]=[0,1,2,3,4]):Pr
   .select('user_id').eq('role','owner').eq('enabled',true).limit(1).maybeSingle();
  if(ownerError||!owner)throw new Error('No enabled owner');
  const store=r2Client(),bucket=r2Bucket();
+ if(custom&&(!subjects.includes(custom.subject)||!/^[a-z0-9-]{8,45}$/i.test(custom.requestId)||
+  (custom.grade!==undefined&&(!Number.isInteger(custom.grade)||custom.grade<1||custom.grade>6))))
+  throw new Error('Invalid custom generation request');
  const result:RunResult={created:0,skipped:0,failed:0,ids:[],errors:[]};
  for(const slot of slots){
-  const grade=((Number(day.replace(/-/g,''))+slot-1)%6)+1;
-  const subject=subjects[slot];
-  const slug='daily-ai-'+VERSION+'-'+day+'-'+(slot+1);
+  const grade=custom?.grade||((Number(day.replace(/-/g,''))+slot-1)%6)+1;
+  const subject=custom?.subject||subjects[slot];
+  const slug=custom?'manual-ai-'+VERSION+'-'+day+'-'+custom.requestId:
+   'daily-ai-'+VERSION+'-'+day+'-'+(slot+1);
   const {data:existing,error:checkError}=await db.from('worksheets')
    .select('id').eq('slug',slug).maybeSingle();
   if(checkError){result.failed++;result.errors.push('Slot '+(slot+1)+': lookup failed');continue;}

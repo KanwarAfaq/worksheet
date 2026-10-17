@@ -1,0 +1,25 @@
+name: Daily worksheet agent (5 private drafts)
+on:
+  schedule:
+    # 01:00 UTC = 09:00 Taiwan. GitHub scheduled jobs can start late.
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: daily-private-worksheet-agent
+  cancel-in-progress: false
+jobs:
+  create-five:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      WORKSHEET_CRON_SECRET: ${{ secrets.WORKSHEET_CRON_SECRET }}
+      WORKSHEET_AGENT_URL: https://worksheet.live
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate and verify five private review drafts
+        run: node scripts/run-daily-worksheet-agent.mjs
