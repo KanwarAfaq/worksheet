@@ -17,7 +17,7 @@ for(let slot=1;slot<=5;slot++){
    });
    const body=await res.json();
    if(!res.ok||!body.enabled)throw new Error('HTTP '+res.status+' / '+(body.message||body.error||'disabled'));
-   const {created=0,skipped=0:existing=0,failed:count=0,errors=[]}=body.generated||{};
+   const {created=0,skipped:existing=0,failed:count=0,errors=[]}=body.generated||{};
    if(count||created+existing!==1)throw new Error('Generation failed: '+errors.join('; '));
    made+=created;skipped+=existing;success=true;
    process.stdout.write('Slot '+slot+': '+(created?'new private draft':'existing draft')+'\n');
