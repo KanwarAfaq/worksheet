@@ -5,7 +5,7 @@ export default function Image(){
  return new ImageResponse(
   <div style={{display:'flex',width:'100%',height:'100%',background:'#fff7e7',
    padding:75,flexDirection:'column',justifyContent:'center',position:'relative'}}>
-   <div style={{fontSize:29,color:'#275644',fontWeight:700,marginBottom:40}}>◈ Worksheet Studio</div>
+   <div style={{fontSize:29,color:'#275644',fontWeight:700,marginBottom:40}}>Worksheet Studio</div>
    <div style={{display:'flex',flexDirection:'column',fontSize:69,fontWeight:800,letterSpacing:-2,
     lineHeight:1.15,color:'#173c32',maxWidth:930}}>
     <span>Free printable worksheets.</span><span>Big learning moments.</span>
