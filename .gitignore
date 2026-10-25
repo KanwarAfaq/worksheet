@@ -8,3 +8,4 @@ out/
 *.tsbuildinfo
 .DS_Store
 coverage/
+public/pdf.worker.min.mjs
