@@ -15,8 +15,7 @@ export default function Header(){
   setDark(window.localStorage.getItem('worksheet-theme')==='dark');
   document.documentElement.dataset.theme=window.localStorage.getItem('worksheet-theme')==='dark'?'dark':'light';
  },[]);
- useEffect(()=>{setSidebar(window.matchMedia('(min-width: 1250px)').matches);},[]);
- useEffect(()=>{if(window.innerWidth<1250)setSidebar(false);setOpenMenu(null);},[pathname]);
+ useEffect(()=>{setSidebar(false);setOpenMenu(null);},[pathname]);
  useEffect(()=>{
   const close=(event:PointerEvent)=>{
    if(navRef.current&&!navRef.current.contains(event.target as Node))setOpenMenu(null);
@@ -29,8 +28,8 @@ export default function Header(){
   return()=>{document.removeEventListener('pointerdown',close);document.removeEventListener('keydown',keyboard);};
  },[]);
  useEffect(()=>{
-  const close=(e:KeyboardEvent)=>{if(e.key==='Escape'&&window.innerWidth<1250)setSidebar(false);};
-  const resize=()=>{if(window.innerWidth<1250)setSidebar(false);};
+  const close=(e:KeyboardEvent)=>{if(e.key==='Escape')setSidebar(false);};
+  const resize=()=>{};
   window.addEventListener('keydown',close);window.addEventListener('resize',resize);
   return()=>{window.removeEventListener('keydown',close);window.removeEventListener('resize',resize);};
  },[]);
@@ -45,7 +44,7 @@ export default function Header(){
     <button className="icon-control sidebar-trigger" type="button" onClick={()=>setSidebar(s=>!s)}
      aria-label={sidebar?'Close sidebar':'Open sidebar'} aria-expanded={sidebar} aria-controls="worksheet-sidebar"><Menu size={24}/></button>
     <Link href="/" className="brand" aria-label="Worksheet Studio home">
-     <span className="brand-icon"><BookOpen size={20}/></span><span>worksheet<span className="brand-accent">studio.</span></span>
+     <span className="brand-icon"><BookOpen size={20}/></span><span>worksheet<span className="brand-accent">studio</span></span>
     </Link>
     <nav className="main-subject-nav simplified-main-menu" aria-label="Main subjects" ref={navRef}
       onMouseLeave={()=>setOpenMenu(null)}>
@@ -76,20 +75,20 @@ export default function Header(){
     </div>
    </div>
   </header>
-  {sidebar&&<div className="sidebar-scrim" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}} aria-hidden="true"/>}
+  {sidebar&&<div className="sidebar-scrim" onClick={()=>setSidebar(false)} aria-hidden="true"/>}
   <aside className={'worksheet-sidebar simple-sidebar '+(sidebar?'is-open':'')} id="worksheet-sidebar" aria-label="Quick navigation">
    <div className="sidebar-top"><strong>Menu</strong>
     <button className="icon-control" type="button" onClick={()=>setSidebar(false)} aria-label="Close sidebar"><X size={21}/></button>
    </div>
    <nav className="simple-sidebar-links" aria-label="Quick links">
-    <Link href="/worksheets" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Worksheets</Link>
-    <Link href="/create" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Create</Link>
-    <Link href="/contribute" onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>Upload</Link>
+    <Link href="/worksheets" onClick={()=>setSidebar(false)}>Worksheets</Link>
+    <Link href="/create" onClick={()=>setSidebar(false)}>Create</Link>
+    <Link href="/contribute" onClick={()=>setSidebar(false)}>Upload</Link>
    </nav>
    <details className="simple-sidebar-grades">
     <summary>Grades 1–6 <ChevronDown size={18}/></summary>
     <div>{grades.map(grade=><Link key={grade.slug} href={'/worksheets?grade='+grade.slug}
-      onClick={()=>{if(window.innerWidth<1250)setSidebar(false);}}>{grade.title}</Link>)}</div>
+      onClick={()=>setSidebar(false)}>{grade.title}</Link>)}</div>
    </details>
  
   </aside>

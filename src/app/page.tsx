@@ -25,7 +25,7 @@ export default async function Home(){
    <FormatHero/>
 
    <section className="simple-home-section container">
-    <div className="simple-section-heading"><h2>Choose a subject</h2><Link href="/worksheets">View all <ArrowRight size={18}/></Link></div>
+    <div className="simple-section-heading"><h2>Browse printable worksheets by subject</h2><Link href="/worksheets">View all <ArrowRight size={18}/></Link></div>
     <div className="simple-subjects three-main-subjects">{subjects.filter(subject=>['math','reading','colors'].includes(subject.slug)).map(subject=>
       <Link key={subject.slug} href={'/'+subject.slug} className={'simple-subject '+subject.tint}>
        <BookOpen size={29}/><strong>{subject.slug==='reading'?'English':subject.slug==='colors'?'Color':subject.title}</strong>
@@ -33,14 +33,14 @@ export default async function Home(){
    </section>
    <section className="simple-home-section simple-maker-section">
     <div className="container">
-      <div className="simple-section-heading"><h2>Make a worksheet</h2><Link href="/create">All makers <ArrowRight size={18}/></Link></div>
+      <div className="simple-section-heading"><h2>Make your own printable worksheet</h2><Link href="/create">All makers <ArrowRight size={18}/></Link></div>
       <div className="simple-makers">{makers.map(m=><Link href={m.href} key={m.href}>
         <m.icon size={30}/><strong>{m.label}</strong><ArrowRight size={18}/>
       </Link>)}</div>
     </div>
    </section>
    <section className="simple-home-section container">
-    <div className="simple-section-heading"><h2>Printable worksheets</h2><Link href="/worksheets">Browse all <ArrowRight size={18}/></Link></div>
+    <div className="simple-section-heading"><h2>Free printable worksheets to try</h2><Link href="/worksheets">Browse all <ArrowRight size={18}/></Link></div>
     <div className="worksheet-grid">{published.length?
       published.slice(0,6).map(item=><PublishedWorksheetCard key={item.id} item={item}/>):
       samples.slice(0,3).map(item=><WorksheetCard key={item.slug} item={item}/>)}

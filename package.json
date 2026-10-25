@@ -9,7 +9,8 @@
     "lint": "tsc --noEmit",
     "test": "node --check scripts/run-daily-worksheet-agent.mjs && node --test tests/*.test.mjs",
     "postinstall": "node scripts/install-pdf-worker.mjs",
-    "preview:visual": "node scripts/preview-visual-worksheets.mjs"
+    "preview:visual": "node scripts/preview-visual-worksheets.mjs",
+    "audit:onpage": "node scripts/onpage-audit.mjs"
   },
   "dependencies": {
     "next": "^15.5.0",

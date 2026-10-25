@@ -18,37 +18,37 @@ export default function FormatHero(){
    router.push('/worksheets'+(params.size?'?'+params.toString():''));
  }
  return <section className="new-search-hero">
-   <div className="container">
-    <div className="search-heading">
-      <div className="section-kicker">FREE WORKSHEETS · GRADES 1–6</div>
-      <h1>Find a <em>worksheet.</em></h1>
-
-    </div>
-    <form className="search-mega-form" onSubmit={submit}>
-     <label className="search-input-wrap"><Search size={22}/>
+   <div className="container hero-split">
+    <div className="hero-copy-new">
+     <h1>Free printable <em>worksheets</em> for Grades&nbsp;1–6</h1>
+     <p className="hero-lead">Find free printable worksheets or make your own in seconds.</p>
+     <form className="search-mega-form" onSubmit={submit} role="search">
+      <label className="search-input-wrap"><Search size={20}/>
        <input type="search" value={query} onChange={e=>setQuery(e.target.value)}
          placeholder="Search worksheets, topics or skills..." aria-label="Search worksheets"/>
-     </label>
-     <button className="mega-search-button" type="submit"><Search size={23}/><span className="visually-hidden">Search</span></button>
-     <button className={'mega-filter-button '+(filters?'filter-active':'')} type="button"
+      </label>
+      <button className="mega-search-button" type="submit"><Search size={20}/><span className="visually-hidden">Search</span></button>
+      <button className={'mega-filter-button '+(filters?'filter-active':'')} type="button"
         onClick={()=>setFilters(x=>!x)} aria-expanded={filters} aria-controls="advanced-search-options">
-       <SlidersHorizontal size={22}/><span>Filters</span>
-     </button>
-    </form>
-    {filters&&<div id="advanced-search-options" className="search-extra-filters">
-     <label>Grade <select value={grade} onChange={e=>setGrade(e.target.value)}>
+       <SlidersHorizontal size={18}/><span>Filters</span>
+      </button>
+     </form>
+     {filters&&<div id="advanced-search-options" className="search-extra-filters">
+      <label>Grade <select value={grade} onChange={e=>setGrade(e.target.value)}>
        <option value="">All grades</option>{Array.from({length:6},(_,i)=><option key={i} value={'grade-'+(i+1)}>Grade {i+1}</option>)}
-     </select></label>
-     <label>Subject <select value={subject} onChange={e=>setSubject(e.target.value)}>
+      </select></label>
+      <label>Subject <select value={subject} onChange={e=>setSubject(e.target.value)}>
        <option value="">All subjects</option>{['math','reading','colors'].map(s=><option key={s} value={s}>{s==='reading'?'English':s==='colors'?'Color':'Math'}</option>)}
-     </select></label>
-     <button type="button" onClick={()=>{setGrade('');setSubject('');setQuery('');}}>Clear filters</button>
-    </div>}
-    <div className="search-underlinks"><span>POPULAR</span>
-     <Link href="/worksheets?subject=math&grade=grade-1">Grade 1 Math</Link>
-     <Link href="/worksheets?subject=reading">Reading</Link>
-     <Link href="/create/word-search">Word search maker <ArrowRight size={13}/></Link>
+      </select></label>
+      <button type="button" onClick={()=>{setGrade('');setSubject('');setQuery('');}}>Clear filters</button>
+     </div>}
+     <div className="search-underlinks">
+      <Link href="/worksheets?subject=math&grade=grade-1">Grade 1 Math</Link>
+      <Link href="/worksheets?subject=reading">Reading</Link>
+      <Link href="/create/word-search">Word search maker <ArrowRight size={13}/></Link>
+     </div>
     </div>
+    <img className="hero-art" src="/art/worksheets.svg" alt="Free printable worksheets preview: letter tracing and addition practice pages" width={520} height={420} fetchPriority="high"/>
    </div>
   </section>;
 }

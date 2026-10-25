@@ -71,8 +71,8 @@ export default function TemplateMaker(){
   }catch(e){setError(e instanceof Error?e.message:'Download failed');}
  }
  return <div className="container workspace template-maker"><Link href="/create" className="back-link"><ArrowLeft size={16}/> Worksheet maker</Link>
-  <div className="section-kicker">CUSTOM PRINTABLE WORKSHEETS</div><h1>Choose a template. <em>Make it yours.</em></h1>
-  <p className="page-lead">Pick an activity, load sample words or enter your own, and download a printable PDF or PNG. Tracing uses one dotted stroke per letter and four handwriting guide lines.</p>
+  <h1>Free printable <em>worksheet templates</em></h1>
+  <p className="page-lead">Choose from four worksheet templates: pick an activity, load sample words or enter your own, and download a printable PDF or PNG. Tracing uses one dotted stroke per letter and four handwriting guide lines.</p>
   <div className="template-picker" role="group" aria-label="Worksheet template">{worksheetTemplates.map(item=><button key={item.id} aria-pressed={type===item.id} className={type===item.id?'selected':''} type="button" onClick={()=>chooseTemplate(item.id)}><strong>{item.name}</strong><small>{item.description}</small></button>)}</div>
   <div className="ai-maker-grid"><div className="editor-panel"><h2>Edit your worksheet</h2>
     <label className="field-label" htmlFor="template-sample">Sample word bank</label><select className="field-select" id="template-sample" value={sample} onChange={e=>chooseSample(e.target.value as keyof typeof worksheetSamples)}>{Object.keys(worksheetSamples).map(x=><option key={x}>{x}</option>)}</select>

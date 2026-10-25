@@ -181,7 +181,8 @@ export default function ColoringMaker({initialGroup}:Props){
  const needsAI=objects.some(o=>!isColoringObject(o));
  return <section className="container workspace dedicated-color-maker">
   <Link href="/colors" className="back-link"><ArrowLeft size={18}/> Color worksheets</Link>
-  <h1>Create a <em>coloring page.</em></h1>
+  <h1>Free <em>coloring page</em> maker</h1>
+  <p className="page-lead">Make a coloring page from up to four outline drawings, then save it as a PDF or PNG.</p>
   <div className="color-maker-grid">
    <div className="editor-panel color-maker-controls">
     <h2>Choose 1–4 objects</h2>

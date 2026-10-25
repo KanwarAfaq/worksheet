@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" role="img" aria-label="Worksheet maker illustration">
+<rect width="520" height="320" rx="28" fill="#ece9ff"/>
+<rect x="40" y="36" width="170" height="248" rx="16" fill="#fff"/>
+<g fill="#4f46e5" font-family="Arial,sans-serif" font-weight="800" font-size="22"><text x="58" y="82">W O R D</text></g>
+<g fill="#14123a" font-family="monospace" font-weight="700" font-size="20" opacity=".8"><text x="58" y="120">C A T S U N</text><text x="58" y="150">B O O K A P</text><text x="58" y="180">S T A R E L</text><text x="58" y="210">M O O N R Y</text><text x="58" y="240">P L A N T S</text></g>
+<rect x="225" y="36" width="255" height="248" rx="16" fill="#4f46e5"/>
+<rect x="249" y="64" width="140" height="14" rx="7" fill="#fff"/><rect x="249" y="92" width="200" height="10" rx="5" fill="#fff" opacity=".45"/><rect x="249" y="112" width="170" height="10" rx="5" fill="#fff" opacity=".45"/>
+<rect x="249" y="150" width="96" height="40" rx="20" fill="#ff6b57"/><text x="272" y="177" font-family="Arial,sans-serif" font-weight="800" font-size="18" fill="#fff">Print</text>
+<rect x="355" y="150" width="96" height="40" rx="20" fill="#fff"/><text x="377" y="177" font-family="Arial,sans-serif" font-weight="800" font-size="18" fill="#4f46e5">PDF</text>
+<circle cx="440" cy="236" r="26" fill="#ffd166"/><path d="M428 236l8 8 16-18" fill="none" stroke="#14123a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

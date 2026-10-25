@@ -111,7 +111,7 @@ async function exportPdf(){
  finally{setBusy(false);}
 }
 return <div className="container workspace"><Link className="back-link" href="/create"><ArrowLeft size={16}/> All makers</Link>
-<div className="workspace-title"><div><div className="section-kicker">LET'S MAKE SOMETHING GREAT</div><h1>{typeNames[type]} <em>Maker.</em></h1><p>{typeDescriptions[type]} Preview as you go, then print or save your worksheet.</p></div><span className="free-bubble"><CheckCircle2 size={15}/> FREE · NO SIGN-UP</span></div>
+<div className="workspace-title"><div><h1>{typeNames[type]} <em>Maker</em></h1><p>Free {typeNames[type].toLowerCase()} maker. {typeDescriptions[type]} Preview as you go, then print or save your worksheet.</p></div><span className="free-bubble"><CheckCircle2 size={15}/> FREE · NO SIGN-UP</span></div>
 <div className="workspace-grid">
 <aside className="editor-panel">
 <div className="editor-panel-heading"><span className="step-label">01</span><div><h2>Your words</h2><p>Enter 3–25 words, one per line or separated by commas.</p></div></div>

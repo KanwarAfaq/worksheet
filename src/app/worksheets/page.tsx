@@ -44,7 +44,8 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
  const matchingLive=livePage.items;
  const chosenFormat=formats.find(f=>f.slug===format);
  return <div className="container inner-page">
-  <h1>Printable <em>worksheets.</em></h1>
+  <h1>Printable <em>worksheets</em></h1>
+  <p className="page-lead">Free printable worksheets for Grades 1–6, filtered by subject, grade and file type.</p>
  {query&&<div className="library-query-note">Search results for <strong>{query}</strong><Link href="/worksheets">Clear search</Link></div>}
   <form action="/worksheets" className="library-search-form" role="search">
     <input type="search" name="q" defaultValue={query} placeholder="Search worksheets…"

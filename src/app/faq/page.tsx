@@ -26,9 +26,8 @@ export default function FAQPage(){
  return <div className="container inner-page seo-prose-page">
   <StructuredData value={breadcrumbs([{label:'Home',url:'/'},{label:'Frequently asked questions',url:'/faq'}])}/>
   <StructuredData value={ld}/>
-  <div className="section-kicker">HELP & ANSWERS</div>
-  <h1>Worksheet <em>questions, answered.</em></h1>
-  <p className="page-lead">Quick answers for parents, teachers and anyone preparing printable learning activities.</p>
+  <h1>Worksheet <em>questions, answered</em></h1>
+  <p className="page-lead">Quick worksheet answers for parents and teachers: printing, makers, answer keys and accounts.</p>
   <h2>Frequently asked questions about printable worksheets</h2>
   <div className="seo-faq-list">{questions.map(({q,a})=><section className="seo-faq-item" key={q}>
    <h2>{q}</h2><p>{a}</p></section>)}</div>

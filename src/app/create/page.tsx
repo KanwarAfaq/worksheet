@@ -13,6 +13,6 @@ const makers=[
   {href:'/create/word-scramble',name:'Word Scramble',icon:Shuffle,description:'Mix up words into a playful spelling challenge with solutions.',accent:'lavender',tag:'MIX & SOLVE'},
   {href:'/create/missing-letters',name:'Missing Letters',icon:SpellCheck,description:'Give words some missing pieces and help learners fill them in.',accent:'pink',tag:'COMPLETE & LEARN'}
 ];
-export default function Create(){return <div className="container inner-page"><div className="section-kicker">THE FREE WORKSHEET MAKER</div><h1>You dream it, <em>we'll make it.</em></h1><p className="page-lead">Choose a worksheet maker. Coloring and classic templates work without sign-in.</p>
+export default function Create(){return <div className="container inner-page"><h1>Free <em>worksheet maker</em></h1><p className="page-lead">Pick a free worksheet maker. Coloring and classic templates work without sign-in.</p>
 <div className="create-grid">{makers.map(m=><Link href={m.href} key={m.href} className={'create-card create-'+m.accent}><span className="create-icon"><m.icon size={32}/></span><span className="section-kicker">{m.tag}</span><h2>{m.name}</h2><p>{m.description}</p><span className="create-open">Start creating <ArrowUpRight size={19}/></span></Link>)}</div>
 <div className="create-benefits"><span><CheckCircle2 size={17}/> Free to use</span><span><CheckCircle2 size={17}/> No account needed</span><span><CheckCircle2 size={17}/> Printable A4 & Letter</span><span><CheckCircle2 size={17}/> Answer keys included</span></div></div>}

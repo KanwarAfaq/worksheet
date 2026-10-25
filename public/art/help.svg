@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" role="img" aria-label="Help and guide illustration">
+<rect width="520" height="320" rx="28" fill="#fff1ea"/>
+<rect x="60" y="48" width="260" height="224" rx="18" fill="#fff"/>
+<rect x="84" y="76" width="150" height="14" rx="7" fill="#14123a"/><rect x="84" y="106" width="200" height="10" rx="5" fill="#d9d9ec"/><rect x="84" y="128" width="180" height="10" rx="5" fill="#d9d9ec"/><rect x="84" y="150" width="200" height="10" rx="5" fill="#d9d9ec"/>
+<rect x="84" y="190" width="96" height="40" rx="20" fill="#4f46e5"/>
+<circle cx="400" cy="150" r="82" fill="#4f46e5"/><text x="400" y="188" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="110" fill="#fff">?</text>
+<circle cx="470" cy="62" r="16" fill="#ffd166"/><circle cx="352" cy="262" r="10" fill="#ff6b57"/>
+</svg>
