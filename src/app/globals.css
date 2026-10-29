@@ -1277,3 +1277,5 @@ html[data-theme='dark'] .admin-list-pagination-pages button.current{background:#
  .modern-pagination .pagination-links>.pagination-arrow{min-width:55px;padding:0 8px}
  .modern-pagination .pagination-ellipsis{padding:0}
  .admin-list-pagination{flex-direction:column}}
+.home-faq{list-style:none;padding:0}
+.home-faq .seo-faq-item h3{font-size:19px;margin:0 0 11px}

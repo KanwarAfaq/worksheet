@@ -1,0 +1,20 @@
+# Worksheet Studio
+
+> Worksheet Studio offers free printable worksheets for Grades 1-6 and free worksheet makers (word search, word scramble, missing letters, tracing, coloring) that export print-ready PDFs on A4 or US Letter. Basic makers need no account; uploads and AI-assisted tools need one.
+
+## Main pages
+
+- [Home](https://worksheet.live/): Search and browse free printable worksheets by subject and grade
+- [Worksheet library](https://worksheet.live/worksheets): Published PDF and image worksheets with download links
+- [Worksheet makers](https://worksheet.live/create): Create custom printable activities in your browser
+- [Word search maker](https://worksheet.live/create/word-search): Turn a word list into a word search with optional answer key
+- [Word scramble maker](https://worksheet.live/create/word-scramble): Make spelling scramble worksheets
+- [Missing letters maker](https://worksheet.live/create/missing-letters): Fill-in-the-blank spelling practice
+- [Coloring pages](https://worksheet.live/create/coloring): Printable coloring activities
+
+## Help
+
+- [FAQ](https://worksheet.live/faq): Answers on cost, grades, PDFs, answer keys, accounts and copyright
+- [How to print a worksheet](https://worksheet.live/guides/printing-worksheets): Step-by-step A4 and US Letter printing guide
+- [About](https://worksheet.live/about): What Worksheet Studio is and how uploads are reviewed
+- [Privacy](https://worksheet.live/privacy): How data is handled

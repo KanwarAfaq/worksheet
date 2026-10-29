@@ -7,6 +7,7 @@ import WorksheetCard from '@/components/worksheet-card';
 import {publishedWorksheets} from '@/lib/public-catalog';
 import {subjects,samples} from '@/lib/catalog';
 import {indexableRobots} from '@/lib/seo';
+import {questions} from '@/lib/faq';
 export const dynamic='force-dynamic';
 export const metadata:Metadata={
  title:'Free Printable Worksheets for Grades 1–6',
@@ -46,6 +47,10 @@ export default async function Home(){
       samples.slice(0,3).map(item=><WorksheetCard key={item.slug} item={item}/>)}
     </div>
     {!published.length&&<p className="sample-disclaimer">Examples only. Downloadable worksheets will appear here when published.</p>}
+   </section>
+ <section className="simple-home-section container" aria-labelledby="home-faq">
+    <div className="simple-section-heading"><h2 id="home-faq">Printable worksheet questions</h2><Link href="/faq">All questions <ArrowRight size={18}/></Link></div>
+    <ul className="seo-faq-list home-faq">{questions.slice(0,4).map(({q,a})=><li className="seo-faq-item" key={q}><h3>{q}</h3><p>{a}</p></li>)}</ul>
    </section>
  </>;
 }
