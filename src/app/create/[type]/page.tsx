@@ -6,7 +6,7 @@ import {typeNames,typeDescriptions} from '@/lib/catalog';
 import {indexableRobots,breadcrumbs} from '@/lib/seo';
 import StructuredData from '@/components/structured-data';
 export function generateStaticParams(){return Object.keys(typeNames).map(type=>({type}));}
-export async function generateMetadata({params}:{params:Promise<{type:string}>}):Promise<Metadata>{const {type}=await params;return {title:'Free '+(typeNames[type]||'Worksheet')+' Maker — Printable PDF',
+export async function generateMetadata({params}:{params:Promise<{type:string}>}):Promise<Metadata>{const {type}=await params;const seoTitles:Record<string,string>={'word-search':'Free Word Search Maker — Printable Puzzle PDF','word-scramble':'Free Word Scramble Maker — Printable Worksheet PDF','missing-letters':'Missing Letters Worksheet Maker — Free Printable PDF'};return {title:seoTitles[type]||'Free '+(typeNames[type]||'Worksheet')+' Maker — Printable PDF',
  description:(typeDescriptions[type]||'Create printable worksheets')+' Customize the words and print a worksheet with a teacher answer key.',
  alternates:type in typeNames?{canonical:'/create/'+type}:undefined,
  robots:indexableRobots(type in typeNames)};}
