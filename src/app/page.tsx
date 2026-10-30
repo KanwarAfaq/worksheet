@@ -10,8 +10,8 @@ import {indexableRobots} from '@/lib/seo';
 import {questions} from '@/lib/faq';
 export const dynamic='force-dynamic';
 export const metadata:Metadata={
- title:'Free Printable Worksheets for Grades 1–6',
- description:'Browse free printable worksheets for Grades 1–6 or create your own word searches, spelling activities, tracing pages and coloring practice.',
+ title:'Free Printable Worksheets & Worksheet Maker (Grades 1–6)',
+ description:'Free printable worksheets for Grades 1–6, plus a free worksheet maker: create your own word search, word scramble, missing-letters and tracing pages with answer keys.',
  alternates:{canonical:'/'},robots:indexableRobots()
 };
 const makers=[

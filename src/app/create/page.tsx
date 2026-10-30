@@ -3,7 +3,7 @@ import type {Metadata} from 'next';
 import {indexableRobots} from '@/lib/seo';
 import Link from 'next/link';
 import {Search,Shuffle,SpellCheck,ArrowUpRight,CheckCircle2,Sparkles,Layers3} from 'lucide-react';
-export const metadata:Metadata={title:'Free Worksheet Maker — Word Search, Spelling and Tracing',
+export const metadata:Metadata={title:'Free Worksheet Maker: Create Your Own Printable Worksheet Templates',
  description:'Make free printable worksheets using customizable word search, spelling, missing letters and tracing templates, with PDF export.',
  alternates:{canonical:'/create'},robots:indexableRobots()};
 const makers=[

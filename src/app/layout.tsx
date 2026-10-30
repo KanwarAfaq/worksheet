@@ -11,7 +11,7 @@ import './globals.css';
 import './theme.css';
 
 export const metadata:Metadata={
- title:{default:'Free Printable Worksheets for Grades 1–6 | Worksheet Studio',template:'%s | Worksheet Studio'},
+ title:{default:'Free Printable Worksheets & Worksheet Maker (Grades 1–6) | Worksheet Studio',template:'%s | Worksheet Studio'},
  description:siteDescription,
  metadataBase:new URL(siteOrigin()),
  applicationName:siteName,
