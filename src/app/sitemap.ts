@@ -1,5 +1,6 @@
 import type {MetadataRoute} from 'next';
 import {subjects,typeNames} from '@/lib/catalog';
+import {guides} from '@/lib/guides';
 import {publishedWorksheets} from '@/lib/public-catalog';
 import {siteOrigin,indexingEnabled} from '@/lib/site-url';
 
@@ -20,6 +21,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   {path:'/create/templates',priority:.8},
   {path:'/faq',priority:.7},
   {path:'/guides/printing-worksheets',priority:.7},
+  ...guides.map(g=>({path:'/guides/'+g.slug,priority:.7})),
   {path:'/about',priority:.4},
   ...Object.keys(typeNames).map(type=>({path:'/create/'+type,priority:.8})),
   ...subjects.filter(s=>publicSubjects.has(s.slug)).map(s=>({path:'/'+s.slug,priority:.75}))

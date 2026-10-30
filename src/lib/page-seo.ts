@@ -41,7 +41,7 @@ export const pageSeo:Record<string,PageSeo>={
  '/faq':{art:A.hp,alt:'Worksheet FAQ: answers about printing, makers and accounts',h2:'More help with printable worksheets',
   note:'Still stuck? The printing guide walks through paper size and answer keys.',refs:[ref.adobe,ref.ed],related:[rel.guide,rel.make,rel.library]},
  '/guides/printing-worksheets':{art:A.hp,alt:'How to print a worksheet: preview, paper size and answer key',h2:'How to print a worksheet without surprises',
-  note:'A4 and US Letter differ slightly, so check scaling before you print.',refs:[ref.adobe,ref.paper],related:[rel.make,rel.library,rel.faq]},
+  note:'A4 and US Letter differ slightly, so check scaling before you print.',refs:[ref.adobe,ref.paper],related:[rel.make,rel.library,rel.faq,{label:'Free printable worksheets guide',href:'/guides/free-printable-worksheets'}]},
  '/about':{art:A.hp,alt:'Worksheet Studio: free printable worksheets for families and teachers',h2:'Why Worksheet Studio exists',
   note:'Free-first tools for families and educators, built to print cleanly.',refs:[ref.ccss,ref.ed],related:[rel.make,rel.library,rel.faq]},
 };

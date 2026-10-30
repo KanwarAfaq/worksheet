@@ -16,5 +16,9 @@
 
 - [FAQ](https://worksheet.live/faq): Answers on cost, grades, PDFs, answer keys, accounts and copyright
 - [How to print a worksheet](https://worksheet.live/guides/printing-worksheets): Step-by-step A4 and US Letter printing guide
+- [Missing letters worksheet guide](https://worksheet.live/guides/missing-letters-worksheets): How to use and make missing letters spelling worksheets
+- [Handwriting practice and tracing worksheets guide](https://worksheet.live/guides/handwriting-practice-worksheets): Tips for tracing and handwriting practice at home or school
+- [Grade 1 math worksheets guide](https://worksheet.live/guides/grade-1-math-worksheets): Using counting and addition worksheets with Grade 1 learners
+- [Free printable worksheets guide](https://worksheet.live/guides/free-printable-worksheets): Choosing, printing and using free printable worksheets
 - [About](https://worksheet.live/about): What Worksheet Studio is and how uploads are reviewed
 - [Privacy](https://worksheet.live/privacy): How data is handled
