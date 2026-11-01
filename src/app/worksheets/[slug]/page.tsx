@@ -9,10 +9,17 @@ import type {Metadata} from 'next';
 import {indexableRobots,absoluteUrl,breadcrumbs} from '@/lib/seo';
 import StructuredData from '@/components/structured-data';
 import PdfPageViewer from '@/components/pdf-page-viewer';
+import {printableBySlug} from '@/lib/printables';
+import PrintableSheet from '@/components/printable-sheet';
+import PrintButton from '@/components/print-button';
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
  const {slug}=await params;
  const worksheet=(await publishedWorksheets()).find(x=>x.slug===slug);
- if(!worksheet)return{title:'Worksheet example',robots:indexableRobots(false)};
+ if(!worksheet){
+  const pr=printableBySlug(slug);
+  if(pr)return{title:{absolute:pr.seoTitle},description:pr.seoDescription,alternates:{canonical:'/worksheets/'+encodeURIComponent(slug)},robots:indexableRobots(true),openGraph:{type:'article',title:pr.seoTitle,description:pr.seoDescription,url:'/worksheets/'+encodeURIComponent(slug)}};
+  return{title:'Worksheet example',robots:indexableRobots(false)};
+ }
  const useful=(worksheet.summary||'').trim().length>=25 && worksheet.availableFormats.length>0;
  const description=(worksheet.summary||worksheet.description||'Free printable learning worksheet').slice(0,155);
  return{
@@ -71,6 +78,29 @@ if(published){
     </div>
     
    </div>
+  </div>
+ </div>;
+}
+const printable=printableBySlug(slug);
+if(printable){
+ const url=absoluteUrl('/worksheets/'+encodeURIComponent(printable.slug));
+ const resource={'@context':'https://schema.org','@type':'LearningResource','@id':url+'#resource',name:printable.title,description:printable.seoDescription,url,inLanguage:'en',isAccessibleForFree:true,learningResourceType:'Worksheet',educationalLevel:printable.grade,teaches:printable.skills,about:printable.category,provider:{'@type':'Organization',name:'Worksheet Studio',url:absoluteUrl('/')}};
+ const faq={'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+  {'@type':'Question',name:'Is this worksheet free to print?',acceptedAnswer:{'@type':'Answer',text:'Yes. Use the print button and choose A4 or US Letter. The answer key is on the last page.'}},
+  {'@type':'Question',name:'What grade is this worksheet for?',acceptedAnswer:{'@type':'Answer',text:printable.title+' is designed for '+printable.grade+' ('+printable.difficulty.toLowerCase()+' level).'}}]};
+ return <div className="container inner-page detail-page">
+  <StructuredData value={breadcrumbs([{label:'Home',url:'/'},{label:'Worksheets',url:'/worksheets'},{label:printable.title,url:'/worksheets/'+encodeURIComponent(printable.slug)}])}/>
+  <StructuredData value={resource}/><StructuredData value={faq}/>
+  <Link href="/worksheets" className="back-link"><ArrowLeft size={16}/> Back to library</Link>
+  <div className="section-kicker">{printable.subject.toUpperCase()} · {printable.category.toUpperCase()} · {printable.grade.toUpperCase()}</div>
+  <h1>{printable.title}</h1>
+  <p className="page-lead">{printable.description} Free to print on A4 or US Letter.</p>
+  <div className="published-detail-actions"><PrintButton/></div>
+  <div className="pw-wrap" style={{marginTop:20}}><PrintableSheet p={printable}/><PrintableSheet p={printable} answers/></div>
+  <div className="pw-facts">
+   <div><h2>How to use this worksheet</h2><ol>{printable.howToUse.map(t=><li key={t}>{t}</li>)}</ol></div>
+   <div><h2>Skills practised</h2><ul>{printable.skills.map(t=><li key={t}>{t}</li>)}</ul></div>
+   <div><h2>More worksheets</h2><ul><li><Link href="/worksheets">Browse all printable worksheets</Link></li><li><Link href="/create">Make your own word search, scramble or missing letters sheet</Link></li><li><Link href="/guides/printing-worksheets">How to print worksheets (A4 and US Letter)</Link></li></ul></div>
   </div>
  </div>;
 }
