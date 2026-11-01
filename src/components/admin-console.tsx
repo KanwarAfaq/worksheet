@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import AdminQuickUpload from '@/components/admin-quick-upload';
-import AdminSeedPack from '@/components/admin-seed-pack';
 import AdminBulkTools from '@/components/admin-bulk-tools';
 
 type WorksheetRow = {
@@ -400,7 +399,6 @@ export default function AdminConsole() {
       </section>
       <div>
        <AdminQuickUpload session={session} categories={categories} grades={grades}/>
-       <AdminSeedPack session={session} categories={categories} grades={grades}/>
        <button type="button" className="button button-outline admin-advanced-draft"
         onClick={createDraft} disabled={creating||!categories.length}>
         <Plus size={16}/> {creating?'Creating…':'Start an empty draft'}
