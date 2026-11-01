@@ -115,5 +115,48 @@ export const guides:Guide[]=[
    {label:'Worksheet makers',href:'/create'},
    {label:'Worksheet FAQ',href:'/faq'},
    {label:'Grade 1 math worksheets guide',href:'/guides/grade-1-math-worksheets'},print]},
+ {slug:'word-search-maker-guide',navLabel:'Word search maker guide',
+  title:'Free Word Search Maker: Create a Printable Word Search',
+  description:'How to make a printable word search from your own word list: pick 8 to 20 words, choose a grid size and print a free PDF for class or home.',
+  h1:'Word search maker:',h1em:'create a printable puzzle',
+  lead:'A word search hides a list of words in a grid of letters. Making your own lets you match the puzzle to a spelling list, a topic or a holiday instead of searching for a ready-made page.',
+  sections:[
+   {h:'How to make a word search',p:['It takes a minute once you have your words.'],list:[
+    'Choose 8 to 20 words. Shorter lists suit younger learners.',
+    'Type or paste the words into the word search maker, one per line.',
+    'Pick a grid size. A 10 by 10 grid works for beginners and 15 by 15 for a bigger challenge.',
+    'Generate the puzzle, check the answer key and print or save it as a PDF.']},
+   {h:'Using word searches in learning',p:['Word searches build letter recognition and spelling attention. They work well as early-finisher activities, vocabulary review and rainy-day practice. Use words from the current unit so the puzzle reinforces what is being taught.']},
+   {h:'Tips for good puzzles',p:['Avoid very long words in small grids, keep words on a single theme, and print the answer key separately for self-checking.']}
+  ],
+  faq:[
+   {q:'Is the word search maker free?',a:'Yes. The classic makers work in your browser without an account.'},
+   {q:'How many words can I use?',a:'Between 8 and 20 words works best for most grid sizes.'},
+   {q:'Can I print on A4 or US Letter?',a:'Yes. Choose the paper size when you print.'}],
+  links:[
+   {label:'Word search maker',href:'/create/word-search'},
+   {label:'Word scramble maker',href:'/create/word-scramble'},
+   {label:'Spelling worksheets',href:'/spelling'},print]},
+ {slug:'cursive-writing-practice-worksheets',navLabel:'Cursive writing practice',
+  title:'Cursive Writing Practice Worksheets: A Parent and Teacher Guide',
+  description:'How to teach cursive with printable practice worksheets: when to start, letter groups, short daily sessions and moving from tracing to independent writing.',
+  h1:'Cursive writing practice:',h1em:'a simple guide',
+  lead:'Cursive connects letters in one flowing line. Practice sheets help learners build the hand movements step by step, starting with strokes and moving up to words and sentences.',
+  sections:[
+   {h:'When to start',p:['Most schools introduce cursive after print handwriting feels comfortable, often around Grade 2 or 3. Follow your curriculum and the learner\'s readiness rather than a fixed age.']},
+   {h:'A practical order',p:['Short, regular sessions beat long ones.'],list:[
+    'Warm up with loops and connecting strokes.',
+    'Practise letters in groups that share a shape, such as a, c, d, g, o, q.',
+    'Move to joining two and three letter words.',
+    'Finish with short sentences and copywork.']},
+   {h:'Tips',p:['Check posture and pencil grip, keep sessions to ten minutes, and praise neat joins rather than speed.']}
+  ],
+  faq:[
+   {q:'Are there free cursive worksheets?',a:'The writing section of the library has printable handwriting and tracing practice you can download for free.'},
+   {q:'How long should a cursive session be?',a:'About ten minutes a day is enough for most learners.'}],
+  links:[
+   {label:'Writing worksheets',href:'/writing'},
+   {label:'Handwriting and tracing guide',href:'/guides/handwriting-practice-worksheets'},
+   {label:'Worksheet library',href:'/worksheets'},print]},
 ];
 export const guideBySlug=(slug:string)=>guides.find(g=>g.slug===slug)!;
