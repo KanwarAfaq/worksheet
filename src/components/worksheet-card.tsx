@@ -1,7 +1,9 @@
+import {printableBySlug} from '@/lib/printables';
 import Link from 'next/link';
 import {ArrowUpRight,FileText} from 'lucide-react';
 import type {Worksheet} from '@/lib/catalog';
 export default function WorksheetCard({item}:{item:Worksheet}){
+ const ready=!!printableBySlug(item.slug);
  return <article className="resource-card sample-resource-card">
    <Link href={'/worksheets/'+item.slug} className={'resource-preview sample-preview '+item.accent} aria-label={'View '+item.title}>
     <div className="sample-sheet-page">
@@ -9,7 +11,7 @@ export default function WorksheetCard({item}:{item:Worksheet}){
       <div className="sample-page-lines"><i/><i/><i/></div>
       <div className="sample-page-art">{item.icon}</div>
       <div className="sample-page-lines"><i/><i/><i/></div>
-    </div><span className="resource-page-badge">EXAMPLE</span>
+    </div><span className="resource-page-badge">{ready?'PRINT':'EXAMPLE'}</span>
    </Link>
    <div className="resource-card-copy">
     <div className="resource-byline"><span className="resource-avatar">W</span><span>Worksheet Studio</span></div>
@@ -17,6 +19,6 @@ export default function WorksheetCard({item}:{item:Worksheet}){
     <p>{item.description}</p>
     <div className="resource-card-tags"><span>{item.category}</span><span>{item.grade}</span></div>
    </div>
-   <div className="resource-card-footer"><span>Example — not downloadable</span><Link href={'/worksheets/'+item.slug}>Details <ArrowUpRight size={14}/></Link></div>
+   <div className="resource-card-footer"><span>{ready?'Free printable + answer key':'Example — not downloadable'}</span><Link href={'/worksheets/'+item.slug}>Details <ArrowUpRight size={14}/></Link></div>
   </article>;
 }

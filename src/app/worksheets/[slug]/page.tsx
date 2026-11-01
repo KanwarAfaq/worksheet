@@ -3,7 +3,8 @@ import {notFound} from 'next/navigation';
 import Link from 'next/link';
 import {ArrowLeft,ArrowUpRight,FileText,ShieldCheck} from 'lucide-react';
 import {samples} from '@/lib/catalog';
-import {publishedWorksheets} from '@/lib/public-catalog';
+import {publishedWorksheets,DUPLICATE_OF} from '@/lib/public-catalog';
+import {permanentRedirect} from 'next/navigation';
 import {Download,Eye,Printer,BookOpen} from 'lucide-react';
 import type {Metadata} from 'next';
 import {indexableRobots,absoluteUrl,breadcrumbs} from '@/lib/seo';
@@ -33,6 +34,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
 export const dynamic='force-dynamic';
 export default async function WorksheetDetail({params}:{params:Promise<{slug:string}>}){
 const {slug}=await params;
+if(DUPLICATE_OF[slug])permanentRedirect('/worksheets/'+DUPLICATE_OF[slug]);
 const published=(await publishedWorksheets()).find(item=>item.slug===slug);
 if(published){
  const resource={

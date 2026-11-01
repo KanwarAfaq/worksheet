@@ -6,6 +6,7 @@ import PublishedWorksheetCard from '@/components/published-worksheet-card';
 import WorksheetCard from '@/components/worksheet-card';
 import {publishedWorksheets} from '@/lib/public-catalog';
 import {subjects,samples} from '@/lib/catalog';
+import {printableBySlug} from '@/lib/printables';
 import {indexableRobots} from '@/lib/seo';
 import {questions} from '@/lib/faq';
 export const dynamic='force-dynamic';
@@ -42,11 +43,10 @@ export default async function Home(){
    </section>
    <section className="simple-home-section container">
     <div className="simple-section-heading"><h2>Free printable worksheets to try</h2><Link href="/worksheets">Browse all <ArrowRight size={18}/></Link></div>
-    <div className="worksheet-grid">{published.length?
-      published.slice(0,6).map(item=><PublishedWorksheetCard key={item.id} item={item}/>):
-      samples.slice(0,3).map(item=><WorksheetCard key={item.slug} item={item}/>)}
+    <div className="worksheet-grid">
+      {samples.filter(w=>printableBySlug(w.slug)).slice(0,3).map(item=><WorksheetCard key={item.slug} item={item}/>)}
+      {published.slice(0,3).map(item=><PublishedWorksheetCard key={item.id} item={item}/>)}
     </div>
-    {!published.length&&<p className="sample-disclaimer">Examples only. Downloadable worksheets will appear here when published.</p>}
    </section>
  <section className="simple-home-section container" aria-labelledby="home-faq">
     <div className="simple-section-heading"><h2 id="home-faq">Printable worksheet questions</h2><Link href="/faq">All questions <ArrowRight size={18}/></Link></div>

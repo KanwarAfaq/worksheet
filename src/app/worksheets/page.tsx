@@ -5,6 +5,7 @@ import PublishedWorksheetCard from '@/components/published-worksheet-card';
 import {publishedWorksheetPage,WORKSHEETS_PER_PAGE} from '@/lib/public-catalog';
 import WorksheetPagination from '@/components/worksheet-pagination';
 import {samples,subjects,grades,formats} from '@/lib/catalog';
+import {printableBySlug} from '@/lib/printables';
 import {ArrowRight,FileText} from 'lucide-react';
 import {indexableRobots} from '@/lib/seo';
 
@@ -40,6 +41,8 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
   (!grade||item.grade==='Grade '+grade.split('-')[1]) &&
   !format && (!query||(item.title+' '+item.description+' '+item.category).toLowerCase().includes(query))
  );
+ const readyPrintables=visibleSamples.filter(w=>printableBySlug(w.slug));
+ const otherSamples=visibleSamples.filter(w=>!printableBySlug(w.slug));
  const livePage=await publishedWorksheetPage({subject,grade,format,q:query,page:currentPage});
  const matchingLive=livePage.items;
  const chosenFormat=formats.find(f=>f.slug===format);
@@ -69,6 +72,10 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
       {formats.map(f=><Link href={href({format:f.slug})} key={f.slug} className={'filter-pill '+(format===f.slug?'active':'')}>{f.title}</Link>)}
     </div></div>
   </div>
+  {currentPage===1&&readyPrintables.length>0&&<section aria-label="Ready-to-print worksheets" style={{marginBottom:34}}>
+   <div className="library-sample-note" style={{background:'#e5f4ea',color:'#1d5a36'}}>READY TO PRINT — FREE, WITH ANSWER KEY</div>
+   <div className="worksheet-grid">{readyPrintables.map(w=><WorksheetCard item={w} key={w.slug}/>)}</div>
+  </section>}
   {livePage.total>0&&matchingLive.length===0?<div className="category-pending">No worksheets on this page. <Link href={href({})}>Go to results</Link></div>:
   matchingLive.length>0?<>
   <WorksheetPagination base="/worksheets" position="top" page={livePage.page} pages={livePage.pages} total={livePage.total}
@@ -77,13 +84,13 @@ export default async function Worksheets({searchParams}:{searchParams:Promise<Fi
   <WorksheetPagination base="/worksheets" position="bottom" page={livePage.page} pages={livePage.pages} total={livePage.total}
    filters={{subject,grade,format,q:query}}/></>:
  chosenFormat?<div className="category-pending"><FileText size={36}/><h3>No published {chosenFormat.title} worksheets yet</h3><p>There are no verified {chosenFormat.title} files for these filters. They appear automatically after uploading and publishing.</p><Link href="/create">Create a printable PDF now <ArrowRight size={16}/></Link></div>:
- visibleSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div>
+ otherSamples.length?<><div className="library-sample-note">EXAMPLE WORKSHEETS — NOT YET DOWNLOADABLE</div>
   <WorksheetPagination base="/worksheets" page={currentPage}
-   pages={Math.ceil(visibleSamples.length/WORKSHEETS_PER_PAGE)} total={visibleSamples.length}
+   pages={Math.ceil(otherSamples.length/WORKSHEETS_PER_PAGE)} total={otherSamples.length}
    position="top" filters={{subject,grade,format,q:query}}/>
-  <div className="worksheet-grid">{visibleSamples.slice((currentPage-1)*WORKSHEETS_PER_PAGE,currentPage*WORKSHEETS_PER_PAGE).map(w=><WorksheetCard item={w} key={w.slug}/>)}</div>
+  <div className="worksheet-grid">{otherSamples.slice((currentPage-1)*WORKSHEETS_PER_PAGE,currentPage*WORKSHEETS_PER_PAGE).map(w=><WorksheetCard item={w} key={w.slug}/>)}</div>
   <WorksheetPagination base="/worksheets" page={currentPage}
-   pages={Math.ceil(visibleSamples.length/WORKSHEETS_PER_PAGE)} total={visibleSamples.length}
+   pages={Math.ceil(otherSamples.length/WORKSHEETS_PER_PAGE)} total={otherSamples.length}
    position="bottom" filters={{subject,grade,format,q:query}}/></>:
  <div className="category-pending"><h3>No worksheets for these filters yet</h3><p>New worksheets will appear here after publication.</p><Link href="/create">Make your own printable <ArrowRight size={16}/></Link></div>}
 

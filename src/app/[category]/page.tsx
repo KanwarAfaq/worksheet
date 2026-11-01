@@ -5,6 +5,7 @@ import PublishedWorksheetCard from '@/components/published-worksheet-card';
 import {publishedWorksheets,publishedWorksheetPage} from '@/lib/public-catalog';
 import WorksheetPagination from '@/components/worksheet-pagination';
 import {samples,subjects,grades} from '@/lib/catalog';
+import {printableBySlug} from '@/lib/printables';
 import Link from 'next/link';
 import {ArrowRight} from 'lucide-react';
 import {indexableRobots,breadcrumbs} from '@/lib/seo';
@@ -29,7 +30,8 @@ export default async function Category({params,searchParams}:{params:Promise<{ca
  if(category==='coloring')permanentRedirect('/colors');
  const sub=subjects.find(s=>s.slug===category);
  if(!sub)notFound();
- const examples=samples.filter(w=>w.subject===category);
+ const ready=samples.filter(w=>w.subject===category&&printableBySlug(w.slug));
+ const examples=samples.filter(w=>w.subject===category&&!printableBySlug(w.slug));
  const result=await publishedWorksheetPage({subject:category,page});
  const published=result.items;
  return <div className="container inner-page">
@@ -46,6 +48,7 @@ export default async function Category({params,searchParams}:{params:Promise<{ca
   {grades.map(g=><Link href={'/worksheets?subject='+sub.slug+'&grade='+g.slug} key={g.slug}>{g.title}<ArrowRight size={14}/></Link>)}
  </div>
  <div className="section-heading"><div><div className="section-kicker">{published.length?'PUBLISHED WORKSHEETS':'EXAMPLE WORKSHEETS'}</div><h2>{published.length?'Explore published':'Get inspired by'} <em>worksheets.</em></h2></div></div>
+ {ready.length>0&&page===1&&<section aria-label="Ready-to-print worksheets" style={{marginBottom:34}}><div className="library-sample-note" style={{background:'#e5f4ea',color:'#1d5a36'}}>READY TO PRINT — FREE, WITH ANSWER KEY</div><div className="worksheet-grid">{ready.map(w=><WorksheetCard item={w} key={w.slug}/>)}</div></section>}
  {published.length>0?<>
  <WorksheetPagination base={'/'+category} position="top" page={result.page} pages={result.pages} total={result.total}/>
  <div className="worksheet-grid">{published.map(w=><PublishedWorksheetCard item={w} key={w.id}/>)}</div>

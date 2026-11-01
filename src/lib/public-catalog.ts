@@ -15,6 +15,16 @@ type Raw={
  categories:Cat|Cat[]|null;grades:Grade|Grade[]|null;
 };
 export const WORKSHEETS_PER_PAGE=12;
+/** Duplicate published copies (same title and grade) -> the copy we keep. Hidden from lists and redirected. */
+const PREFIX='manual-ai-visual2-2026-10-28-';
+export const DUPLICATE_OF:Record<string,string>={
+ [PREFIX+'dfc41e3f-abd1-4c6c-8c64-c75c7aac6894']:PREFIX+'69c8a576-14ca-4514-a574-b40093fc7906',
+ [PREFIX+'a2c2aa4f-eb9e-4211-b261-7ccb78d8b090']:PREFIX+'69c8a576-14ca-4514-a574-b40093fc7906',
+ [PREFIX+'44efb86c-db9a-4cec-8d2e-872fb10b2380']:PREFIX+'3a320e06-13e0-4c2c-bf17-c943213719ec',
+ [PREFIX+'20828833-4311-4e9d-8d06-ea19e6dc71d3']:PREFIX+'3a320e06-13e0-4c2c-bf17-c943213719ec',
+ 'daily-ai-visual2-2026-10-17-3':PREFIX+'fb1bd253-b250-426c-b5bd-8fe9aab7cdd0'
+};
+const DUP_SLUGS='('+Object.keys(DUPLICATE_OF).join(',')+')';
 export type CatalogQuery={subject?:string;grade?:string;format?:string;q?:string;page?:number};
 export type WorksheetPage={items:PublicWorksheet[];total:number;page:number;pages:number};
 const db=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
@@ -41,6 +51,7 @@ export async function publishedWorksheetPage(filters:CatalogQuery={}):Promise<Wo
  let query=db.from('worksheets')
   .select(columns(!!subject,!!grade),{count:'exact'})
   .eq('status','published')
+  .not('slug','in',DUP_SLUGS)
   .order('published_at',{ascending:false})
   .order('id',{ascending:true});
  if(subject==='reading')query=query.in('categories.slug',['reading','english']);
@@ -72,7 +83,7 @@ export async function publishedWorksheetPage(filters:CatalogQuery={}):Promise<Wo
 export async function publishedWorksheets():Promise<PublicWorksheet[]>{
  try{
   const {data,error}=await db.from('worksheets')
-   .select(columns(false,false)).eq('status','published')
+   .select(columns(false,false)).eq('status','published').not('slug','in',DUP_SLUGS)
    .order('published_at',{ascending:false}).limit(500);
   if(error)return [];
   return normalize((data||[]) as unknown as Raw[]);
