@@ -26,6 +26,13 @@ export default function Footer(){
     <Link href="/guides/printing-worksheets">Printing guide</Link>
     {guides.map(g=><Link key={g.slug} href={'/guides/'+g.slug}>{g.navLabel}</Link>)}
    </nav>
+   <nav className="footer-col" aria-label="Related independent resources">
+     <h2>More learning and career resources</h2>
+     <a href="https://anytool.online/">Free calculators and online tools</a>
+     <a href="https://scholarportal.site/">Scholarships and university application guides</a>
+     <a href="https://kmafaq.online/">Technology and learning articles</a>
+     <a href="https://kmafaq.site/">AI research and educational projects</a>
+   </nav>
    <div className="footer-bottom"><span>© {new Date().getFullYear()} Worksheet Studio</span>
     <span className="footer-legal"><Link href="/faq">FAQ</Link><Link href="/about">About</Link><Link href="/privacy">Privacy</Link></span></div>
   </div></footer>;
