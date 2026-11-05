@@ -24,7 +24,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
  const useful=(worksheet.summary||'').trim().length>=25 && worksheet.availableFormats.length>0;
  const description=(worksheet.summary||worksheet.description||'Free printable learning worksheet').slice(0,155);
  return{
-  title:worksheet.title+' — Free '+(worksheet.gradeName||'Printable')+' Worksheet',
+  title:{absolute:(()=>{const suf=' | Worksheet Studio';const t=worksheet.title.trim();return t.length+suf.length<=60?t+suf:t.slice(0,60-suf.length-1).replace(/\s+\S*$/,'')+'…'+suf;})()},
   description,alternates:{canonical:'/worksheets/'+encodeURIComponent(slug)},
   robots:indexableRobots(useful),
   openGraph:{type:'article',title:worksheet.title,description,url:'/worksheets/'+encodeURIComponent(slug)}
