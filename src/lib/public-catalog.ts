@@ -18,11 +18,24 @@ export const WORKSHEETS_PER_PAGE=12;
 /** Duplicate published copies (same title and grade) -> the copy we keep. Hidden from lists and redirected. */
 const PREFIX='manual-ai-visual2-2026-10-28-';
 export const DUPLICATE_OF:Record<string,string>={
- [PREFIX+'dfc41e3f-abd1-4c6c-8c64-c75c7aac6894']:PREFIX+'69c8a576-14ca-4514-a574-b40093fc7906',
- [PREFIX+'a2c2aa4f-eb9e-4211-b261-7ccb78d8b090']:PREFIX+'69c8a576-14ca-4514-a574-b40093fc7906',
- [PREFIX+'44efb86c-db9a-4cec-8d2e-872fb10b2380']:PREFIX+'3a320e06-13e0-4c2c-bf17-c943213719ec',
- [PREFIX+'20828833-4311-4e9d-8d06-ea19e6dc71d3']:PREFIX+'3a320e06-13e0-4c2c-bf17-c943213719ec',
- 'daily-ai-visual2-2026-10-17-3':PREFIX+'fb1bd253-b250-426c-b5bd-8fe9aab7cdd0'
+ [PREFIX+'dfc41e3f-abd1-4c6c-8c64-c75c7aac6894']:'/worksheets',
+ [PREFIX+'a2c2aa4f-eb9e-4211-b261-7ccb78d8b090']:'/worksheets',
+ [PREFIX+'44efb86c-db9a-4cec-8d2e-872fb10b2380']:'/worksheets',
+ [PREFIX+'20828833-4311-4e9d-8d06-ea19e6dc71d3']:'/worksheets',
+ 'daily-ai-visual2-2026-10-17-3':'/worksheets',
+ /* Weak/low-value rows pruned: redirect (value starting with / is a full path) */
+ [PREFIX+'69c8a576-14ca-4514-a574-b40093fc7906']:'/worksheets',
+ [PREFIX+'fb1bd253-b250-426c-b5bd-8fe9aab7cdd0']:'/worksheets',
+ [PREFIX+'3a320e06-13e0-4c2c-bf17-c943213719ec']:'/worksheets',
+ 'beginner-kindergarten-alphabet-worksheet-free-google-docs-te-b369e304':'/worksheets/alphabet-tracing-adventure',
+ 'community-b3aef85eccec47d7bb0a242f2cc2c837':'/worksheets',
+ 'community-6d8e3f1d81924473a83c2dabd79ee560':'/worksheets',
+ 'community-efe66190e3514d4a972f3671e0aa084a':'/worksheets',
+ 'daily-ai-visual2-2026-10-17-1':'/worksheets',
+ 'daily-ai-visual2-2026-10-17-2':'/worksheets',
+ 'daily-ai-visual2-2026-10-17-4':'/worksheets',
+ 'daily-ai-visual2-2026-10-17-5':'/worksheets',
+ 'little-abc-76e1b2c4':'/worksheets/alphabet-tracing-adventure'
 };
 const DUP_SLUGS='('+Object.keys(DUPLICATE_OF).join(',')+')';
 export type CatalogQuery={subject?:string;grade?:string;format?:string;q?:string;page?:number};

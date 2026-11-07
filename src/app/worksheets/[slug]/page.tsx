@@ -34,7 +34,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
 export const dynamic='force-dynamic';
 export default async function WorksheetDetail({params}:{params:Promise<{slug:string}>}){
 const {slug}=await params;
-if(DUPLICATE_OF[slug])permanentRedirect('/worksheets/'+DUPLICATE_OF[slug]);
+if(DUPLICATE_OF[slug])permanentRedirect(DUPLICATE_OF[slug].startsWith('/')?DUPLICATE_OF[slug]:'/worksheets/'+DUPLICATE_OF[slug]);
 const published=(await publishedWorksheets()).find(item=>item.slug===slug);
 if(published){
  const resource={
