@@ -47,7 +47,7 @@ if(published){
   about:published.categoryName,
   datePublished:published.publishedAt||undefined,
   dateModified:published.updatedAt||undefined,
-  provider:{'@type':'Organization',name:'Worksheet Studio',url:absoluteUrl('/')},
+  provider:{'@type':'Organization',name:'Worksheet Studio',url:absoluteUrl('/'),logo:absoluteUrl('/favicon.svg')},
   encodingFormat:published.availableFormats.map(f=>({
     pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',webp:'image/webp',
     docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -86,7 +86,7 @@ if(published){
 const printable=printableBySlug(slug);
 if(printable){
  const url=absoluteUrl('/worksheets/'+encodeURIComponent(printable.slug));
- const resource={'@context':'https://schema.org','@type':'LearningResource','@id':url+'#resource',name:printable.title,description:printable.seoDescription,url,inLanguage:'en',isAccessibleForFree:true,learningResourceType:'Worksheet',educationalLevel:printable.grade,teaches:printable.skills,about:printable.category,provider:{'@type':'Organization',name:'Worksheet Studio',url:absoluteUrl('/')}};
+ const resource={'@context':'https://schema.org','@type':'LearningResource','@id':url+'#resource',name:printable.title,description:printable.seoDescription,url,inLanguage:'en',isAccessibleForFree:true,learningResourceType:'Worksheet',educationalLevel:printable.grade,teaches:printable.skills,about:printable.category,provider:{'@type':'Organization',name:'Worksheet Studio',url:absoluteUrl('/'),logo:absoluteUrl('/favicon.svg')}};
  const faq={'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
   {'@type':'Question',name:'Is this worksheet free to print?',acceptedAnswer:{'@type':'Answer',text:'Yes. Use the print button and choose A4 or US Letter. The answer key is on the last page.'}},
   {'@type':'Question',name:'What grade is this worksheet for?',acceptedAnswer:{'@type':'Answer',text:printable.title+' is designed for '+printable.grade+' ('+printable.difficulty.toLowerCase()+' level).'}}]};
