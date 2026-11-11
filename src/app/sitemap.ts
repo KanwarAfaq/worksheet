@@ -13,7 +13,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
  const live=(await publishedWorksheets()).filter(w=>
   (w.summary||'').trim().length>=25 && w.title.trim().length>=5 &&
   w.availableFormats.length>0);
- const publicSubjects=new Set(live.map(w=>w.categorySlug));
+ const publicSubjects=new Set([...live.map(w=>w.categorySlug),...printables.map(p=>p.subject)]);
  const routes=[
   {path:'/',priority:1},
   {path:'/worksheets',priority:.85},
