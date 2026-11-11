@@ -6,7 +6,7 @@ import {guideBySlug,guides} from '@/lib/guides';
 
 export function guideMetadata(slug:string){
  const g=guideBySlug(slug);
- return {title:g.title,description:g.description,alternates:{canonical:'/guides/'+slug}};
+ return {title:slug==='handwriting-practice-worksheets'?'Handwriting & Tracing Worksheets Guide':g.title,description:g.description,alternates:{canonical:'/guides/'+slug}};
 }
 export default function GuideArticle({slug}:{slug:string}){
  const g=guideBySlug(slug);
