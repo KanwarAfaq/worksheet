@@ -16,7 +16,7 @@ export function generateStaticParams(){return [...subjects.map(s=>({category:s.s
 export async function generateMetadata({params}:{params:Promise<{category:string}>}):Promise<Metadata>{
  const {category}=await params;
  const subject=subjects.find(s=>s.slug===category);
- const hasContent=subject ? (await publishedWorksheets()).some(w=>w.categorySlug===category && (w.summary||'').trim().length>=25&&w.availableFormats.length>0):false;
+ const hasContent=subject ? (samples.some(w=>w.subject===category&&Boolean(printableBySlug(w.slug))) || (await publishedWorksheets()).some(w=>w.categorySlug===category && (w.summary||'').trim().length>=25&&w.availableFormats.length>0)):false;
  return{title:subject?'Free '+subject.title+' Worksheets for Grades 1–6':'Worksheets',
   description:subject?subject.description+' Browse ready-to-print activities and free makers for Grades 1–6.':'Free printable worksheet resources.',
   alternates:subject?{canonical:'/'+category}:undefined,
