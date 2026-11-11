@@ -37,7 +37,7 @@ export const guides:Guide[]=[
    {label:'Word scramble maker',href:'/create/word-scramble'},print]},
  {slug:'handwriting-practice-worksheets',navLabel:'Handwriting and tracing worksheets',
   title:'Handwriting Practice and Tracing Worksheets: A Parent and Teacher Guide',
-  description:'Practical advice on using handwriting practice and tracing worksheets: posture, grip, short sessions, letter order and moving from tracing to writing on your own.',
+  description:'Practical tips for handwriting and tracing worksheets: posture, pencil grip, short sessions, letter formation and independent writing.',
   h1:'Handwriting practice and',h1em:'tracing worksheets',
   lead:'Tracing worksheets give young writers a guide to follow while they learn how letters are formed. Handwriting practice sheets then reduce that support step by step. Used well, short regular sessions help children write more comfortably and legibly.',
   sections:[
