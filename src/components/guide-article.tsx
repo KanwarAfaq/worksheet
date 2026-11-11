@@ -16,7 +16,7 @@ export default function GuideArticle({slug}:{slug:string}){
   <StructuredData value={breadcrumbs([{label:'Home',url:'/'},{label:'Guides',url:'/guides/printing-worksheets'},{label:g.navLabel,url:path}])}/>
   <StructuredData value={{'@context':'https://schema.org','@type':'Article',headline:g.title,description:g.description,
    mainEntityOfPage:absoluteUrl(path),url:absoluteUrl(path),inLanguage:'en',isAccessibleForFree:true,
-   author:{'@type':'Organization',name:siteName},publisher:{'@type':'Organization',name:siteName,url:absoluteUrl('/')}}}/>
+   author:{'@type':'Organization',name:siteName,url:absoluteUrl('/'),logo:absoluteUrl('/favicon.svg')},publisher:{'@type':'Organization',name:siteName,url:absoluteUrl('/'),logo:{'@type':'ImageObject',url:absoluteUrl('/favicon.svg')}}}}/>
   <StructuredData value={{'@context':'https://schema.org','@type':'FAQPage','@id':absoluteUrl(path+'#faq'),
    mainEntity:g.faq.map(x=>({'@type':'Question',name:x.q,acceptedAnswer:{'@type':'Answer',text:x.a}}))}}/>
   <h1>{g.h1} <em>{g.h1em}</em></h1>
